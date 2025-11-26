@@ -1,25 +1,54 @@
-var builder = WebApplication.CreateBuilder(args);
+using System.Net.WebSockets;
+using System.Text;
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// Add CORS policy
+builder.Services.AddCors(options =>
 {
-    app.MapOpenApi();
-}
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:5286") // frontend URL
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
+var app = builder.Build();
 
 app.UseWebSockets();
 
 app.UseHttpsRedirection();
 
+app.UseCors(); // <- enable CORS
+
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.Map("/ws", async context => 
+{
+    if (context.WebSockets.IsWebSocketRequest)
+    {
+        var ws = await context.WebSockets.AcceptWebSocketAsync();
+        var buffer = new byte[1024];
+        WebSocketReceiveResult? result;
+
+        // Keep receiving messages until socket is closed
+        do
+        {
+            result = await ws.ReceiveAsync(buffer, CancellationToken.None);
+            if (result.MessageType != WebSocketMessageType.Close)
+            {
+                await ws.SendAsync(buffer[..result.Count], WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+        } while (!result.CloseStatus.HasValue);
+
+        await ws.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
+    }
+});
 
 app.Run();

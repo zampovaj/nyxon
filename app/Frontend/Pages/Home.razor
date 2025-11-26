@@ -1,7 +1,38 @@
 ﻿@page "/"
+@inject HttpClient Http
+@inject IJSRuntime JS
 
-<PageTitle>Home</PageTitle>
+<h3>WebSocket Test</h3>
+<input @bind="message" placeholder="Type a message"/>
+<button @onclick="SendMessage">Send</button>
+<p>Received: @receivedMessage</p>
 
-<h1>Hello, world!</h1>
+@code {
+    private string message = "";
+    private string receivedMessage = "";
+    private IJSObjectReference? socket;
 
-Welcome to your new app.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var dotnetRef = DotNetObjectReference.Create(this);
+            socket = await JS.InvokeAsync<IJSObjectReference>("createWebSocket", "ws://localhost:5000/ws", dotnetRef);
+        }
+    }
+
+    private async Task SendMessage()
+    {
+        if (socket != null)
+        {
+            await JS.InvokeVoidAsync("sendMessage", socket, message);
+        }
+    }
+
+    [JSInvokable]
+    public void ReceiveMessage(string msg)
+    {
+        receivedMessage = msg;
+        StateHasChanged();
+    }
+}
