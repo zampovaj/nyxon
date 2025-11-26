@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   postgres:
     image: postgres:17
@@ -8,7 +6,7 @@ services:
     environment:
       POSTGRES_USER: app
       POSTGRES_PASSWORD: app
-      POSTGRES_DB: msgapp
+      POSTGRES_DB: msgapp_db
     ports:
       - "5432:5432"
     volumes:
@@ -22,6 +20,16 @@ services:
       - "6379:6379"
     volumes:
       - valkey_data:/data
+
+  backend:
+      build: ./Backend
+      container_name: msgapp_backend
+      restart: unless-stopped
+      ports:
+        - "5000:8080"
+      depends_on:
+        - postgres
+        - valkey
 
 volumes:
   postgres_data:
