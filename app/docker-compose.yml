@@ -27,7 +27,7 @@ services:
     container_name: ${BACKEND_HOST:-msgapp_backend}
     restart: unless-stopped
     ports:
-      - "${BACKEND_PORT}:5000" # host:container
+      - "${BACKEND_PORT}:5000" # host (outside) : container (inside)
     depends_on:
       - postgres
       - valkey

@@ -29,7 +29,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.WebHost.UseUrls("http://0.0.0.0:5000"); //host
+builder.WebHost.UseUrls("http://0.0.0.0:5000"); //container (inside docker) on port 5000; host (outside) port is mapped in docker-compose.yml
 
 var app = builder.Build();
 
