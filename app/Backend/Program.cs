@@ -1,7 +1,19 @@
 using System.Net.WebSockets;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using Backend.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var pgHost = Environment.GetEnvironmentVariable("POSTGRES_HOST");
+var pgPort = Environment.GetEnvironmentVariable("POSTGRES_PORT");
+var pgDb   = Environment.GetEnvironmentVariable("POSTGRES_DB");
+var pgUser = Environment.GetEnvironmentVariable("POSTGRES_USER");
+var pgPass = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
+
+var conn = $"Host={pgHost};Port={pgPort};Database={pgDb};Username={pgUser};Password={pgPass}";
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(conn));
+
 
 builder.Services.AddControllers();
 
