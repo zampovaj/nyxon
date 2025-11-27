@@ -17,7 +17,7 @@
         if (firstRender)
         {
             var dotnetRef = DotNetObjectReference.Create(this);
-            socket = await JS.InvokeAsync<IJSObjectReference>("createWebSocket", "ws://localhost:5000/ws", dotnetRef);
+            socket = await JS.InvokeAsync<IJSObjectReference>("createWebSocket", "ws://localhost:8080/ws", dotnetRef);
         }
     }
 

@@ -29,11 +29,14 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.WebHost.UseUrls("http://0.0.0.0:5000"); //host
+
 var app = builder.Build();
 
 app.UseWebSockets();
 
-app.UseHttpsRedirection();
+
+//app.UseHttpsRedirection();
 
 app.UseCors(); // <- enable CORS
 
