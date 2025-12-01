@@ -18,9 +18,16 @@ namespace Backend.Models
     public class Attachment
     {
         public Guid Id { get; set; }
+
         public Guid ConversationId { get; set; }
+        public virtual Conversation Conversation { get; set; }
+
         public Guid MessageId { get; set; }
+        public virtual MessageMetadata Message { get; set; }
+
         public Guid OwnerId { get; set; }
+        public virtual User Owner { get; set; }
+        
         public string StoragePtr { get; set; }
         public byte[] WrappedDek { get; set; }
         public DateTime CreatedAt { get; set; }

@@ -15,6 +15,8 @@ namespace Shared.Models.Vaults
         public byte[] SessionKey { get; set; }
         public DateTime CreatedAt { get; set; }
 
+        public Snapshot() {}
+
         public Snapshot(int rotationIndex, byte[] sessionKey, DateTime createdAt)
         {
             RotationIndex = rotationIndex;

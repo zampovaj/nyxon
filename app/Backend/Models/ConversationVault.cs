@@ -40,12 +40,18 @@ namespace Backend.Models
     public class ConversationVault
     {
         public Guid ConversationId { get; set; }
+        public virtual Conversation Conversation { get; set; }
+
         public Guid UserId { get; set; }
+        public virtual User User { get; set; }
+
         public DateTime UpdatedAt { get; set; }
         public short Version { get; set; }
         public int RecvCounter { get; set; }
         public int SendCounter { get; set; }
         public byte[] VaultBlob { get; set; }
+
+        protected ConversationVault() {}
 
         public ConversationVault(Guid conversationId, Guid userId, DateTime updatedAt, short version, int recvCounter, int sendCounter, byte[] vaultBlob)
         {

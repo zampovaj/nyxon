@@ -17,6 +17,8 @@ namespace Backend.Models
         public bool Used { get; private set; }
         public short Version { get; set; }
 
+        protected InviteCode() { }
+        
         public InviteCode(Guid id, string codeHash, bool used)
         {
             Id = id;

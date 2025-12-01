@@ -37,6 +37,8 @@ namespace Shared.Models.Vaults
         public RatchetState Sending { get; set; }
         public RatchetState Receiving { get; set; }
 
+        public ConversationBlob() {}
+
         public ConversationBlob(byte[] initialKey, RatchetState sending, RatchetState receiving)
         {
             InitialKey = initialKey;

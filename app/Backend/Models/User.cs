@@ -18,6 +18,9 @@ namespace Backend.Models
     public class User
     {
         public Guid Id { get; set; }
+
+        public virtual UserVault UserVault { get; set; }
+
         public string Username { get; set; }
         public string PasswordHash { get; set; }
         public byte[] PublicKey { get; set; }
@@ -26,13 +29,16 @@ namespace Backend.Models
         public bool Admin { get; set; }
         public bool CanCreateInvites { get; set; }
 
+        public virtual ICollection<Prekeys> Prekeys { get; set; } = new List<Prekeys>();
+        public virtual ICollection<ConversationVault> ConversationVaults { get; set; } = new List<ConversationVault>();
         public virtual ICollection<ConversationUser> ConversationUsers { get; set; } = new List<ConversationUser>();
 
         protected User() { }
 
-        public User(Guid id, string username, string passwordHash, byte[] publicKey, DateTime createdAt, short version, bool admin, bool canCreateInvites, ICollection<ConversationUser> conversationUsers = null)
+        public User(Guid id, UserVault userVault, string username, string passwordHash, byte[] publicKey, DateTime createdAt, short version, bool admin, bool canCreateInvites, Prekeys prekeys, ICollection<ConversationVault> conversationVaults, ICollection<ConversationUser> conversationUsers = null)
         {
             Id = id;
+            UserVault = userVault;
             Username = username;
             PasswordHash = passwordHash;
             PublicKey = publicKey;
@@ -40,6 +46,14 @@ namespace Backend.Models
             Version = version;
             Admin = admin;
             CanCreateInvites = canCreateInvites;
+            if (prekeys != null)
+            {
+                Prekeys.Add(prekeys);
+            }
+            if (conversationVaults != null)
+            {
+                ConversationVaults = conversationVaults;
+            }
             if (conversationUsers != null)
             {
                 ConversationUsers = conversationUsers;

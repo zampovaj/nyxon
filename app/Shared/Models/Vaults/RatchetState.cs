@@ -22,6 +22,8 @@ namespace Shared.Models.Vaults
         public SessionState Session { get; set; }
         public List<Snapshot> Snapshots { get; set; }
 
+        public RatchetState() {}
+
         public RatchetState(SessionState session, List<Snapshot> snapshots)
         {
             Session = session;

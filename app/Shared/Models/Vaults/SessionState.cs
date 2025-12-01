@@ -21,6 +21,8 @@ namespace Shared.Models.Vaults
         public int RotateAfter { get; set; }
         public TimeSpan RotateAtTime { get; set; }
 
+        public SessionState() {}
+
         public SessionState(byte[] currentSessionKey, int rotationIndex, int messageIndex, int rotateAfter, TimeSpan rotateAtTime)
         {
             CurrentSessionKey = currentSessionKey;

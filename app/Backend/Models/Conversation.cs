@@ -16,6 +16,7 @@ namespace Backend.Models
         public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }
         public short Version { get; set; }
+        
         public virtual ICollection<ConversationUser> ConversationUsers { get; set; } = new List<ConversationUser>();
         
         protected Conversation() { }

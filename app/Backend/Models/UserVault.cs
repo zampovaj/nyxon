@@ -15,10 +15,14 @@ namespace Backend.Models
     public class UserVault
     {
         public Guid UserId { get; set; }
+        public virtual User User { get; set; }
+
         public DateTime UpdatedAt { get; set; }
         public short Version { get; set; }
         public byte[] VaultKey { get; set; }
         public byte[] IdentityKey { get; set; }
+
+        protected UserVault() {}
 
         public UserVault(Guid userId, DateTime updatedAt, short version, byte[] vaultKey, byte[] identityKey)
         {
