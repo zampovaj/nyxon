@@ -15,7 +15,7 @@ using System.Threading.Tasks;
             session_key : key
             created_at : datetime*/
 
-namespace Backend.Data.Vaults
+namespace Shared.Models.Vaults
 {
     public class RatchetState
     {

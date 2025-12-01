@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Backend.Version
+namespace Shared.Version
 {
     public static class AppVersion
     {

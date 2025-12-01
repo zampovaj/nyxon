@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Backend.Version;
+using Shared.Version;
 using Npgsql.Replication;
 
 /*id : uuid pk ai

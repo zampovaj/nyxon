@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Backend.Version;
+using Shared.Version;
 
 /*file_id : uuid pk ai
 conversation_id : conversations_metadata[conversation_id]

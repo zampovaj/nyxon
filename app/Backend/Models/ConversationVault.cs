@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Backend.Version;
-using Backend.Data.Vaults;
+using Shared.Version;
 
 /*conversation_id : uuid
 user_id : uuid

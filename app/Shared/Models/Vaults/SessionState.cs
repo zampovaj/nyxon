@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Backend.Version;
+using Shared.Version;
 
 /*session_state :
 current_session_key : key
@@ -11,7 +11,7 @@ message_index : int
 rotate_after : int
 rotate_after_time : time*/
 
-namespace Backend.Data.Vaults
+namespace Shared.Models.Vaults
 {
     public class SessionState
     {

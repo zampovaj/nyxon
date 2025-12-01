@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Backend.Version;
+using Shared.Version;
 
 /*id : uuid pk ai
 users : {user1_id, user2_id, …}

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
     rotation_index : int / number of rotations done
     session_key : key
     created_at : datetime*/
-namespace Backend.Data.Vaults
+namespace Shared.Models.Vaults
 {
     public class Snapshot
     {
