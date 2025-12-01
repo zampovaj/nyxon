@@ -47,7 +47,6 @@ namespace Backend.Models
         public int RecvCounter { get; set; }
         public int SendCounter { get; set; }
         public byte[] VaultBlob { get; set; }
-        public ConversationBlob? DecryptedBlob { get; set; }
 
         public ConversationVault(Guid conversationId, Guid userId, DateTime updatedAt, short version, int recvCounter, int sendCounter, byte[] vaultBlob)
         {

@@ -9,15 +9,22 @@ namespace Backend.Models
     {
         public Guid ConversationId { get; set; }
         public Conversation Conversation { get; set; }
+
         public Guid UserId { get; set; }
         public User User { get; set; }
 
-        public ConversationUser(User user, Conversation conversation)
+        public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
+        public bool IsAdmin { get; set; }
+
+        // Empty constructor for EF Core
+        protected ConversationUser() { }
+
+        public ConversationUser(Guid conversationId, Guid userId, bool isAdmin = false, DateTime? joinedAt = null)
         {
-            User = user;
-            UserId = user.Id;
-            Conversation = conversation;
-            ConversationId = conversation.Id;
+            ConversationId = conversationId;
+            UserId = userId;
+            IsAdmin = isAdmin;
+            JoinedAt = joinedAt ?? DateTime.UtcNow;
         }
     }
 }

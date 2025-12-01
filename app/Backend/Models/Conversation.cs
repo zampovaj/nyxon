@@ -14,27 +14,29 @@ namespace Backend.Models
     public class Conversation
     {
         public Guid Id { get; set; }
-        public ICollection<ConversationUser> Users { get; set; }
         public DateTime CreatedAt { get; set; }
         public short Version { get; set; }
+        public virtual ICollection<ConversationUser> ConversationUsers { get; set; } = new List<ConversationUser>();
+        
+        protected Conversation() { }
 
-        public Conversation(Guid id, ICollection<ConversationUser> users, DateTime createdAt, short version)
+        public Conversation(Guid id, DateTime createdAt, short version, ICollection<ConversationUser> conversationUsers)
         {
             Id = id;
-            Users = users;
             CreatedAt = createdAt;
             Version = version;
+            if (conversationUsers != null)
+            {
+                ConversationUsers = conversationUsers;
+            }
         }
 
-        /// <summary>
-        /// Creates a brand new conversation
-        /// </summary>
-        public Conversation(ICollection<ConversationUser> users)
+        public Conversation(bool initialize = true)
         {
             Id = Guid.NewGuid();
-            Users = users;
             CreatedAt = DateTime.UtcNow;
             Version = AppVersion.Current;
+            ConversationUsers = new List<ConversationUser>();
         }
     }
 }

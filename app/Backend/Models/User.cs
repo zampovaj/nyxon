@@ -26,7 +26,11 @@ namespace Backend.Models
         public bool Admin { get; set; }
         public bool CanCreateInvites { get; set; }
 
-        public User(Guid id, string username, string passwordHash, byte[] publicKey, DateTime createdAt, short version, bool admin, bool canCreateInvites)
+        public virtual ICollection<ConversationUser> ConversationUsers { get; set; } = new List<ConversationUser>();
+
+        protected User() { }
+
+        public User(Guid id, string username, string passwordHash, byte[] publicKey, DateTime createdAt, short version, bool admin, bool canCreateInvites, ICollection<ConversationUser> conversationUsers = null)
         {
             Id = id;
             Username = username;
@@ -36,6 +40,10 @@ namespace Backend.Models
             Version = version;
             Admin = admin;
             CanCreateInvites = canCreateInvites;
+            if (conversationUsers != null)
+            {
+                ConversationUsers = conversationUsers;
+            }
         }
 
         /// <summary>
