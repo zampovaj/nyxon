@@ -1,44 +1,38 @@
 services:
   postgres:
-    image: postgres:17
-    container_name: ${POSTGRES_HOST:-msgapp_postgres}
+    image: postgres:18
+    container_name: ${POSTGRES_HOST}
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "${POSTGRES_PORT}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
 
   valkey:
     image: valkey/valkey:9
-    container_name: ${VALKEY_HOST:-msgapp_valkey}
+    container_name: ${VALKEY_HOST}
     restart: unless-stopped
-    ports:
-      - "${VALKEY_PORT}:6379"
     volumes:
       - valkey_data:/data
 
   backend:
     image: msgapp_backend
     build: ./Backend
-    container_name: ${BACKEND_HOST:-msgapp_backend}
+    container_name: ${BACKEND_HOST}
     restart: unless-stopped
-    ports:
-      - "${BACKEND_PORT}:5000" # host (outside) : container (inside)
     depends_on:
       - postgres
       - valkey
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST}
-      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_PORT: 5432
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       VALKEY_HOST: ${VALKEY_HOST}
-      VALKEY_PORT: ${VALKEY_PORT}
+      VALKEY_PORT: 6379
 
 volumes:
   postgres_data:

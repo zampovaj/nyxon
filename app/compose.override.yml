@@ -1,0 +1,15 @@
+services:
+
+  postgres:
+    ports:
+      - "${POSTGRES_PORT}:5432"
+
+  valkey:
+    ports:
+      - "${VALKEY_PORT}:6379"
+
+  backend:
+    ports:
+      - "${BACKEND_PORT}:5000"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development

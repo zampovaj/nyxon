@@ -1,0 +1,25 @@
+# docker compose -f compose.yml -f compose.prod.yml up -d
+
+services:
+
+  caddy:
+    image: caddy:latest
+    container_name: msgapp_reverse_proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+
+  backend:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+
+volumes:
+  caddy_data:
+  caddy_config:
