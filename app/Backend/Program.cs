@@ -2,6 +2,7 @@ using System.Net.WebSockets;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,14 @@ var pgPass = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
 var conn = $"Host={pgHost};Port={pgPort};Database={pgDb};Username={pgUser};Password={pgPass}";
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(conn));
 
+// --- 2. Valkey (Redis) Setup (MISSING IN YOUR CODE) ---
+var valkeyHost = Environment.GetEnvironmentVariable("VALKEY_HOST") ?? "valkey";
+var valkeyPort = Environment.GetEnvironmentVariable("VALKEY_PORT") ?? "6379";
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = $"{valkeyHost}:{valkeyPort}";
+});
 
 builder.Services.AddControllers();
 
