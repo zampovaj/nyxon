@@ -23,11 +23,15 @@ namespace Backend.Data
             base.OnModelCreating(modelBuilder);
 
             // --- 1. User & UserVault (1:1) ---
+            // Combined Key definition + Relationship + Cascade Delete
+            modelBuilder.Entity<UserVault>()
+                .HasKey(uv => uv.UserId); // Explicitly set UserId as PK
+
             modelBuilder.Entity<User>()
                 .HasOne(u => u.UserVault)
                 .WithOne(uv => uv.User)
-                .HasForeignKey<UserVault>(uv => uv.UserId) // UserVault.UserId matches User.Id
-                .OnDelete(DeleteBehavior.Cascade); // Deleting User deletes their Vault
+                .HasForeignKey<UserVault>(uv => uv.UserId)
+                .OnDelete(DeleteBehavior.Cascade); // Important: Delete Vault when User is deleted
 
             // --- 2. User & Prekeys (1:N) ---
             modelBuilder.Entity<User>()
@@ -58,13 +62,13 @@ namespace Backend.Data
 
             modelBuilder.Entity<ConversationVault>()
                 .HasOne(cv => cv.Conversation)
-                .WithMany() // Conversation has many Vaults (implicit collection)
+                .WithMany()
                 .HasForeignKey(cv => cv.ConversationId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ConversationVault>()
                 .HasOne(cv => cv.User)
-                .WithMany(u => u.ConversationVaults) // Connects to User.ConversationVaults
+                .WithMany(u => u.ConversationVaults)
                 .HasForeignKey(cv => cv.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -73,13 +77,13 @@ namespace Backend.Data
                 .HasOne(m => m.Sender)
                 .WithMany()
                 .HasForeignKey(m => m.SenderId)
-                .OnDelete(DeleteBehavior.Restrict); // Don't delete message just because sender is deleted (optional)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MessageMetadata>()
                 .HasOne(m => m.Conversation)
                 .WithMany()
                 .HasForeignKey(m => m.ConversationId)
-                .OnDelete(DeleteBehavior.Cascade); // Delete messages if convo is deleted
+                .OnDelete(DeleteBehavior.Cascade);
 
             // --- 6. Attachment Relationships ---
             modelBuilder.Entity<Attachment>()
