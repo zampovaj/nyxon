@@ -1,13 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Shared.Version;
-
-/*id : uuid pk ai
-code_hash : string
-used : bool*/
-
 namespace Backend.Models
 {
     public class InviteCode

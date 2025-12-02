@@ -1,19 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Shared.Version;
-
-/*id : uuid pk ai
-conversation_id : uuid references conversations
-kv_key : string (messages:{conversation_id}:{message_sequence})
-sender_id : uuid references users
-rotation_index : int
-kd_index : int
-created_at : datetime
-version : small int
-attachments : {file_id,…}*/
-
 namespace Backend.Models
 {
     public class MessageMetadata

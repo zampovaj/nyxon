@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Shared.Version;
-
 /*conversation_id : uuid
 user_id : uuid
 version : small int

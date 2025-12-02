@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Shared.Version;
-
 /*user_id : uuid
 version : small int
 updated_at : datetime

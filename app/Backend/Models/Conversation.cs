@@ -1,14 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Shared.Version;
-
-/*id : uuid pk ai
-users : {user1_id, user2_id, …}
-created_at : datetime
-version : small int*/
-
 namespace Backend.Models
 {
     public class Conversation

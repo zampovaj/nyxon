@@ -1,18 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Shared.Version;
-using Npgsql.Replication;
-
-/*id : uuid pk ai
-user_id : references users[user_id]
-type : string
-public_key : bytes
-encrypted_key : bytes
-version : small int
-used : bool*/
-
 namespace Backend.Models
 {
     public class Prekeys

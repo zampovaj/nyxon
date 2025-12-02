@@ -1,18 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Shared.Version;
-
-/*id : uuid pk ai
-username : string
-password_hash :  string
-public_key
-created_at : datetime
-version : small int
-admin : bool
-can_create_invites : bool*/
-
 namespace Backend.Models
 {
     public class User

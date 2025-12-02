@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using StackExchange.Redis;
-using Shared.Models.Valkey;
-using System.Text.Json;
+global using StackExchange.Redis;
+global using System.Security.Cryptography;
+global using Microsoft.Extensions.Caching.Distributed;
 
 namespace Backend.Services.Cache
 {

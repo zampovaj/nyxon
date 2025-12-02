@@ -1,9 +1,5 @@
-using System.Net.WebSockets;
-using System.Text;
-using Microsoft.EntityFrameworkCore;
-using Backend.Data;
-using Microsoft.Extensions.DependencyInjection;
 
+using System.Net.WebSockets;
 var builder = WebApplication.CreateBuilder(args);
 
 var pgHost = Environment.GetEnvironmentVariable("POSTGRES_HOST");
@@ -24,7 +20,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = $"{valkeyHost}:{valkeyPort}";
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers();builder.Services.AddApplicationServices(builder.Configuration);
 
 // Add CORS policy
 builder.Services.AddCors(options =>
@@ -37,6 +33,8 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
+
+builder.Services.AddApplicationServices(builder.Configuration);
 
 builder.WebHost.UseUrls("http://0.0.0.0:5000"); //container (inside docker) on port 5000; host (outside) port is mapped in docker-compose.yml
 

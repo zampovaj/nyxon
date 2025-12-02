@@ -1,19 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Shared.DTOs;
-using Backend.Data;
-using Backend.Models;
-using System.Transactions;
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
-using Shared.Interfaces;
-using Backend.Services.Crypto;
-
 namespace Backend.Services.Auth
 {
-    public class AuthService
+    public class AuthService : IAuthService
     {
         private readonly AppDbContext _context;
         private readonly IHashInterface _hashService;
@@ -25,7 +12,7 @@ namespace Backend.Services.Auth
             _hashService = hashService;
             _enforceInvites = config.GetValue<bool>("Security:EnforceInvites", false);
         }
-        public async Task<User> RegisterUserAsync(RegisterRequest request)
+        public async Task<Guid> RegisterUserAsync(RegisterRequest request)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -79,7 +66,7 @@ namespace Backend.Services.Auth
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return newUser;
+                return newUser.Id;
             }
 
             catch
@@ -87,10 +74,6 @@ namespace Backend.Services.Auth
                 await transaction.RollbackAsync();
                 throw;
             }
-        }
-        private string ComputeHash(string input)
-        {
-            return input;
         }
     }
 }

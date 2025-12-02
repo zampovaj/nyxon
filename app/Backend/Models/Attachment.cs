@@ -1,18 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Shared.Version;
-
-/*file_id : uuid pk ai
-conversation_id : conversations_metadata[conversation_id]
-message_id : messages_metadata[message_id]
-owner_id : users[user_id]
-storage_ptr : string // pointer to file address
-wrapped_dek : key // encrypted with vault key
-created_at : datetime
-version : small int*/
-
 namespace Backend.Models
 {
     public class Attachment
