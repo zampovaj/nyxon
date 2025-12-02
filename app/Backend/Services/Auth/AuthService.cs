@@ -8,17 +8,21 @@ using Backend.Models;
 using System.Transactions;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Shared.Interfaces;
+using Backend.Services.Crypto;
 
 namespace Backend.Services.Auth
 {
     public class AuthService
     {
         private readonly AppDbContext _context;
+        private readonly IHashInterface _hashService;
         private readonly bool _enforceInvites;
 
-        public AuthService(AppDbContext context, IConfiguration config)
+        public AuthService(AppDbContext context, IHashInterface hashService, IConfiguration config)
         {
             _context = context;
+            _hashService = hashService;
             _enforceInvites = config.GetValue<bool>("Security:EnforceInvites", false);
         }
         public async Task<User> RegisterUserAsync(RegisterRequest request)
@@ -40,7 +44,7 @@ namespace Backend.Services.Auth
                     if (string.IsNullOrWhiteSpace(request.InviteCode))
                         throw new ArgumentException("Invite code is required");
 
-                    request.InviteCode = ComputeHash(request.InviteCode);
+                    request.InviteCode = _hashService.HashInviteCode(request.InviteCode);
 
                     var invite = await _context.InviteCodes
                         .FirstOrDefaultAsync(i => i.CodeHash == request.InviteCode && !i.Used);
