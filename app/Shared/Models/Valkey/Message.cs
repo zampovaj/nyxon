@@ -1,0 +1,46 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+/*messages:{conversation_id}:{message_sequence} → JSON: {
+    message_id : uuid
+    sender_username : string
+    session_index : int
+    message_index : int
+    message_index : int
+    created_at : datetime
+    encrypted_payload : bytes}*/
+
+namespace Shared.Models.Valkey
+{
+    public class Message
+    {
+        public Guid Id { get; set; }
+        public string SenderUsername { get; set; }
+        public int SessionIndex { get; set; }
+        public int MessageIndex { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public byte[] EncryptedPayload { get; set; }
+
+        public Message(Guid id, string senderUsername, int sessionIndex, int messageIndex, DateTime createdAt, byte[] encryptedPayload)
+        {
+            Id = id;
+            SenderUsername = senderUsername;
+            SessionIndex = sessionIndex;
+            MessageIndex = messageIndex;
+            CreatedAt = createdAt;
+            EncryptedPayload = encryptedPayload;
+        }
+
+        public Message(string senderUsername, int sessionIndex, int messageIndex, byte[] encryptedPayload)
+        {
+            Id = Guid.NewGuid();
+            SenderUsername = senderUsername;
+            SessionIndex = sessionIndex;
+            MessageIndex = messageIndex;
+            CreatedAt = DateTime.UtcNow;
+            EncryptedPayload = encryptedPayload;
+        }
+    }
+}
