@@ -37,5 +37,10 @@ namespace Backend.Models
             Used = false;
             Version = AppVersion.Current;
         }
+
+        public void Use()
+        {
+            Used = true;
+        }
     }
 }
