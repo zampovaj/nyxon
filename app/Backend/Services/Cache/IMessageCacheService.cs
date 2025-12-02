@@ -10,13 +10,13 @@ namespace Backend.Services.Cache
     public interface IMessageCacheService
     {
 
-        // Save message and update the "Recent" list
+        // save new message to recent cache
         Task SaveMessageAsync(Guid conversationId, Message message);
-        
-        // Fetch a specific message (for SignalR flow)
+
+        // fetch specific message data needed for decryption
         Task<Message?> GetMessageAsync(Guid conversationId, int sequenceNumber);
-        
-        // Fetch last N messages (for First Load flow)
+
+        // fetch last n messages for conversation
         Task<List<Message>> GetRecentMessagesAsync(Guid conversationId, int count = 50);
     }
 }
