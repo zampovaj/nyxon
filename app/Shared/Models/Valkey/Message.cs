@@ -17,15 +17,17 @@ namespace Shared.Models.Valkey
     public class Message
     {
         public Guid Id { get; set; }
+        public int SequenceNumber { get; set; }
         public string SenderUsername { get; set; }
         public int SessionIndex { get; set; }
         public int MessageIndex { get; set; }
         public DateTime CreatedAt { get; set; }
         public byte[] EncryptedPayload { get; set; }
 
-        public Message(Guid id, string senderUsername, int sessionIndex, int messageIndex, DateTime createdAt, byte[] encryptedPayload)
+        public Message(Guid id, int sequenceNumber, string senderUsername, int sessionIndex, int messageIndex, DateTime createdAt, byte[] encryptedPayload)
         {
             Id = id;
+            SequenceNumber = sequenceNumber;
             SenderUsername = senderUsername;
             SessionIndex = sessionIndex;
             MessageIndex = messageIndex;
@@ -33,9 +35,10 @@ namespace Shared.Models.Valkey
             EncryptedPayload = encryptedPayload;
         }
 
-        public Message(string senderUsername, int sessionIndex, int messageIndex, byte[] encryptedPayload)
+        public Message(int sequenceNumber, string senderUsername, int sessionIndex, int messageIndex, byte[] encryptedPayload)
         {
             Id = Guid.NewGuid();
+            SequenceNumber = sequenceNumber;
             SenderUsername = senderUsername;
             SessionIndex = sessionIndex;
             MessageIndex = messageIndex;
