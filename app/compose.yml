@@ -19,7 +19,9 @@ services:
 
   backend:
     image: msgapp_backend
-    build: ./Backend
+    build:
+      context: .
+      dockerfile: ./Backend/Dockerfile
     container_name: ${BACKEND_HOST}
     restart: unless-stopped
     depends_on:

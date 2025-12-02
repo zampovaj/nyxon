@@ -1,5 +1,7 @@
-
+using Backend.Data;
 using System.Net.WebSockets;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var pgHost = Environment.GetEnvironmentVariable("POSTGRES_HOST");
@@ -38,7 +40,17 @@ builder.Services.AddApplicationServices(builder.Configuration);
 
 builder.WebHost.UseUrls("http://0.0.0.0:5000"); //container (inside docker) on port 5000; host (outside) port is mapped in docker-compose.yml
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddOpenApiDocument();
+
+
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+     app.UseOpenApi();
+     app.UseSwaggerUI();
+}
 
 app.UseWebSockets();
 

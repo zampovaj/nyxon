@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using StackExchange.Redis;
 using Shared.Models.Valkey;
 
-namespace Backend.Services.Cache
+namespace Shared.Interfaces
 {
     public interface IMessageCacheService
     {

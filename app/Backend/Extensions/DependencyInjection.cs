@@ -1,4 +1,7 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 
 namespace Backend.Extensions
 {

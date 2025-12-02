@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace Backend.Services.Auth
 {
     public class AuthService : IAuthService

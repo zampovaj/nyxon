@@ -1,3 +1,5 @@
+using Shared.Interfaces;
+
 namespace Backend.Controllers
 {
     [ApiController]
@@ -16,8 +18,7 @@ namespace Backend.Controllers
             try
             {
                 var userId = await _authService.RegisterUserAsync(request);
-                if (userId != null)
-                    return Ok(new { userId = userId });
+                return Ok(new { userId = userId });
             }
             catch (ArgumentException argEx)
             {

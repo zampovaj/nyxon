@@ -1,6 +1,7 @@
-global using StackExchange.Redis;
-global using System.Security.Cryptography;
-global using Microsoft.Extensions.Caching.Distributed;
+using StackExchange.Redis;
+using System.Security.Cryptography;
+using Microsoft.Extensions.Caching.Distributed;
+using Shared.Interfaces;
 
 namespace Backend.Services.Cache
 {
