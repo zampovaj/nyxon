@@ -3,6 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 using Backend.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer; // Add this
+using Microsoft.IdentityModel.Tokens; // Add this
+using System.Text;
 
 namespace Backend.Extensions
 {
@@ -22,6 +25,23 @@ namespace Backend.Extensions
                 var pgPass = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
                 connString = $"Host={pgHost};Port={pgPort};Database={pgDb};Username={pgUser};Password={pgPass}";
             }
+
+            // jwt
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = config["Jwt:Issuer"],
+                        ValidAudience = config["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(config["Jwt:Key"]!))
+                    };
+                });
 
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connString));
 

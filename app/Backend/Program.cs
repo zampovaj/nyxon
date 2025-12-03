@@ -46,6 +46,8 @@ app.UseWebSockets();
 
 app.UseCors(); // <- enable CORS
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
