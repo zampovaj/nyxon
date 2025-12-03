@@ -54,6 +54,7 @@ namespace Backend.Extensions
             services.AddScoped<IRegistrationService, RegistrationService>();
             services.AddScoped<ILoginService, LoginService>();
             services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<IUserVaultService, UserVaultService>();
 
             return services;
         }

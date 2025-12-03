@@ -13,6 +13,7 @@ global using Backend.Services.Auth;
 global using Backend.Extensions;
 global using Backend.Services.Crypto;
 global using Backend.Services.Cache;
+global using Backend.Services.Vault;
 global using Backend.Interfaces;
 
 // shared
