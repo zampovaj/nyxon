@@ -1,30 +1,18 @@
 using Backend.Data;
 using System.Net.WebSockets;
 using Microsoft.EntityFrameworkCore;
+// Backend/Program.cs
+using Backend.Extensions; // Ensure you have this using
 
 var builder = WebApplication.CreateBuilder(args);
 
-var pgHost = Environment.GetEnvironmentVariable("POSTGRES_HOST");
-var pgPort = Environment.GetEnvironmentVariable("POSTGRES_PORT");
-var pgDb   = Environment.GetEnvironmentVariable("POSTGRES_DB");
-var pgUser = Environment.GetEnvironmentVariable("POSTGRES_USER");
-var pgPass = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
+// DELETE ALL manual Env Variable lines for Postgres/Valkey here.
+// The DependencyInjection class handles it now.
 
-var conn = $"Host={pgHost};Port={pgPort};Database={pgDb};Username={pgUser};Password={pgPass}";
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(conn));
+// Add Services
+builder.Services.AddControllers();
 
-// --- 2. Valkey (Redis) Setup (MISSING IN YOUR CODE) ---
-var valkeyHost = Environment.GetEnvironmentVariable("VALKEY_HOST") ?? "valkey";
-var valkeyPort = Environment.GetEnvironmentVariable("VALKEY_PORT") ?? "6379";
-
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = $"{valkeyHost}:{valkeyPort}";
-});
-
-builder.Services.AddControllers();builder.Services.AddApplicationServices(builder.Configuration);
-
-// Add CORS policy
+// cors
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -36,20 +24,19 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddApplicationServices(builder.Configuration);
+// This ONE LINE does everything now:
+builder.Services.AddApplicationServices(builder.Configuration); 
 
-builder.WebHost.UseUrls("http://0.0.0.0:5000"); //container (inside docker) on port 5000; host (outside) port is mapped in docker-compose.yml
-
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApiDocument();
-
+builder.Services.AddOpenApiDocument(); // NSwag
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-     app.UseOpenApi();
-     app.UseSwaggerUI();
+    app.UseOpenApi();
+    app.UseSwaggerUI();
 }
 
 app.UseWebSockets();
@@ -63,7 +50,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Map("/ws", async context => 
+app.Map("/ws", async context =>
 {
     if (context.WebSockets.IsWebSocketRequest)
     {

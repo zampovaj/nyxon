@@ -23,13 +23,15 @@ public class ConnectionController : ControllerBase
         // 1. Test PostgreSQL
         try
         {
-            // Simple check to see if we can connect
-            bool canConnect = await _context.Database.CanConnectAsync();
-            results.Add("Postgres", canConnect ? "Success" : "Failed");
+            // Force an open attempt to trigger the exception
+            await _context.Database.OpenConnectionAsync();
+            await _context.Database.CloseConnectionAsync();
+            results.Add("Postgres", "Success");
         }
         catch (Exception ex)
         {
-            results.Add("Postgres", $"Error: {ex.Message}");
+            // Capture the inner message!
+            results.Add("Postgres", $"Failed: {ex.Message}");
         }
 
         // 2. Test Valkey (Redis)
