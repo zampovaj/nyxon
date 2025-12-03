@@ -6,10 +6,12 @@ namespace Backend.Controllers
     [Route("v1/auth")]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService _authService;
-        public AuthController(IAuthService authService)
+        private readonly IRegistrationService _registrationService;
+        private readonly ILoginService _loginService;
+        public AuthController(IRegistrationService registrationService, ILoginService loginService)
         {
-            _authService = authService;
+            _registrationService = registrationService;
+            _loginService = loginService;
         }
 
         [HttpPost("register")]
@@ -17,7 +19,7 @@ namespace Backend.Controllers
         {
             try
             {
-                var userId = await _authService.RegisterUserAsync(request);
+                var userId = await _registrationService.RegisterUserAsync(request);
                 return Ok(new { userId = userId });
             }
             catch (ArgumentException argEx)
@@ -33,6 +35,23 @@ namespace Backend.Controllers
                 return BadRequest(new { error = ex.Message });
             }
             return BadRequest(new { error = "Error 500. An internal error occured." });
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        {
+            try {
+            var response = await _loginService.LoginAsync(request);
+
+            if (response == null)
+                return Unauthorized(new { error = "Invalid credentials" });
+
+            return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
     }
 }
