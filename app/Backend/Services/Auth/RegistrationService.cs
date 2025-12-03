@@ -2,13 +2,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Services.Auth
 {
-    public class AuthService : IAuthService
+    public class RegistrationService : IRegistrationService
     {
         private readonly AppDbContext _context;
         private readonly IHashInterface _hashService;
         private readonly bool _enforceInvites;
 
-        public AuthService(AppDbContext context, IHashInterface hashService, IConfiguration config)
+        public RegistrationService(AppDbContext context, IHashInterface hashService, IConfiguration config)
         {
             _context = context;
             _hashService = hashService;

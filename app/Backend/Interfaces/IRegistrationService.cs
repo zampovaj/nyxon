@@ -1,8 +1,7 @@
-namespace Shared.Interfaces
+namespace Backend.Interfaces
 {
-    public interface IAuthService
+    public interface IRegistrationService
     {
         Task<Guid> RegisterUserAsync(RegisterRequest request);
-
     }
 }

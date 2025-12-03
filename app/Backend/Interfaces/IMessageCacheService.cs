@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Shared.Models.Valkey;
 
-namespace Shared.Interfaces
+namespace Backend.Interfaces
 {
     public interface IMessageCacheService
     {

@@ -31,7 +31,7 @@ namespace Backend.Extensions
 
             services.AddScoped<IMessageCacheService, MessageCacheService>();
             services.AddScoped<IHashInterface, Sha256HashService>();
-            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IRegistrationService, RegistrationService>();
 
             return services;
         }
