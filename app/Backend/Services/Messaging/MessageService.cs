@@ -54,5 +54,38 @@ namespace Backend.Services.Messaging
 
             return messageId;
         }
+        public async Task<List<MessageResponse>> GetRecentMessagesAsync(Guid conversationId)
+        {
+            var messages = await _messageCacheService.GetRecentMessagesAsync(conversationId);
+            return messages.Select(m => new MessageResponse
+            {
+                Id = m.Id,
+                SequenceNumber = m.SequenceNumber,
+                SenderUsername = m.SenderUsername,
+                SessionIndex = m.SessionIndex,
+                MessageIndex = m.MessageIndex,
+                CreatedAt = m.CreatedAt,
+                EncryptedPayload = m.EncryptedPayload
+            })
+            .OrderBy(m => m.SequenceNumber)
+            .ToList();
+        }
+        public async Task<MessageResponse?> GetMessageAsync(Guid conversationId, int sequenceNumber)
+        {
+            var message = await _messageCacheService.GetMessageAsync(conversationId, sequenceNumber);
+            if (message == null)
+                return null;
+
+            return new MessageResponse
+            {
+                Id = message.Id,
+                SequenceNumber = message.SequenceNumber,
+                SenderUsername = message.SenderUsername,
+                SessionIndex = message.SessionIndex,
+                MessageIndex = message.MessageIndex,
+                CreatedAt = message.CreatedAt,
+                EncryptedPayload = message.EncryptedPayload
+            };
+        }
     }
 }

@@ -35,5 +35,35 @@ namespace Backend.Controllers
                 return BadRequest(new { error = ex.Message });
             }
         }
+        [HttpGet("{conversationId}/recent")]
+        public async Task<IActionResult> GetRecentMessages([FromRoute] Guid conversationId)
+        {
+            try
+            {
+                var messages = await _messageService.GetRecentMessagesAsync(conversationId);
+                return Ok(messages);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+        
+        [HttpGet("{conversationId}/message/{sequenceNumber}")]
+        public async Task<IActionResult> GetMessage([FromRoute] Guid conversationId, [FromRoute] int sequenceNumber)
+        {
+            try
+            {
+                var message = await _messageService.GetMessageAsync(conversationId, sequenceNumber);
+                if (message == null)
+                    throw new Exception("Message not found");
+                
+                return Ok(message);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

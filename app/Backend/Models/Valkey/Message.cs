@@ -23,6 +23,8 @@ namespace Backend.Models.Valkey
         public int MessageIndex { get; set; }
         public DateTime CreatedAt { get; set; }
         public byte[] EncryptedPayload { get; set; }
+        
+        public Message() {}
 
         public Message(Guid id, int sequenceNumber, string senderUsername, int sessionIndex, int messageIndex, DateTime createdAt, byte[] encryptedPayload)
         {
