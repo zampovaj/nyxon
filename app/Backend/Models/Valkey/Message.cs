@@ -12,7 +12,7 @@ using System.Threading.Tasks;
     created_at : datetime
     encrypted_payload : bytes}*/
 
-namespace Shared.Models.Valkey
+namespace Backend.Models.Valkey
 {
     public class Message
     {
