@@ -6,6 +6,7 @@ using Backend.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer; // Add this
 using Microsoft.IdentityModel.Tokens; // Add this
 using System.Text;
+using Backend.Services.Messaging;
 
 namespace Backend.Extensions
 {
@@ -55,6 +56,7 @@ namespace Backend.Extensions
             services.AddScoped<ILoginService, LoginService>();
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IUserVaultService, UserVaultService>();
+            services.AddScoped<IConversationService, ConversationService>();
 
             return services;
         }

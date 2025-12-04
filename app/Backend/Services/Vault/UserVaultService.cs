@@ -13,14 +13,14 @@ namespace Backend.Services.Vault
         {
             _context = context;
         }
-        public async Task<UserVaultDto?> GetVaultAsync(Guid userId)
+        public async Task<UserVaultRequest?> GetVaultAsync(Guid userId)
         {
             var vault = await _context.UserVaults
                 .FirstOrDefaultAsync(v => v.UserId == userId);
             
             if (vault == null) return null;
 
-            return new UserVaultDto
+            return new UserVaultRequest
             {
                 EncryptedVaultKey = vault.VaultKey,
                 EncryptedIdentityKey = vault.IdentityKey

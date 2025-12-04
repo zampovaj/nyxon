@@ -4,11 +4,13 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
 global using System.Text.Json;
 global using System.Text;
+global using System.Security.Claims;
+global using System.Threading.Tasks;
+global using Microsoft.AspNetCore.Authorization;
 
 // backend
 global using Backend.Data;
 global using Backend.Models;
-global using Backend.Services;
 global using Backend.Services.Auth;
 global using Backend.Extensions;
 global using Backend.Services.Crypto;

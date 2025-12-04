@@ -20,21 +20,17 @@ public class ConnectionController : ControllerBase
     {
         var results = new Dictionary<string, string>();
 
-        // 1. Test PostgreSQL
         try
         {
-            // Force an open attempt to trigger the exception
             await _context.Database.OpenConnectionAsync();
             await _context.Database.CloseConnectionAsync();
             results.Add("Postgres", "Success");
         }
         catch (Exception ex)
         {
-            // Capture the inner message!
             results.Add("Postgres", $"Failed: {ex.Message}");
         }
 
-        // 2. Test Valkey (Redis)
         try
         {
             await _cache.SetStringAsync("ping", "pong");

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Shared.DTOs
 {
-    public class UserVaultDto
+    public class UserVaultRequest
     {
         public byte[] EncryptedVaultKey { get; set; }
         public byte[] EncryptedIdentityKey { get; set; }

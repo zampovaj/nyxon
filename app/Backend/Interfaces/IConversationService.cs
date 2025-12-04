@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Shared.DTOs;
 
 namespace Backend.Interfaces
 {
-    public interface IUserVaultService
+    public interface IConversationService
     {
-        public Task<UserVaultRequest?> GetVaultAsync(Guid userId);
+        public Task<Guid> CreateConversationAsync(Guid initiatorId, string targetUsername);
     }
 }
