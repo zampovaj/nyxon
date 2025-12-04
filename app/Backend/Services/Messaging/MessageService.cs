@@ -33,7 +33,6 @@ namespace Backend.Services.Messaging
             );
 
             await _messageCacheService.SaveMessageAsync(request.ConversationId, valkeyMessage);
-
             var kvKey = KeyFactory.MessageKey(request.ConversationId, request.MessageSequence);
 
             // store in db

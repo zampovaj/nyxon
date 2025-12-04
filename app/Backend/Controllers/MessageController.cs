@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Backend.Controllers
 {
     [ApiController]
-    [Route("v1/message")]
+    [Route("v1/message/")]
     [Authorize]
     public class MessageController : ControllerBase
     {

@@ -47,9 +47,22 @@ namespace Backend.Extensions
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connString));
 
             // valkey
-            services.AddSingleton<IConnectionMultiplexer>(sp =>
-                ConnectionMultiplexer.Connect(config.GetConnectionString("Valkey")));
+            var valkeyConfig = config.GetConnectionString("Valkey");
 
+            // fallback
+            if (string.IsNullOrEmpty(valkeyConfig))
+            {
+                var vHost = Environment.GetEnvironmentVariable("VALKEY_HOST") ?? "localhost";
+                var vPort = Environment.GetEnvironmentVariable("VALKEY_PORT") ?? "6379";
+
+                valkeyConfig = $"{vHost}:{vPort},abortConnect=false";
+            }
+
+            // register valkey
+            services.AddSingleton<IConnectionMultiplexer>(sp =>
+                ConnectionMultiplexer.Connect(valkeyConfig));
+
+            // services
             services.AddScoped<IMessageCacheService, MessageCacheService>();
             services.AddScoped<IHashInterface, Sha256HashService>();
             services.AddScoped<IRegistrationService, RegistrationService>();
