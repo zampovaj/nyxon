@@ -71,6 +71,7 @@ namespace Backend.Extensions
             services.AddScoped<IUserVaultService, UserVaultService>();
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IMessageService, MessageService>();
+            services.AddScoped<IConversationVaultService, ConversationVaultService>();
 
             return services;
         }
