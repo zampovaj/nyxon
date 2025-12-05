@@ -39,39 +39,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseWebSockets();
-
-
-//app.UseHttpsRedirection();
-
 app.UseCors(); // <- enable CORS
 
+// auth
 app.UseAuthentication();
-
 app.UseAuthorization();
 
+// controllers
 app.MapControllers();
 
-app.Map("/ws", async context =>
-{
-    if (context.WebSockets.IsWebSocketRequest)
-    {
-        var ws = await context.WebSockets.AcceptWebSocketAsync();
-        var buffer = new byte[1024];
-        WebSocketReceiveResult? result;
-
-        // Keep receiving messages until socket is closed
-        do
-        {
-            result = await ws.ReceiveAsync(buffer, CancellationToken.None);
-            if (result.MessageType != WebSocketMessageType.Close)
-            {
-                await ws.SendAsync(buffer[..result.Count], WebSocketMessageType.Text, true, CancellationToken.None);
-            }
-        } while (!result.CloseStatus.HasValue);
-
-        await ws.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
-    }
-});
+// signalr
+app.MapHub<ChatHub>("/hubs/chat");
 
 app.Run();

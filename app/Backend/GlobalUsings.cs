@@ -19,6 +19,7 @@ global using Backend.Services.Vault;
 global using Backend.Interfaces;
 global using Backend.Services.Messaging;
 global using Backend.Models.Valkey;
+global using Backend.Hubs;
 
 // shared
 global using Shared.DTOs;

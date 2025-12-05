@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer; // Add this
 using Microsoft.IdentityModel.Tokens; // Add this
 using System.Text;
 using Backend.Services.Messaging;
+using Microsoft.AspNetCore.SignalR;
+using Backend.Hubs;
 
 namespace Backend.Extensions
 {
@@ -62,6 +64,9 @@ namespace Backend.Extensions
             services.AddSingleton<IConnectionMultiplexer>(sp =>
                 ConnectionMultiplexer.Connect(valkeyConfig));
 
+            // signalr
+            services.AddSignalR();
+
             // services
             services.AddScoped<IMessageCacheService, MessageCacheService>();
             services.AddScoped<IHashInterface, Sha256HashService>();
@@ -72,6 +77,7 @@ namespace Backend.Extensions
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IConversationVaultService, ConversationVaultService>();
+            
 
             return services;
         }

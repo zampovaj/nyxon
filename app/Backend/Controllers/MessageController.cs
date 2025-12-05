@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Backend.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Backend.Controllers
 {
@@ -11,13 +13,15 @@ namespace Backend.Controllers
     public class MessageController : ControllerBase
     {
         private readonly IMessageService _messageService;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public MessageController(IMessageService messageService)
+        public MessageController(IMessageService messageService, IHubContext<ChatHub> hubContext)
         {
             _messageService = messageService;
+            _hubContext = hubContext;
         }
 
-        [HttpPost]
+        [HttpPost("send")]
         public async Task<IActionResult> SendMessage([FromBody] SendMessageRequest request)
         {
             var senderIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -27,7 +31,17 @@ namespace Backend.Controllers
 
             try
             {
+                // save to postgres and valkey
                 var messageId = await _messageService.SendMessageAsync(senderId, senderUsername, request);
+
+                // signalr
+                await _hubContext.Clients.Group(request.ConversationId.ToString())
+                    .SendAsync("ReceiveMEssageNotification", new
+                    {
+                        ConversationId = request.ConversationId,
+                        MessageId = messageId
+                    });
+
                 return Ok(new { MessageId = messageId });
             }
             catch (Exception ex)
