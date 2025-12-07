@@ -69,6 +69,12 @@ namespace Nyxon.Server.Extensions
             // register valkey
             services.AddSingleton<IConnectionMultiplexer>(sp =>
                 ConnectionMultiplexer.Connect(valkeyConfig));
+            // register IDistributedCache (This fixes the 500 error)
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = valkeyConfig;
+                options.InstanceName = "Nyxon_"; // Optional prefix for keys
+            });
 
             // signalr
             services.AddSignalR();
@@ -83,7 +89,7 @@ namespace Nyxon.Server.Extensions
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IConversationVaultService, ConversationVaultService>();
-            
+
 
             return services;
         }
