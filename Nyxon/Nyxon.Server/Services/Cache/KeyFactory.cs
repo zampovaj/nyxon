@@ -1,0 +1,15 @@
+namespace Nyxon.Server.Services.Cache
+{
+    public static class KeyFactory
+    {
+        public static string MessageKey(Guid conversationId, int messageSequence)
+        {
+            return $"messages:{conversationId}:{messageSequence}";
+        }
+
+        public static string MessageRecentKey(Guid conversationId)
+        {
+            return $"messages:recent:{conversationId}";
+        }
+    }
+}
