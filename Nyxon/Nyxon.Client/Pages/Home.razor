@@ -1,38 +1,43 @@
 ﻿@page "/"
-@inject HttpClient Http
-@inject IJSRuntime JS
 
-<h3>WebSocket Test</h3>
-<input @bind="message" placeholder="Type a message"/>
-<button @onclick="SendMessage">Send</button>
-<p>Received: @receivedMessage</p>
+@if (IsLoggedIn)
+{
+    <div class="dashboard-view">
+        <h1 class="dash-greeting">Good afternoon, FinalBoss.</h1>
+        
+        <div class="dash-search-wrapper">
+            <span class="dash-icon">></span>
+            <input type="text" class="dash-search" placeholder="Type a command or user...">
+        </div>
+
+        <div class="dash-shortcuts">
+            <div class="shortcut-chip">N : New Chat</div>
+            <div class="shortcut-chip">/ : Search</div>
+            <div class="shortcut-chip" style="color: var(--mud-palette-error); border-color: var(--mud-palette-error);" @onclick="ToggleState">
+                [DEV: LOGOUT]
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <section class="landing-hero">
+        <h1 class="hero-title">Sovereignty over<br>your data.</h1>
+        <p class="hero-subtitle">End-to-End Encrypted. Zero Knowledge.<br>The last messenger you will ever need.</p>
+        <div class="hero-buttons">
+            <button class="btn-primary" @onclick="ToggleState">Simulate Login</button>
+            
+            <button class="btn-outline">Read The Code</button>
+        </div>
+    </section>
+}
 
 @code {
-    private string message = "";
-    private string receivedMessage = "";
-    private IJSObjectReference? socket;
+    // dev only!!!!
+    private bool IsLoggedIn = false;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private void ToggleState()
     {
-        if (firstRender)
-        {
-            var dotnetRef = DotNetObjectReference.Create(this);
-            socket = await JS.InvokeAsync<IJSObjectReference>("createWebSocket", "ws://localhost:8080/ws", dotnetRef); // host url
-        }
-    }
-
-    private async Task SendMessage()
-    {
-        if (socket != null)
-        {
-            await JS.InvokeVoidAsync("sendMessage", socket, message);
-        }
-    }
-
-    [JSInvokable]
-    public void ReceiveMessage(string msg)
-    {
-        receivedMessage = msg;
-        StateHasChanged();
+        IsLoggedIn = !IsLoggedIn;
     }
 }

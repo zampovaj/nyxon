@@ -1,16 +1,20 @@
-﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+@inherits LayoutComponentBase
+@using MudBlazor
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+<MudThemeProvider Theme="NyxonTheme.Default" IsDarkMode="true" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<div class="layout-shell">
+    <header class="app-header">
+        <div class="header-content">
+            <a href="/" class="logo-link">nyxon</a>
+            <nav class="nav-links">
+                <a href="login" class="nav-item">Login</a>
+            </nav>
         </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
+    </header>
+    <main class="app-content">
+        @Body
     </main>
 </div>
