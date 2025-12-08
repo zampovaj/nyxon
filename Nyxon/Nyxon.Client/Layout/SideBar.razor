@@ -1,0 +1,38 @@
+@using Nyxon.Client.Services
+@inject LayoutService LayoutState
+@inject NavigationManager Nav
+
+<aside class="sidebar">
+    <div class="sidebar-top">
+        <div class="collapsed-icon">#</div>
+        <div class="expanded-search">
+            <input type="text" class="input-std" placeholder="Filter chats...">
+        </div>
+    </div>
+    
+    <div class="nav-list">
+        <div class="nav-item" @onclick='() => OpenChat("Alice")'>
+            <div class="nav-avatar">A</div>
+            <div class="nav-info"><span class="chat-name">Alice</span></div>
+        </div>
+            <div class="nav-item" @onclick='() => OpenChat("Bob")'>
+            <div class="nav-avatar">B</div>
+            <div class="nav-info"><span class="chat-name">Bob</span></div>
+        </div>
+    </div>
+
+    <div class="sidebar-bottom">
+        <div class="status-dot-wrapper"><div class="status-dot"></div></div>
+        <div class="status-text">Online (24ms)</div>
+    </div>
+</aside>
+
+@code {
+    private void OpenChat(string name)
+    {
+        // 1. Update Title
+        LayoutState.SetHeaderTitle(name);
+        // 2. Go to URL
+        Nav.NavigateTo($"/chat/{name}");
+    }
+}
