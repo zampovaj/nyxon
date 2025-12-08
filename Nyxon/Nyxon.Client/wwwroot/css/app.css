@@ -44,6 +44,53 @@ body {
     font-family: var(--font-body);
 }
 
+/*remove that uggly error at the bottom */
+
+/* --- BLAZOR ERROR UI --- *//* This div lives in index.html. We must style it or it breaks layout. */
+#blazor-error-ui {
+    /* 1. LAYOUT: Float it at the bottom, don't take up space */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 9999; /* Ensure it sits on top of everything */
+    
+    /* 2. VISIBILITY: Hidden by default (Blazor JS toggles this to 'block' on error) */
+    display: none; 
+    
+    /* 3. THEME: Make it look like a Critical Alert */
+    background-color: var(--bg-surface);
+    border-top: 1px solid var(--error);
+    color: var(--error);
+    padding: 10px 20px;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+    
+    /* 4. CONTENT ALIGNMENT */
+    /* display: flex is applied by Blazor JS when active, 
+       so we just style the children */
+}
+
+/* The "Reload" link */
+#blazor-error-ui .reload {
+    color: var(--text-main);
+    text-decoration: underline;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+/* The "X" dismiss button */
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+}
+#blazor-error-ui .dismiss:hover {
+    color: var(--text-main);
+}
+
 /*idk how this works eihter but blazor needs it*/
 #app {
     height: 100%;
