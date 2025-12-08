@@ -11,3 +11,6 @@ global using Microsoft.JSInterop;
 global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 global using MudBlazor;
+
+//client
+global using Nyxon.Client.Services;

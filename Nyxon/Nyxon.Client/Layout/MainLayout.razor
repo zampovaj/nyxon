@@ -1,5 +1,7 @@
 @inherits LayoutComponentBase
 @using MudBlazor
+@using Nyxon.Client.Services
+@inject ILayoutService LayoutState
 
 <MudThemeProvider Theme="NyxonTheme.Default" IsDarkMode="true" />
 <MudDialogProvider />
@@ -10,6 +12,8 @@
         <div class="header-content">
             <a href="/" class="logo-link">nyxon</a>
             <nav class="nav-links">
+                <a href="manifesto" class="nav-item">Manifesto</a>
+                <a href="security" class="nav-item">Security</a>
                 <a href="login" class="nav-item">Login</a>
             </nav>
         </div>
