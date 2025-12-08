@@ -1,16 +1,20 @@
 @page "/login"
-
 @using Nyxon.Client.Services
 @inject LayoutService LayoutState
+@inject NavigationManager Nav
+
 
 <div class="auth-wrapper">
     <div class="auth-card">
         <div style="text-align: center; margin-bottom: 30px;">
-            <h2 class="auth-h1">Welcome Back</h2>
-            <p class="auth-p">Enter your credentials to decrypt your
-                vault.</p>
+            <h2 class="auth-h1">
+                @(_isRegistering ? "New Identity" : "Welcome Back")
+            </h2>
+            <p class="auth-p">
+                @(_isRegistering ? "Enter your invite code to join." : "Enter your credentials to decrypt your vault.")
+            </p>
         </div>
-        <form class="auth-form">
+        <form class="auth-form" @onsubmit:preventDefault>
             <div>
                 <label class="form-label">USERNAME</label>
                 <input type="text" class="input-std" value="FinalBoss_01">
@@ -19,9 +23,45 @@
                 <label class="form-label">PASSWORD</label>
                 <input type="password" class="input-std" value="password123">
             </div>
-            <button onclick="goto('app')" class="btn-primary" style="margin-top: 10px; padding: 10px 0px; width: 100%;">Decrypt &
-                Login</button>
-            <p class="new-identity">Create new identity</p>
+            @if (_isRegistering)
+            {
+                <div>
+                    <label class="form-label">CONFIRM PASSWORD</label>
+                    <input type="password" class="input-std" value="password123">
+                </div>
+                <div>
+                    <label class="form-label">INVITE CODE</label>
+                    <input type="text" class="input-std" value="ABCD1234">
+                </div>
+            }
+            <button class="btn-primary" style="margin-top: 10px; padding: 10px 0px; width: 100%;"
+                @onclick="PerformAction">
+                @(_isRegistering ? "Create Identity" : "Decrypt & Login")
+            </button>
+            <p class="auth-link" @onclick="ToggleMode">
+                @(_isRegistering ? "I already have an account" : "Create new identity")
+            </p>
         </form>
     </div>
 </div>
+
+@code {
+    private bool _isRegistering = false;
+
+    private void ToggleMode()
+    {
+        _isRegistering = !_isRegistering;
+    }
+    private void PerformAction()
+    {
+        if (_isRegistering)
+        {
+            Console.WriteLine("Registering user...");
+        }
+        else
+        {
+            LayoutState.SetLoggedInState(true);
+            Nav.NavigateTo("/");
+        }
+    }
+}

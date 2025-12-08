@@ -166,7 +166,6 @@ body {
     font-family: var(--font-code);
     font-size: 0.7rem;
     color: var(--secondary);
-    /* Teal */
     background: rgba(3, 218, 198, 0.1);
     padding: 4px 8px;
     border-radius: 4px;
@@ -210,18 +209,12 @@ body {
 
 .nav-item {
     color: var(--mud-palette-text-secondary);
-
     text-decoration: none;
-
-    /*gemini cause i suck at styling :)*/
     font-weight: 500;
-    /* Not too bold, not too thin */
     font-size: 0.9rem;
-    /* Slightly smaller than body text */
     transition: color 0.2s;
-    /* Smooth fade on hover */
+    /*need this in case i add more links*/
     margin-left: 20px;
-    /* Spacing if you add more links later */
 }
 
 .nav-item:hover {
@@ -385,7 +378,7 @@ body {
     gap: 15px;
 }
 
-.new-identity {
+.auth-link {
     text-align: center;
     margin-bottom: 0px;
     padding-bottom: 0px;
