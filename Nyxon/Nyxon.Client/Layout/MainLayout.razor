@@ -10,13 +10,13 @@
 <MudSnackbarProvider />
 
 <div class="layout-shell">
-    
+
     <header class="app-header">
         <div class="header-content">
-            
+
             <div style="display: flex; align-items: center;">
                 <a href="/" class="logo-link">nyxon</a>
-                
+
                 @if (!string.IsNullOrEmpty(LayoutState.HeaderTitle))
                 {
                     <div class="breadcrumb visible" style="display:flex; margin-left:20px;">
@@ -30,18 +30,23 @@
             <nav class="nav-links">
                 @if (LayoutState.IsLoggedIn)
                 {
-                    <div style="display: flex; align-items: center; gap: 10px; border-right: 1px solid var(--border); padding-right: 20px; margin-right: 20px;">
-                        <MudAvatar Color="Color.Primary" Size="Size.Small" Style="color: black; font-weight: bold;">F</MudAvatar>
+                    <div
+                        style="display: flex; align-items: center; gap: 10px; border-right: 1px solid var(--border); padding-right: 20px; margin-right: 20px;">
+                        <MudAvatar Color="Color.Primary" Size="Size.Small" Style="color: black; font-weight: bold;">F
+                        </MudAvatar>
                         <span style="font-size: 0.9rem; font-weight: 500;">FinalBoss</span>
                     </div>
-                    
+
                     <a href="#" @onclick="Logout" style="color: var(--error);">Logout</a>
                 }
                 else
                 {
                     <a href="manifesto" class="nav-item">Manifesto</a>
                     <a href="security" class="nav-item">Security</a>
-                    <a href="login" class="nav-item">Login</a>
+                    @if (!IsLoginPage)
+                    {
+                        <button style="margin-left: 20px" class="btn-primary" @onclick="() => Login()">Login / Registrate</button>
+                    }
                 }
             </nav>
         </div>
@@ -50,7 +55,8 @@
     @if (LayoutState.IsLoggedIn)
     {
         <div class="app-layout">
-            <AppSidebar /> <main class="main-stage">
+            <AppSidebar />
+            <main class="main-stage">
                 @Body
             </main>
         </div>
@@ -64,10 +70,24 @@
 </div>
 
 @code {
+    private bool IsLoginPage => Nav.Uri.Contains("login", StringComparison.OrdinalIgnoreCase);
+    private void Login() {
+        Nav.NavigateTo("/login");
+    }
+
     protected override void OnInitialized()
     {
-        // Listen for updates (Login, Logout, Chat Click)
+        // listen for layoutstate cnages
         LayoutState.OnChange += StateHasChanged;
+
+        // listen for url chnages
+        Nav.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        // force ui refresh
+        StateHasChanged();
     }
 
     public void Dispose()
