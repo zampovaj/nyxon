@@ -1,0 +1,27 @@
+@page "/login"
+
+@using Nyxon.Client.Services
+@inject LayoutService LayoutState
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h2 class="auth-h1">Welcome Back</h2>
+            <p class="auth-p">Enter your credentials to decrypt your
+                vault.</p>
+        </div>
+        <form class="auth-form">
+            <div>
+                <label class="form-label">USERNAME</label>
+                <input type="text" class="input-std" value="FinalBoss_01">
+            </div>
+            <div>
+                <label class="form-label">PASSWORD</label>
+                <input type="password" class="input-std" value="password123">
+            </div>
+            <button onclick="goto('app')" class="btn-primary" style="margin-top: 10px; padding: 10px 0px; width: 100%;">Decrypt &
+                Login</button>
+            <p class="new-identity">Create new identity</p>
+        </form>
+    </div>
+</div>

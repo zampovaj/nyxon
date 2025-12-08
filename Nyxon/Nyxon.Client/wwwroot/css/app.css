@@ -14,6 +14,10 @@
     /* #E0E0E0 */
     --text-muted: var(--mud-palette-text-secondary);
     /* #A0A0A0 */
+    --bg-surface: #1A1A1A;
+    --bg-surface-hover: #252525;
+    --primary-dim: rgba(187, 134, 252, 0.1);
+    --secondary: #03DAC6;
 
     /* Accents */
     --primary: var(--mud-palette-primary);
@@ -46,25 +50,27 @@ body {
 
 /*remove that uggly error at the bottom */
 
-/* --- BLAZOR ERROR UI --- *//* This div lives in index.html. We must style it or it breaks layout. */
+/* --- BLAZOR ERROR UI --- */
+/* This div lives in index.html. We must style it or it breaks layout. */
 #blazor-error-ui {
     /* 1. LAYOUT: Float it at the bottom, don't take up space */
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    z-index: 9999; /* Ensure it sits on top of everything */
-    
+    z-index: 9999;
+    /* Ensure it sits on top of everything */
+
     /* 2. VISIBILITY: Hidden by default (Blazor JS toggles this to 'block' on error) */
-    display: none; 
-    
+    display: none;
+
     /* 3. THEME: Make it look like a Critical Alert */
     background-color: var(--bg-surface);
     border-top: 1px solid var(--error);
     color: var(--error);
     padding: 10px 20px;
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
-    
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
+
     /* 4. CONTENT ALIGNMENT */
     /* display: flex is applied by Blazor JS when active, 
        so we just style the children */
@@ -87,6 +93,7 @@ body {
     transform: translateY(-50%);
     color: var(--text-muted);
 }
+
 #blazor-error-ui .dismiss:hover {
     color: var(--text-main);
 }
@@ -114,15 +121,16 @@ body {
 
 /* 1. Default State: HIDDEN */
 .breadcrumb {
-    display: none; /* <--- THIS IS WHAT HIDES IT */
+    display: none;
+    /* <--- THIS IS WHAT HIDES IT */
     align-items: center;
     gap: 15px;
-    
+
     /* Animation Prep */
     opacity: 0;
     transform: translateX(-10px);
     transition: all 0.3s ease;
-    
+
     /* Spacing next to logo */
     margin-left: 20px;
 }
@@ -130,7 +138,8 @@ body {
 /* 2. Active State: VISIBLE */
 /* When we add this class, it appears */
 .breadcrumb.visible {
-    display: flex; /* Turns it on */
+    display: flex;
+    /* Turns it on */
     opacity: 1;
     transform: translateX(0);
 }
@@ -156,7 +165,8 @@ body {
 .encrypted-badge {
     font-family: var(--font-code);
     font-size: 0.7rem;
-    color: var(--secondary); /* Teal */
+    color: var(--secondary);
+    /* Teal */
     background: rgba(3, 218, 198, 0.1);
     padding: 4px 8px;
     border-radius: 4px;
@@ -333,4 +343,88 @@ body {
 .btn-outline:active {
     /*push back down when active*/
     transform: translateY(0px);
+}
+
+
+/*LOGIN*/
+
+.auth-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+    padding-bottom: 6vh;
+}
+
+.auth-card {
+    width: 400px;
+    background: var(--bg-surface);
+    padding: 40px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.auth-h1 {
+    font-family: var(--font-heading);
+    margin-bottom: 10px;
+    font-weight: 900;
+    font-size: 1.5rem;
+}
+
+.auth-p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.new-identity {
+    text-align: center;
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.new-identity:hover {
+    color: var(--text-main);
+}
+
+.form-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+    display: block;
+    letter-spacing: 0.05em;
+}
+
+.input-std {
+    background-color: var(--mud-palette-background);
+    color: var(--text-main);
+    width: 100%;
+    border: 1px solid var(--border);
+    padding: 12px;
+    border-radius: 6px;
+    outline: none;
+    font-size: 0.8rem;
+    transition: border 0.2s;
+}
+
+.input-std:focus {
+    border-color: var(--primary);
+}
+
+input[type="password"] {
+    letter-spacing: 0.25em;
+    font-family: var(--font-body);
 }
