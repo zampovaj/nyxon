@@ -6,16 +6,24 @@ using Nyxon.Client.Services;
 
 namespace Nyxon.Client.Services
 {
-    public class LayoutService : ILayoutService
+    public class LayoutService
     {
-        public string? HeaderTitle { get; private set; }
+        public bool IsLoggedIn { get; private set; } = false;
+        public string? HeaderTitle { get; private set; } = "";
+        public string Username { get; private set;} = "";
+        public event Action? OnChange;
 
-        public event Action? OnChange; //mian layout is subscribed to this event
-
-        public void SetTitle(string? title)
+        public void SetLoggedInState(bool isLoggedIn)
         {
-            HeaderTitle = title;
-            OnChange.Invoke();
+            IsLoggedIn = isLoggedIn;
+            if (!isLoggedIn) HeaderTitle = null;
+            NotifyListeners();
         }
+        public void SetHeaderTitle(string? headerTitle)
+        {
+            HeaderTitle = headerTitle;
+            NotifyListeners();
+        }
+        private void NotifyListeners() => OnChange?.Invoke();
     }
 }

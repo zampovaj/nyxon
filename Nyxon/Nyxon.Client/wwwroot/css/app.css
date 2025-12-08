@@ -110,6 +110,59 @@ body {
     font-family: var(--font-body);
 }
 
+/* --- BREADCRUMB (THE MISSING PIECE) --- */
+
+/* 1. Default State: HIDDEN */
+.breadcrumb {
+    display: none; /* <--- THIS IS WHAT HIDES IT */
+    align-items: center;
+    gap: 15px;
+    
+    /* Animation Prep */
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+    
+    /* Spacing next to logo */
+    margin-left: 20px;
+}
+
+/* 2. Active State: VISIBLE */
+/* When we add this class, it appears */
+.breadcrumb.visible {
+    display: flex; /* Turns it on */
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* 3. Styling the inner text */
+.breadcrumb-divider {
+    color: var(--border);
+    font-family: var(--font-code);
+    font-size: 1.5rem;
+    font-weight: 300;
+}
+
+.context-title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.encrypted-badge {
+    font-family: var(--font-code);
+    font-size: 0.7rem;
+    color: var(--secondary); /* Teal */
+    background: rgba(3, 218, 198, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+}
+
 .app-header {
     height: 70px;
     border-bottom: 1px solid var(--mud-palette-lines-default);

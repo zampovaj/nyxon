@@ -1,5 +1,8 @@
 ﻿@page "/"
 
+@using Nyxon.Client.Services
+@inject LayoutService LayoutState
+
 @if (IsLoggedIn)
 {
     <div class="dashboard-view">
@@ -25,7 +28,7 @@ else
         <h1 class="hero-title">Sovereignty over<br>your data.</h1>
         <p class="hero-subtitle">End-to-End Encrypted. Zero Knowledge.<br>The last messenger you will ever need.</p>
         <div class="hero-buttons">
-            <button class="btn-primary" @onclick="ToggleState">Get Started</button>
+            <button class="btn-primary" @onclick="() => LayoutState.SetLoggedInState(true)">Get Started</button>
             <button class="btn-outline">Read The Code</button>
         </div>
     </section>

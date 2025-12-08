@@ -1,24 +1,112 @@
 @inherits LayoutComponentBase
 @using MudBlazor
 @using Nyxon.Client.Services
-@inject ILayoutService LayoutState
+@inject LayoutService LayoutState
+@implements IDisposable // need this to prevetn memory leaks
 
 <MudThemeProvider Theme="NyxonTheme.Default" IsDarkMode="true" />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <div class="layout-shell">
+    
     <header class="app-header">
         <div class="header-content">
-            <a href="/" class="logo-link">nyxon</a>
+            
+            <div style="display: flex; align-items: center;">
+                <a href="/" class="logo-link">nyxon</a>
+                
+                @if (!string.IsNullOrEmpty(LayoutState.HeaderTitle))
+                {
+                    <div class="breadcrumb visible">
+                        <span class="breadcrumb-divider">/</span>
+                        <span class="context-title">@LayoutState.HeaderTitle</span>
+                        <span class="encrypted-badge">ENCRYPTED</span>
+                    </div>
+                }
+            </div>
+
             <nav class="nav-links">
-                <a href="manifesto" class="nav-item">Manifesto</a>
-                <a href="security" class="nav-item">Security</a>
-                <a href="login" class="nav-item">Login</a>
+                @if (LayoutState.IsLoggedIn)
+                {
+                    // === STATE: LOGGED IN ===
+                    <div style="display: flex; align-items: center; gap: 10px; border-right: 1px solid var(--border); padding-right: 20px; margin-right: 20px;">
+                        <MudAvatar Color="Color.Primary" Size="Size.Small" Style="color: black; font-weight: bold;">F</MudAvatar>
+                        <span style="font-size: 0.9rem; font-weight: 500;">FinalBoss_01</span>
+                    </div>
+                    
+                    <a href="#" @onclick="() => LayoutState.SetLoggedInState(false)" style="color: var(--error);" class="nav-item">
+                        Logout
+                    </a>
+                }
+                else
+                {
+                    // === STATE: LOGGED OUT ===
+                    <a href="manifesto" class="nav-item">Manifesto</a>
+                    <a href="security" class="nav-item">Security</a>
+                    <a href="login" class="btn-primary" style="margin-left: 20px; text-decoration:none; color:black;">
+                        Login / Register
+                    </a>
+                }
             </nav>
         </div>
     </header>
-    <main class="app-content">
-        @Body
-    </main>
+
+    @if (LayoutState.IsLoggedIn)
+    {
+        // LOGGED IN: Split View (Sidebar + Content)
+        <div class="app-layout">
+            <aside class="sidebar">
+                <div class="sidebar-top">
+                    <div class="collapsed-icon">#</div>
+                    <div class="expanded-search">
+                        <input type="text" class="input-std" placeholder="Filter chats...">
+                    </div>
+                </div>
+                
+                <div class="nav-list">
+                    <div class="nav-item" @onclick='() => LayoutState.SetHeaderTitle("Alice")'>
+                        <div class="nav-avatar">A</div>
+                        <div class="nav-info">
+                            <span class="chat-name">Alice</span>
+                            <span class="chat-preview">Project Nyxon is live.</span>
+                        </div>
+                    </div>
+                     <div class="nav-item" @onclick='() => LayoutState.SetHeaderTitle("Bob")'>
+                        <div class="nav-avatar">B</div>
+                        <div class="nav-info">
+                            <span class="chat-name">Bob (Dev)</span>
+                            <span class="chat-preview">Key rotation successful.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-bottom">
+                    <div class="status-dot-wrapper"><div class="status-dot"></div></div>
+                    <div class="status-text">Online (24ms) // v1.0.4</div>
+                </div>
+            </aside>
+
+            <main class="main-stage">
+                @Body
+            </main>
+        </div>
+    }
+    else
+    {
+        // LOGGED OUT: Full Width (Landing)
+        <main style="flex: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%;">
+            @Body
+        </main>
+    }
 </div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        LayoutState.OnChange += StateHasChanged;
+    }
+    public void Dispose() {
+        LayoutState.OnChange -= StateHasChanged;
+    }
+}
