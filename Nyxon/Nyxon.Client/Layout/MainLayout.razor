@@ -45,7 +45,8 @@
                     <a href="security" class="nav-item">Security</a>
                     @if (!IsLoginPage)
                     {
-                        <button style="margin-left: 20px" class="btn-primary" @onclick="() => Login()">Login / Registrate</button>
+                        <button style="margin-left: 20px" class="btn-primary" @onclick="() => Login()">Login /
+                            Register</button>
                     }
                 }
             </nav>
@@ -71,7 +72,8 @@
 
 @code {
     private bool IsLoginPage => Nav.Uri.Contains("login", StringComparison.OrdinalIgnoreCase);
-    private void Login() {
+    private void Login()
+    {
         Nav.NavigateTo("/login");
     }
 
@@ -97,7 +99,7 @@
 
     private void Logout()
     {
-        LayoutState.SetLoggedInState(false);
+        LayoutState.SetLoginState(false);
         Nav.NavigateTo("/");
     }
 }
