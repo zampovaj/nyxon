@@ -19,16 +19,27 @@
                 <label class="form-label">USERNAME</label>
                 <input type="text" class="input-std" value="FinalBoss_01">
             </div>
-            <div>
-                <label class="form-label">PASSWORD</label>
-                <input type="password" class="input-std" value="password123">
-            </div>
             @if (_isRegistering)
             {
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label class="form-label">PASSWORD</label>
+                        <input type="password" class="input-std" value="password123">
+                    </div>
+                    <div>
+                        <label class="form-label">CONFIRM</label> <input type="password" class="input-std">
+                    </div>
+                </div>
+            }
+            else
+            {
                 <div>
-                    <label class="form-label">CONFIRM PASSWORD</label>
+                    <label class="form-label">PASSWORD</label>
                     <input type="password" class="input-std" value="password123">
                 </div>
+            }
+            @if (_isRegistering)
+            {
                 <div>
                     <label class="form-label">INVITE CODE</label>
                     <input type="text" class="input-std" value="ABCD1234">
