@@ -1,6 +1,7 @@
 @using Nyxon.Client.Services
 @inject LayoutService LayoutState
 @inject NavigationManager Nav
+@inject ISnackbar Snackbar
 
 <aside class="sidebar">
     <div class="sidebar-top">
@@ -9,30 +10,56 @@
             <input type="text" class="input-std" placeholder="Filter chats...">
         </div>
     </div>
-    
-    <div class="nav-list">
-        <div class="nav-item" @onclick='() => OpenChat("Alice")'>
-            <div class="nav-avatar">A</div>
-            <div class="nav-info"><span class="chat-name">Alice</span></div>
+    <div class="side-nav-list">
+        <div class="side-nav-item" onclick="openChat('Alice')">
+            <div class="side-nav-avatar">A</div>
+            <div class="side-nav-info">
+                <span class="chat-name">Alice</span>
+                <span class="chat-preview">Project Nyxon is live.</span>
+            </div>
         </div>
-            <div class="nav-item" @onclick='() => OpenChat("Bob")'>
-            <div class="nav-avatar">B</div>
-            <div class="nav-info"><span class="chat-name">Bob</span></div>
+        <div class="side-nav-item" onclick="openChat('Bob')">
+            <div class="side-nav-avatar">B</div>
+            <div class="side-nav-info">
+                <span class="chat-name">Bob (Dev)</span>
+                <span class="chat-preview">Key rotation successful.</span>
+            </div>
         </div>
     </div>
-
     <div class="sidebar-bottom">
-        <div class="status-dot-wrapper"><div class="status-dot"></div></div>
-        <div class="status-text">Online (24ms)</div>
+        <div class="status-dot-wrapper">
+            <div class="status-dot"></div>
+        </div>
+        <div class="status-text">
+            Online (24ms) // v1.0.4
+        </div>
     </div>
 </aside>
 
 @code {
-    private void OpenChat(string name)
+    protected override void OnInitialized()
     {
-        // 1. Update Title
+        // Listen for changes so the "••••••" turns into text immediately when unlocked
+        LayoutState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        LayoutState.OnChange -= StateHasChanged;
+    }
+
+    private void TryOpenChat(string name)
+    {
+        // SECURITY CHECK: Is the vault unlocked?
+        if (!LayoutState.IsVaultUnlocked)
+        {
+            // If locked, do not navigate. Show a subtle warning.
+            Snackbar.Add("Enter passphrase to decrypt conversations.", Severity.Warning);
+            return;
+        }
+
+        // If unlocked, proceed to chat
         LayoutState.SetHeaderTitle(name);
-        // 2. Go to URL
         Nav.NavigateTo($"/chat/{name}");
     }
 }

@@ -8,7 +8,7 @@
 {
     <div class="dashboard-view">
         <h1 class="dash-greeting">Good afternoon, FinalBoss.</h1>
-        
+
         <div class="dash-search-wrapper">
             <span class="dash-icon">></span>
             <input type="text" class="dash-search" placeholder="Type a command or user...">
@@ -17,9 +17,6 @@
         <div class="dash-shortcuts">
             <div class="shortcut-chip">N : New Chat</div>
             <div class="shortcut-chip">/ : Search</div>
-            <div class="shortcut-chip" style="color: var(--mud-palette-error); border-color: var(--mud-palette-error);" @onclick="ToggleState">
-                [DEV: LOGOUT]
-            </div>
         </div>
     </div>
 }
@@ -36,14 +33,11 @@ else
 }
 
 @code {
-    private void Login() {
+    private void Login()
+    {
         Nav.NavigateTo("/login");
     }
     // dev only!!!!
-    private bool IsLoggedIn = false;
+    private bool IsLoggedIn => LayoutState.IsLoggedIn;
 
-    private void ToggleState()
-    {
-        IsLoggedIn = !IsLoggedIn;
-    }
 }
