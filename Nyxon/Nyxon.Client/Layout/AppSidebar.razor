@@ -11,7 +11,7 @@
         </div>
     </div>
     <div class="side-nav-list">
-        <div class="side-nav-item" onclick="openChat('Alice')">
+        <div class="side-nav-item" @onclick="() => OpenAlice()">
             <MudAvatar class="side-avatar">
                 A
             </MudAvatar>
@@ -52,17 +52,19 @@
         LayoutState.OnChange -= StateHasChanged;
     }
 
+    private void OpenAlice()
+    {
+        Nav.NavigateTo("/chat");
+    }
+
     private void TryOpenChat(string name)
     {
-        // SECURITY CHECK: Is the vault unlocked?
         if (!LayoutState.IsVaultUnlocked)
         {
-            // If locked, do not navigate. Show a subtle warning.
             Snackbar.Add("Enter passphrase to decrypt conversations.", Severity.Warning);
             return;
         }
 
-        // If unlocked, proceed to chat
         LayoutState.SetHeaderTitle(name);
         Nav.NavigateTo($"/chat/{name}");
     }

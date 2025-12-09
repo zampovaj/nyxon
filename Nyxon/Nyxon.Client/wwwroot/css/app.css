@@ -769,3 +769,128 @@ input[type="password"] {
     color: var(--primary);
     border-color: var(--primary);
 }
+
+
+
+/* CHAT */
+
+.chat-view {
+    flex-direction: column;
+    height: 100%;
+}
+
+.messages-area {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.msg-wrapper {
+    display: flex;
+    flex-direction: column;
+    max-width: 60%;
+    margin-top: 2px;
+}
+
+.msg-header-row {
+    display: flex;
+    font-family: var(--font-code);
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 4px;
+    margin-left: 4px;
+    flex-direction: row;
+}
+
+.msg-sender {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    opacity: 0.9;
+}
+
+.sent .msg-header-row {
+    flex-direction: row-reverse;
+    margin-right: 4px;
+}
+
+.msg-time-header {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    opacity: 0.6;
+    font-weight: 500;
+}
+
+.msg-wrapper:is(.consecutive) .msg-header-row {
+    display: none;
+}
+
+.msg-wrapper:not(.consecutive) {
+    margin-top: 20px;
+}
+
+.msg-wrapper.received {
+    align-self: flex-start;
+}
+
+.msg-wrapper.sent {
+    align-self: flex-end;
+    align-items: flex-end;
+}
+
+.bubble {
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.received .bubble {
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+    border-bottom-left-radius: 2px;
+}
+
+.sent .bubble {
+    background-color: var(--primary);
+    color: #0F0F0F;
+    font-weight: 500;
+    border-bottom-right-radius: 2px;
+}
+
+.input-area {
+    padding: 20px 30px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-void);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+.msg-input {
+    height: 40px;
+}
+
+.send-btn {
+    width: 50px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 8px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    color: var(--primary);
+    font-size: 1.6rem;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: var(--font-code);
+    transition: all 0.2s;
+}
+
+.send-btn:hover {
+    border-color: var(--primary);
+}
