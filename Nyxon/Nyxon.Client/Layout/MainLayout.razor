@@ -30,14 +30,17 @@
             <nav class="nav-links">
                 @if (LayoutState.IsLoggedIn)
                 {
-                    <div
-                        style="display: flex; align-items: center; gap: 10px; border-right: 1px solid var(--border); padding-right: 20px; margin-right: 20px;">
-                        <MudAvatar Color="Color.Primary" Size="Size.Small" Style="color: black; font-weight: bold;">F
-                        </MudAvatar>
-                        <span style="font-size: 0.9rem; font-weight: 500;">FinalBoss</span>
+                    <div class="nav-links-log">
+                        <div class="user-link">
+                            <MudAvatar Style="background-color: #BB86FC; color: black; font-weight: bold; 
+                     width: 32px; height: 32px; font-size: 14px; display:flex; 
+                     align-items:center; justify-content:center; border-radius: 50%;">
+                                F
+                            </MudAvatar>
+                            <a class="username">FinalBoss_01</a>
+                        </div>
+                        <a class="logout-link" href="#" @onclick="Logout">➜]  Logout</a>
                     </div>
-
-                    <a href="#" @onclick="Logout" style="color: var(--error);">Logout</a>
                 }
                 else
                 {
@@ -55,15 +58,15 @@
 
     @if (LayoutState.IsLoggedIn)
     {
-        
-        
+
+
         <div class="app-layout">
             <AppSidebar />
             <main class="main-stage">
                 @Body
             </main>
         </div>
-    
+
     }
     else
     {

@@ -18,6 +18,7 @@
     --bg-surface-hover: #252525;
     --primary-dim: rgba(187, 134, 252, 0.1);
     --secondary: #03DAC6;
+    --error: #CF6679;
 
     /* Accents */
     --primary: var(--mud-palette-primary);
@@ -74,10 +75,6 @@ body {
     color: var(--error);
     padding: 10px 20px;
     box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
-
-    /* 4. CONTENT ALIGNMENT */
-    /* display: flex is applied by Blazor JS when active, 
-       so we just style the children */
 }
 
 /* The "Reload" link */
@@ -121,26 +118,21 @@ body {
     font-family: var(--font-body);
 }
 
-/* --- BREADCRUMB (THE MISSING PIECE) --- */
 
-/* 1. Default State: HIDDEN */
 .breadcrumb {
     display: none;
-    /* <--- THIS IS WHAT HIDES IT */
+
     align-items: center;
     gap: 15px;
 
-    /* Animation Prep */
     opacity: 0;
     transform: translateX(-10px);
     transition: all 0.3s ease;
 
-    /* Spacing next to logo */
     margin-left: 20px;
 }
 
-/* 2. Active State: VISIBLE */
-/* When we add this class, it appears */
+
 .breadcrumb.visible {
     display: flex;
     /* Turns it on */
@@ -148,7 +140,6 @@ body {
     transform: translateX(0);
 }
 
-/* 3. Styling the inner text */
 .breadcrumb-divider {
     color: var(--border);
     font-family: var(--font-code);
@@ -225,6 +216,22 @@ body {
     color: var(--mud-palette-text-primary);
 }
 
+
+.logout-link {
+    color: var(--mud-palette-text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+    /*need this in case i add more links*/
+    margin-left: 20px;
+}
+
+.logout-link:hover {
+    color: var(--error);
+}
+
+
 .logo-link {
     font-family: var(--font-heading);
     font-weight: 700;
@@ -245,6 +252,48 @@ body {
     color: var(--mud-palette-primary);
     text-shadow: 0 0 15px rgba(187, 134, 252, 0.4);
 }
+
+.nav-links-log {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-right: 1px solid var(--border);
+    padding-right: 30px;
+    margin-right: 10px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.username {
+    font-size: 1rem;
+    text-decoration: none;
+    color: var(--mud-palette-text-secondary);
+}
+
+.user-link:hover .username {
+    color: var(--mud-palette-text-primary);
+}
+
+/*
+.logout {
+    color: var(--mud-palette-text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+    margin-left: 20px;
+}
+
+.logout:hover {
+    color: var(--mud-palette-text-primary);
+}*/
 
 /*HOME PAGE*/
 
@@ -571,6 +620,7 @@ input[type="password"] {
 
 .sidebar-bottom {
     margin-top: auto;
+    margin-bottom: 16px;
     height: 50px;
     display: flex;
     align-items: center;
@@ -606,4 +656,77 @@ input[type="password"] {
 .sidebar:hover .status-text {
     opacity: 1;
     transition-delay: 0.2s;
+}
+
+.dashboard-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding-bottom: 50px;
+}
+
+.dash-greeting {
+    font-family: var(--font-heading);
+    margin-bottom: 10px;
+    font-weight: 800;
+    font-size: 2rem;
+    margin-bottom: 30px;
+}
+
+.dash-search-wrapper {
+    position: relative;
+    width: 500px;
+}
+
+.dash-search {
+    width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    padding: 20px 16px 16px 50px;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    outline: none;
+}
+
+.dash-search:focus {
+    border-color: var(--primary);
+}
+
+.dash-icon {
+    /*need to slap it on top of textbox -> position absolute*/
+    position: absolute;
+    left: 20px;
+    top: 16px;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+}
+
+.dash-shortcuts {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.shortcut-chip {
+    font-size: 0.8rem;
+    font-family: var(--font-code);
+    color: var(--mud-palette-text-secondary);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    border-radius: 5%;
+    padding: 5px 10px;
+    background-color: var(--bg-surface);
+}
+
+.shortcut-chip:hover {
+    color: var(--primary);
+    border-color: var(--primary);
 }
