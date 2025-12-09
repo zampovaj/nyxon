@@ -281,6 +281,28 @@ body {
     color: var(--mud-palette-text-primary);
 }
 
+.user-avatar,
+.side-avatar {
+    font-weight: bold;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.user-avatar {
+    background-color: var(--primary);
+    color: black;
+}
+
+.side-avatar {
+    background-color: var(--bg-surface-hover);
+    color: var(--mud-palette-text-primary);
+}
+
 /*
 .logout {
     color: var(--mud-palette-text-secondary);
@@ -571,6 +593,8 @@ input[type="password"] {
     overflow-x: hidden;
     opacity: 0;
     transition: opacity 0.2s ease;
+    padding: 10px;
+    gap: 5px;
 }
 
 .sidebar:hover .side-nav-list {
@@ -585,6 +609,8 @@ input[type="password"] {
     height: 50px;
     cursor: pointer;
     position: relative;
+    padding: 12px 4px;
+    border-radius: 8px;
 }
 
 .side-nav-item:hover {
@@ -615,8 +641,21 @@ input[type="password"] {
 
 .side-nav-info {
     padding-left: 10px;
+    display: flex;
+    flex-direction: column;
 }
 
+.chat-name {
+    font-size: 0.9rem;
+    font-family: var(--font-heading);
+    color: var(--text-main);
+}
+
+.chat-preview {
+    font-size: 0.75rem;
+    font-family: var(--font-body);
+    color: var(--text-muted);
+}
 
 .sidebar-bottom {
     margin-top: auto;
@@ -721,7 +760,7 @@ input[type="password"] {
     color: var(--mud-palette-text-secondary);
     border: 1px solid var(--border);
     cursor: pointer;
-    border-radius: 5%;
+    border-radius: 5px;
     padding: 5px 10px;
     background-color: var(--bg-surface);
 }
