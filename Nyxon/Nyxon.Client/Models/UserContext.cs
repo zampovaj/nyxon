@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Nyxon.Models
+namespace Nyxon.Client.Models
 {
     public class UserContext
     {
@@ -14,6 +14,6 @@ namespace Nyxon.Models
         public byte[] PassphraseKey { get; set; } = Array.Empty<byte>();
 
         // validate model
-        public bool IsValid => !string.IsNullOrEmpty(Token) && MasterKey.Length > 0;
+        public bool IsValid => !string.IsNullOrEmpty(Token) && PassphraseKey.Length > 0;
     }
 }
