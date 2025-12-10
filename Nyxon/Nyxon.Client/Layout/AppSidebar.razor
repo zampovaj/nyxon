@@ -12,7 +12,7 @@
     </div>
     <div class="side-nav-list">
         <div class="side-nav-item" @onclick="() => OpenAlice()">
-            <MudAvatar class="side-avatar">
+            <MudAvatar class="avatar side-avatar">
                 A
             </MudAvatar>
             <div class="side-nav-info">
@@ -21,7 +21,7 @@
             </div>
         </div>
         <div class="side-nav-item" onclick="openChat('Bob')">
-            <MudAvatar class="side-avatar">
+            <MudAvatar class="avatar side-avatar">
                 B
             </MudAvatar>
             <div class="side-nav-info">
@@ -55,6 +55,7 @@
     private void OpenAlice()
     {
         Nav.NavigateTo("/chat");
+        LayoutState.SetHeaderTitle("Alice");
     }
 
     private void TryOpenChat(string name)

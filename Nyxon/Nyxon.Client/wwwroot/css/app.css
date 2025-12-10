@@ -123,19 +123,22 @@ body {
     display: none;
 
     align-items: center;
+    justify-content: center;
     gap: 15px;
 
     opacity: 0;
     transform: translateX(-10px);
     transition: all 0.3s ease;
 
-    margin-left: 20px;
+    margin-left: 18px;
+    line-height: 1;
+    margin-bottom: auto;
 }
 
 
 .breadcrumb.visible {
+    align-items: center;
     display: flex;
-    /* Turns it on */
     opacity: 1;
     transform: translateX(0);
 }
@@ -150,11 +153,13 @@ body {
 .context-title {
     font-family: var(--font-heading);
     font-weight: 700;
-    font-size: 1.5rem;
-    color: var(--text-main);
+    font-size: 1.4rem;
+    color: var(--mud-palette-text-primary);
     display: flex;
     align-items: center;
     gap: 10px;
+    letter-spacing: 0.02em;
+    line-height: 1;
 }
 
 .encrypted-badge {
@@ -217,13 +222,27 @@ body {
 }
 
 
+.logo-link {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: -0.04em;
+    color: var(--mud-palette-text-primary);
+    text-decoration: none;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+
+    display: flex;
+    align-items: center;
+    line-height: 1;
+    height: 100%;
+}
+
 .logout-link {
     color: var(--mud-palette-text-secondary);
     text-decoration: none;
     font-weight: 500;
     font-size: 0.9rem;
     transition: color 0.2s;
-    /*need this in case i add more links*/
     margin-left: 20px;
 }
 
@@ -258,6 +277,7 @@ body {
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    text-decoration: none;
 }
 
 .user-link {
@@ -281,8 +301,7 @@ body {
     color: var(--mud-palette-text-primary);
 }
 
-.user-avatar,
-.side-avatar {
+.avatar {
     font-weight: bold;
     width: 32px;
     height: 32px;
@@ -296,11 +315,6 @@ body {
 .user-avatar {
     background-color: var(--primary);
     color: black;
-}
-
-.side-avatar {
-    background-color: var(--bg-surface-hover);
-    color: var(--mud-palette-text-primary);
 }
 
 /*
@@ -617,13 +631,19 @@ input[type="password"] {
     background: var(--bg-surface-hover);
 }
 
-.side-nav-avatar {
-    width: var(--sidebar-collapsed);
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+.side-avatar {
+    background-color: var(--bg-surface-hover);
+    color: var(--mud-palette-text-primary);
+}
+
+.side-nav-item:active {
+    background-color: var(--primary-dim);
+}
+
+.side-nav-item:active .side-avatar {
+    background-color: var(--primary-dim);
+    color: var(--primary);
+    border-color: var(--primary);
 }
 
 .nav-avatar-circle {
@@ -775,6 +795,7 @@ input[type="password"] {
 /* CHAT */
 
 .chat-view {
+    display: flex;
     flex-direction: column;
     height: 100%;
 }

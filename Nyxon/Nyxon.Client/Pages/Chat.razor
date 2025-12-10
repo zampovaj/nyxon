@@ -8,7 +8,7 @@
     <div class="messages-area">
         <div class="msg-wrapper received">
             <div class="msg-header-row">
-                <span class="msg-sender">Alice</span>
+                <span class="msg-sender">@username</span>
                 <span class="msg-time-header">10:42 AM</span>
             </div>
             <div class="bubble">Header time for everyone?</div>
@@ -32,7 +32,7 @@
 
         <div class="msg-wrapper received">
             <div class="msg-header-row">
-                <span class="msg-sender">Alice</span>
+                <span class="msg-sender">@username</span>
                 <span class="msg-time-header">10:44 AM</span>
             </div>
             <div class="bubble">Looks ready for production.</div>
@@ -46,6 +46,7 @@
 </div>
 
 @code {
+    private string username = "Alice";
     private bool IsLoggedIn => LayoutState.IsLoggedIn;
     protected override void OnInitialized()
     {

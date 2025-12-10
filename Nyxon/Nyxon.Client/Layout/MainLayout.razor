@@ -15,11 +15,11 @@
         <div class="header-content">
 
             <div style="display: flex; align-items: center;">
-                <a href="/" class="logo-link">nyxon</a>
+                <a href="/" @onclick="Home" class="logo-link">nyxon</a>
 
                 @if (!string.IsNullOrEmpty(LayoutState.HeaderTitle))
                 {
-                    <div class="breadcrumb visible" style="display:flex; margin-left:20px;">
+                    <div class="breadcrumb visible" style="display: flex; align-items: center;">
                         <span class="breadcrumb-divider">/</span>
                         <span class="context-title">@LayoutState.HeaderTitle</span>
                         <span class="encrypted-badge">ENCRYPTED</span>
@@ -32,7 +32,7 @@
                 {
                     <div class="nav-links-log">
                         <div class="user-link">
-                            <MudAvatar class="user-avatar">
+                            <MudAvatar class="avatar user-avatar">
                                 F
                             </MudAvatar>
                             <a class="username">FinalBoss_01</a>
@@ -79,6 +79,10 @@
     private void Login()
     {
         Nav.NavigateTo("/login");
+    }
+    private void Home() {
+        //Nav.NavigateTo("/");
+        LayoutState.SetHeaderTitle("");
     }
 
     protected override void OnInitialized()
