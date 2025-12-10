@@ -30,9 +30,9 @@ namespace Nyxon.Client
             services.AddScoped<IApiService, ApiService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
 
-            // viewmodel
-            // services.AddTransient<LoginViewModel>();
-            // services.AddTransient<ChatViewModel>();
+            // viewmodels
+            services.AddTransient<LoginViewModel>();
+            services.AddTransient<ChatViewModel>();
 
             return services;
         }
