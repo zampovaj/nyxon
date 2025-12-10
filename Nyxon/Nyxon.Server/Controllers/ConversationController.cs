@@ -10,7 +10,7 @@ using Nyxon.Server.Interfaces;
 namespace Nyxon.Server.Controllers
 {
     [ApiController]
-    [Route("v1/conversation")]
+    [Route("api/conversation")]
     [Authorize]
     public class ConversationController : ControllerBase
     {

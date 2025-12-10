@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.SignalR;
 using Nyxon.Server.Hubs;
 using Nyxon.Core.Interfaces;
 using Nyxon.Server.Interfaces;
-using Nyxon.Server.Services.Crypto;
+using Nyxon.Server.Services;
 using Nyxon.Server.Services.Vault;
 using Nyxon.Server.Services.Messaging;
 using Nyxon.Server.Services.Cache;
@@ -81,7 +81,7 @@ namespace Nyxon.Server.Extensions
 
             // services
             services.AddScoped<IMessageCacheService, MessageCacheService>();
-            services.AddScoped<IHashInterface, Sha256HashService>();
+            services.AddScoped<IHashService, Sha256HashService>();
             services.AddScoped<IRegistrationService, RegistrationService>();
             services.AddScoped<ILoginService, LoginService>();
             services.AddScoped<IJwtService, JwtService>();

@@ -9,7 +9,7 @@ using Nyxon.Server.Interfaces;
 namespace Nyxon.Server.Controllers
 {
     [ApiController]
-    [Route("v1/user/vault")]
+    [Route("api/user/vault")]
     [Authorize]
     public class UserVaultController : ControllerBase
     {

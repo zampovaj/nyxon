@@ -4,7 +4,7 @@ using Nyxon.Server.Interfaces;
 namespace Nyxon.Server.Controllers
 {
     [ApiController]
-    [Route("v1/auth")]
+    [Route("api/auth")]
     public class AuthController : ControllerBase
     {
         private readonly IRegistrationService _registrationService;

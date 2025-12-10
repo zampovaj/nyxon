@@ -1,0 +1,43 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
+using Nyxon.Client.Interfaces;
+
+namespace Nyxon.Client.Services
+{
+    public class ApiService : IApiService
+    {
+        private readonly HttpClient _http;
+
+        public ApiService(HttpClient http)
+        {
+            _http = http;
+        }
+
+        public async Task<TResponse?> PostAsync<TResponse, TRequest>(string uri, TRequest request)
+        {
+            try
+            {
+                var response = await _http.PostAsJsonAsync(uri, request);
+                response.EnsureSuccessStatusCode();
+                if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                    return default;
+                return await response.Content.ReadFromJsonAsync<TResponse>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"API Error [{uri}]: {ex.Message}");
+                throw; // throw again for viewmodel
+            }
+        }
+        
+        public async Task<TResponse?> GetAsync<TResponse>(string uri)
+        {
+            var response = await _http.GetAsync(uri);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<TResponse>();
+        }
+    }
+}

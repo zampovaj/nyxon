@@ -9,10 +9,10 @@ namespace Nyxon.Server.Services.Auth
     public class RegistrationService : IRegistrationService
     {
         private readonly AppDbContext _context;
-        private readonly IHashInterface _hashService;
+        private readonly IHashService _hashService;
         private readonly bool _enforceInvites;
 
-        public RegistrationService(AppDbContext context, IHashInterface hashService, IConfiguration config)
+        public RegistrationService(AppDbContext context, IHashService hashService, IConfiguration config)
         {
             _context = context;
             _hashService = hashService;

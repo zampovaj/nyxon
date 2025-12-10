@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Nyxon.Server.Controllers
 {
     [ApiController]
-    [Route("v1/conversation/vault")]
+    [Route("api/conversation/vault")]
     [Authorize]
     public class ConversationVaultController : ControllerBase
     {
