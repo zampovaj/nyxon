@@ -14,3 +14,5 @@ global using MudBlazor;
 
 //client
 global using Nyxon.Client.Services;
+global using Nyxon.Client.Models;
+global using Nyxon.Client.State;
