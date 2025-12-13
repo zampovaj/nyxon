@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 using Nyxon.Client.Services;
 using Nyxon.Client.State;
+using Nyxon.Core.Services.Hash;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Nyxon.Client
 {
@@ -29,6 +31,11 @@ namespace Nyxon.Client
             // services
             services.AddScoped<IApiService, ApiService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IHashService, Sha256HashService>();
+
+            //auth
+            services.AddAuthorizationCore();
+            services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 
             // viewmodels
             services.AddTransient<LoginViewModel>();

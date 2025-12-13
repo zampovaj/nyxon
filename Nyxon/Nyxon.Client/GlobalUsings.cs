@@ -9,6 +9,7 @@ global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.SignalR.Client;
 global using Microsoft.JSInterop;
 global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.AspNetCore.Components.Authorization;
 global using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 global using MudBlazor;
 
@@ -17,3 +18,5 @@ global using Nyxon.Client.Services;
 global using Nyxon.Client.Models;
 global using Nyxon.Client.State;
 global using Nyxon.Client.ViewModels;
+global using Nyxon.Client.Interfaces;
+global using Nyxon.Client.Components;

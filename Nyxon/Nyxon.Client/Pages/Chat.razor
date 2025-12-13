@@ -50,7 +50,7 @@
     private bool IsLoggedIn => LayoutState.IsLoggedIn;
     protected override void OnInitialized()
     {
-        if (!IsLoggedIn) Nav.NavigateTo("/", true);
+        if (!IsLoggedIn) Nav.NavigateTo("/", false);
     }
 
 }
