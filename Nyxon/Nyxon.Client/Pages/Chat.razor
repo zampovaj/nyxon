@@ -1,8 +1,10 @@
 @page "/chat"
-
+@using Microsoft.AspNetCore.Authorization
 @using Nyxon.Client.Services
 @inject LayoutService LayoutState
 @inject NavigationManager Nav
+
+@attribute [Authorize] 
 
 <div class=chat-view>
     <div class="messages-area">
@@ -23,7 +25,8 @@
                 <span class="msg-sender">Me</span>
                 <span class="msg-time-header">10:43 AM</span>
             </div>
-            <div class="bubble">Exactly. Consistent headers.</div>
+            <div class="bubble">Exactly.
+Consistent headers.</div>
         </div>
 
         <div class="msg-wrapper sent consecutive">
@@ -47,10 +50,73 @@
 
 @code {
     private string username = "Alice";
+    
+    protected override void OnInitialized()
+    {
+        // Set the UI title when this page loads
+        // This fixes the issue where refreshing the page clears the header
+        LayoutState.SetHeaderTitle(username);
+    }
+}
+
+
+
+
+
+<!--
+page "/chat"
+
+using Nyxon.Client.Services
+inject LayoutService LayoutState
+inject NavigationManager Nav
+
+<div class=chat-view>
+    <div class="messages-area">
+        <div class="msg-wrapper received">
+            <div class="msg-header-row">
+                <span class="msg-sender">username</span>
+                <span class="msg-time-header">10:42 AM</span>
+            </div>
+            <div class="bubble">Header time for everyone?</div>
+        </div>
+
+        <div class="msg-wrapper received consecutive">
+            <div class="bubble">It feels more like a console log now.</div>
+        </div>
+
+        <div class="msg-wrapper sent">
+            <div class="msg-header-row">
+                <span class="msg-sender">Me</span>
+                <span class="msg-time-header">10:43 AM</span>
+            </div>
+            <div class="bubble">Exactly. Consistent headers.</div>
+        </div>
+
+        <div class="msg-wrapper sent consecutive">
+            <div class="bubble">And the full flow is back.</div>
+        </div>
+
+        <div class="msg-wrapper received">
+            <div class="msg-header-row">
+                <span class="msg-sender">username</span>
+                <span class="msg-time-header">10:44 AM</span>
+            </div>
+            <div class="bubble">Looks ready for production.</div>
+        </div>
+
+    </div>
+    <div class="input-area">
+        <input type="text" class="input-std msg-input" placeholder="Message Alice...">
+        <button class="send-btn">></button>
+    </div>
+</div>
+
+code {
+    private string username = "Alice";
     private bool IsLoggedIn => LayoutState.IsLoggedIn;
     protected override void OnInitialized()
     {
         if (!IsLoggedIn) Nav.NavigateTo("/", false);
     }
 
-}
+}-->

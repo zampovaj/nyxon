@@ -1,7 +1,7 @@
 @using Nyxon.Client.Services
-@inject LayoutService LayoutState
 @inject NavigationManager Nav
 @inject ISnackbar Snackbar
+@inject LayoutService LayoutState
 
 <aside class="sidebar">
     <div class="sidebar-top">
@@ -11,7 +11,7 @@
         </div>
     </div>
     <div class="side-nav-list">
-        <div class="side-nav-item" @onclick="() => OpenAlice()">
+        <div class="side-nav-item" @onclick='() => TryOpenChat("Alice")'>
             <MudAvatar class="avatar side-avatar">
                 A
             </MudAvatar>
@@ -20,7 +20,8 @@
                 <span class="chat-preview">Project Nyxon is live.</span>
             </div>
         </div>
-        <div class="side-nav-item" onclick="openChat('Bob')">
+        
+        <div class="side-nav-item" @onclick='() => TryOpenChat("Bob")'>
             <MudAvatar class="avatar side-avatar">
                 B
             </MudAvatar>
@@ -43,7 +44,6 @@
 @code {
     protected override void OnInitialized()
     {
-        // listen for chnages to chnage texts preview imediately
         LayoutState.OnChange += StateHasChanged;
     }
 
@@ -52,21 +52,12 @@
         LayoutState.OnChange -= StateHasChanged;
     }
 
-    private void OpenAlice()
-    {
-        Nav.NavigateTo("/chat");
-        LayoutState.SetHeaderTitle("Alice");
-    }
-
     private void TryOpenChat(string name)
     {
-        if (!LayoutState.IsVaultUnlocked)
-        {
-            Snackbar.Add("Enter passphrase to decrypt conversations.", Severity.Warning);
-            return;
-        }
+        // TODO: Re-implement Vault check later when we have EncryptionService
+        // if (!LayoutState.IsVaultUnlocked) ...
 
         LayoutState.SetHeaderTitle(name);
-        Nav.NavigateTo($"/chat/{name}");
+        Nav.NavigateTo($"/chat");
     }
 }

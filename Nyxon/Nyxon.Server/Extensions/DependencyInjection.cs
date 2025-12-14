@@ -10,6 +10,20 @@ namespace Nyxon.Server.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration config)
         {
 
+            //cors
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(corsPolicy =>
+                {
+                    // "SetIsOriginAllowed(origin => true)" allows ANY origin (WSL, localhost, Caddy)
+                    // This is much safer for dev than trying to guess the IP
+                    corsPolicy.SetIsOriginAllowed(origin => true)
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowCredentials();
+                });
+            });
+
             var connString = config.GetConnectionString("DefaultConnection");
 
             if (string.IsNullOrEmpty(connString))
@@ -22,25 +36,45 @@ namespace Nyxon.Server.Extensions
                 connString = $"Host={pgHost};Port={pgPort};Database={pgDb};Username={pgUser};Password={pgPass}";
             }
 
+            var isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+
             //anti forgery
             services.AddAntiforgery(options =>
             {
                 options.HeaderName = "X-CSRF-TOKEN";
-                options.Cookie.Name = "__Host-X-CSRF-TOKEN";
+
+                if (isDevelopment)
+                {
+                    options.Cookie.Name = "X-CSRF-TOKEN";
+                }
+                else
+                {
+                    options.Cookie.Name = "__Host-X-CSRF-TOKEN";
+                }
                 options.Cookie.SameSite = SameSiteMode.Strict;
+                //TODO:
                 // forces https
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                //options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
             });
 
             // cookies
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
-                    options.Cookie.Name = "__Host-NyxonAuth";
-                    //lax - industry standard
-                    //allows google links but blocks malicious
-                    options.Cookie.SameSite = SameSiteMode.Lax;
-                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                    if (isDevelopment)
+                    {
+                        options.Cookie.Name = "NyxonAuth"; // Simple name for Dev
+                        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Allow HTTP
+                        options.Cookie.SameSite = SameSiteMode.Lax; // Easier for Dev
+                    }
+                    else
+                    {
+                        // Production Settings (Keep these strict!)
+                        options.Cookie.Name = "__Host-NyxonAuth";
+                        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                        options.Cookie.SameSite = SameSiteMode.Strict;
+                    }
                     //xss protection
                     options.Cookie.HttpOnly = true;
 

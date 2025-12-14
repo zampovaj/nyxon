@@ -27,6 +27,7 @@ namespace Nyxon.Client
             services.AddScoped<IApiService, ApiService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IHashService, Sha256HashService>();
+            services.AddScoped<LayoutService>();
 
             //auth
             services.AddAuthorizationCore();
@@ -38,7 +39,6 @@ namespace Nyxon.Client
 
             // viewmodels
             services.AddTransient<LoginViewModel>();
-            services.AddTransient<ChatViewModel>();
 
             return services;
         }

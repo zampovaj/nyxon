@@ -38,13 +38,18 @@ namespace Nyxon.Server.Services.Auth
                         throw new ArgumentException("Invite code is required");
 
                     request.InviteCode = _hashService.HashInviteCode(request.InviteCode);
-
+                    
+                    // TODO: impleemtn invites handling!!!
+                    /*
                     var invite = await _context.InviteCodes
                         .FirstOrDefaultAsync(i => i.CodeHash == request.InviteCode && !i.Used);
                     if (invite == null)
                         throw new("Invalid or already used invide code");
 
                     invite.Use();
+                    */
+                    if (request.InviteCode != "123-456-789")
+                        throw new("Invalid or already used invide code");
                 }
 
                 // create user

@@ -1,43 +1,36 @@
 ﻿@page "/"
-
-@using Nyxon.Client.Services
-@inject LayoutService LayoutState
+@using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager Nav
 
-@if (IsLoggedIn)
-{
-    <div class="dashboard-view">
-        <h1 class="dash-greeting">Good afternoon, FinalBoss.</h1>
+<AuthorizeView>
+    <Authorized>
+        <div class="dashboard-view">
+            <h1 class="dash-greeting">Good afternoon, @context.User.Identity?.Name.</h1>
 
-        <div class="dash-search-wrapper">
-            <span class="dash-icon">></span>
-            <input type="text" class="dash-search" placeholder="Type a command or user...">
-        </div>
+            <div class="dash-search-wrapper">
+                <span class="dash-icon">></span>
+                <input type="text" class="dash-search" placeholder="Type a command or user...">
+            </div>
 
-        <div class="dash-shortcuts">
-            <div class="shortcut-chip">N : New Chat</div>
-            <div class="shortcut-chip">/ : Search</div>
+            <div class="dash-shortcuts">
+                <div class="shortcut-chip">N : New Chat</div>
+                <div class="shortcut-chip">/ : Search</div>
+            </div>
         </div>
-    </div>
-}
-else
-{
-    <section class="landing-hero">
-        <h1 class="hero-title">Sovereignty over<br>your data.</h1>
-        <p class="hero-subtitle">End-to-End Encrypted. Zero Knowledge.<br>The last messenger you will ever need.</p>
-        <div class="hero-buttons">
-            <button class="btn-primary" @onclick="() => Login()">Get Started</button>
-            <button class="btn-outline">Read The Code</button>
-        </div>
-    </section>
-}
+    </Authorized>
+    <NotAuthorized>
+        <section class="landing-hero">
+            <h1 class="hero-title">Sovereignty over<br>your data.</h1>
+            <p class="hero-subtitle">End-to-End Encrypted.
+                Zero Knowledge.<br>The last messenger you will ever need.</p>
+            <div class="hero-buttons">
+                <button class="btn-primary" @onclick='() => Nav.NavigateTo("/login")'>Get Started</button>
+                <button class="btn-outline">Read The Code</button>
+            </div>
+        </section>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
-    private void Login()
-    {
-        Nav.NavigateTo("/login");
-    }
-    // dev only!!!!
-    private bool IsLoggedIn => LayoutState.IsLoggedIn;
-
+    // No code needed! AuthorizeView handles everything.
 }

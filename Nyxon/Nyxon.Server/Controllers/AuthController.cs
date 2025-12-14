@@ -69,7 +69,7 @@ namespace Nyxon.Server.Controllers
                     authProperties);
                 
                 //success
-                return Ok(new { userId = userId });
+                return Ok(userId);
             }
             catch (ArgumentException argEx)
             {

@@ -2,27 +2,27 @@ var builder = WebApplication.CreateBuilder(args);
 
 // add controllers
 builder.Services.AddControllers();
-
-// cors
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.WithOrigins("http://localhost:5286") // frontend URL
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
-    });
-});
-
 // di
-builder.Services.AddApplicationServices(builder.Configuration); 
+builder.Services.AddApplicationServices(builder.Configuration);
 
 // swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApiDocument();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    try 
+    {
+        dbContext.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Migration Failed: {ex.Message}");
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {

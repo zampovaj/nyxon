@@ -1,9 +1,13 @@
 @inherits LayoutComponentBase
 @using MudBlazor
-@inject NavigationManager Nav
+@using Microsoft.AspNetCore.Components.Authorization
 @using Nyxon.Client.Services
+@using Nyxon.Client.Interfaces 
+
+@inject NavigationManager Nav
 @inject LayoutService LayoutState
-@implements IDisposable // need this to prevetn memory leaks
+@inject IAuthenticationService AuthService 
+@inject AuthenticationStateProvider AuthStateProvider
 
 <MudThemeProvider Theme="NyxonTheme.Default" IsDarkMode="true" />
 <MudDialogProvider />
@@ -19,95 +23,93 @@
 
                 @if (!string.IsNullOrEmpty(LayoutState.HeaderTitle))
                 {
-                    <div class="breadcrumb visible" style="display: flex; align-items: center;">
-                        <span class="breadcrumb-divider">/</span>
-                        <span class="context-title">@LayoutState.HeaderTitle</span>
-                        <span class="encrypted-badge">ENCRYPTED</span>
-                    </div>
+                    <AuthorizeView>
+                        <div class="breadcrumb visible" style="display: flex; align-items: center;">
+                            <span class="breadcrumb-divider">/</span>
+                            <span class="context-title">@LayoutState.HeaderTitle</span>
+                            <span class="encrypted-badge">ENCRYPTED</span>
+                        </div>
+                    </AuthorizeView>
                 }
             </div>
 
             <nav class="nav-links">
-                @if (LayoutState.IsLoggedIn)
-                {
-                    <div class="nav-links-log">
-                        <div class="user-link">
-                            <MudAvatar class="avatar user-avatar">
-                                F
-                            </MudAvatar>
-                            <a class="username">FinalBoss_01</a>
+                <AuthorizeView>
+                    <Authorized>
+                        <div class="nav-links-log">
+                            <div class="user-link">
+                                <MudAvatar class="avatar user-avatar">
+                                    @(context.User.Identity?.Name?.Substring(0,1).ToUpper() ?? "?")
+                                </MudAvatar>
+                                <a class="username">@context.User.Identity?.Name</a>
+                            </div>
+                            <a class="logout-link" href="#" @onclick="Logout">➜]  Logout</a>
                         </div>
-                        <a class="logout-link" href="#" @onclick="Logout">➜]  Logout</a>
-                    </div>
-                }
-                else
-                {
-                    <a href="manifesto" class="nav-item">About</a>
-                    <a href="security" class="nav-item">Security</a>
-                    @if (!IsLoginPage)
-                    {
-                        <button style="margin-left: 20px" class="btn-primary" @onclick="() => Login()">Login /
-                            Register</button>
-                    }
-                }
+                    </Authorized>
+                    <NotAuthorized>
+                        <a href="manifesto" class="nav-item">About</a>
+                        <a href="security" class="nav-item">Security</a>
+                        @if (!Nav.Uri.Contains("login"))
+                        {
+                             <button style="margin-left: 20px" class="btn-primary" @onclick='() => Nav.NavigateTo("/login")'>
+                                Login / Register
+                            </button>
+                        }
+                    </NotAuthorized>
+                </AuthorizeView>
             </nav>
         </div>
     </header>
 
-    @if (LayoutState.IsLoggedIn)
-    {
-
-
-        <div class="app-layout">
-            <AppSidebar />
-            <main class="main-stage">
+    <AuthorizeView>
+        <Authorized>
+            <div class="app-layout">
+                <AppSidebar />
+                <main class="main-stage">
+                    @Body
+                </main>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <main style="flex: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%;">
                 @Body
             </main>
-        </div>
-
-    }
-    else
-    {
-        <main style="flex: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%;">
-            @Body
-        </main>
-    }
+        </NotAuthorized>
+    </AuthorizeView>
 </div>
 
 @code {
-    private bool IsLoginPage => Nav.Uri.Contains("login", StringComparison.OrdinalIgnoreCase);
-    private void Login()
-    {
-        Nav.NavigateTo("/login");
-    }
-    private void Home() {
-        //Nav.NavigateTo("/");
-        LayoutState.SetHeaderTitle("");
-    }
-
     protected override void OnInitialized()
     {
-        // listen for layoutstate cnages
         LayoutState.OnChange += StateHasChanged;
-
-        // listen for url chnages
         Nav.LocationChanged += OnLocationChanged;
     }
 
-    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
-    {
-        // force ui refresh
-        StateHasChanged();
-    }
+    // ... Dispose and LocationChanged methods stay the same ...
 
     public void Dispose()
     {
         LayoutState.OnChange -= StateHasChanged;
+        Nav.LocationChanged -= OnLocationChanged;
     }
 
-    private void Logout()
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
     {
-        LayoutState.SetLoginState(false);
+        StateHasChanged();
+    }
+
+    private void Home() 
+    {
+        LayoutState.SetHeaderTitle("");
+        // Optional: Nav.NavigateTo("/") if logo should redirect
+    }
+
+    private async Task Logout()
+    {
+        // Use the proper Auth service now!
+        await AuthService.LogoutAsync();
+        
+        LayoutState.SetHeaderTitle(""); // Clear UI state
         Nav.NavigateTo("/");
     }
 }
