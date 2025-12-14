@@ -1,13 +1,5 @@
 using MudBlazor.Services;
-using Nyxon.Client.Interfaces;
-using Nyxon.Client.Services.Hub;
-
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using MudBlazor.Services;
-using Nyxon.Client.Services;
-using Nyxon.Client.State;
 using Nyxon.Core.Services.Hash;
-using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Nyxon.Client
 {
@@ -15,18 +7,21 @@ namespace Nyxon.Client
     {
         public static IServiceCollection AddClientServices(this IServiceCollection services, IWebAssemblyHostEnvironment environment)
         {
+            //mudblazor
             services.AddMudServices();
 
-            // basic setup
-            services.AddScoped(sp => new HttpClient
-            {
-                //BaseAddress = new Uri(environment.BaseAddress)
-                BaseAddress = new Uri("http://localhost:8080") // DEV ONLY
-            });
+            // http
+            // register the handler first
+            services.AddTransient<AntiforgeryHandler>();
 
-            // state
-            services.AddSingleton<AppState>();
-            services.AddScoped<LayoutService>(); // ONLY FOR NOW
+            // configure the client with the handler
+            services.AddHttpClient("Nyxon.ServerAPI", client =>
+            {
+                client.BaseAddress = new Uri(environment.BaseAddress);
+            })
+            .AddHttpMessageHandler<AntiforgeryHandler>();
+            // this makes me able to just inject httpclient into razor files
+            services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Nyxon.ServerAPI"));
 
             // services
             services.AddScoped<IApiService, ApiService>();
@@ -35,7 +30,11 @@ namespace Nyxon.Client
 
             //auth
             services.AddAuthorizationCore();
-            services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
+            services.AddCascadingAuthenticationState();
+            services.AddScoped<AuthenticationStateProvider, HostAuthenticationStateProvider>();
+
+            //cast for when we need the specific provider methods
+            services.AddScoped(sp => (HostAuthenticationStateProvider)sp.GetRequiredService<AuthenticationStateProvider>());
 
             // viewmodels
             services.AddTransient<LoginViewModel>();

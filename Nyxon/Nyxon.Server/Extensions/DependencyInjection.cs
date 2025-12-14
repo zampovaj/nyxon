@@ -96,7 +96,6 @@ namespace Nyxon.Server.Extensions
             services.AddScoped<IHashService, Sha256HashService>();
             services.AddScoped<IRegistrationService, RegistrationService>();
             services.AddScoped<ILoginService, LoginService>();
-            services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IUserVaultService, UserVaultService>();
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IMessageService, MessageService>();

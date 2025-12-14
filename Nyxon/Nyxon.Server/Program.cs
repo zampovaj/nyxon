@@ -1,15 +1,6 @@
-using System.Net.WebSockets;
-using Microsoft.EntityFrameworkCore;
-// Backend/Program.cs
-using Nyxon.Server.Hubs;
-using Nyxon.Server.Extensions; // Ensure you have this using
-
 var builder = WebApplication.CreateBuilder(args);
 
-// DELETE ALL manual Env Variable lines for Postgres/Valkey here.
-// The DependencyInjection class handles it now.
-
-// Add Services
+// add controllers
 builder.Services.AddControllers();
 
 // cors
@@ -24,12 +15,12 @@ builder.Services.AddCors(options =>
     });
 });
 
-// This ONE LINE does everything now:
+// di
 builder.Services.AddApplicationServices(builder.Configuration); 
 
-// Swagger
+// swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApiDocument(); // NSwag
+builder.Services.AddOpenApiDocument();
 
 var app = builder.Build();
 
@@ -39,11 +30,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors(); // <- enable CORS
+//cors
+app.UseCors();
+
+//routing
+app.UseRouting();
 
 // auth
 app.UseAuthentication();
 app.UseAuthorization();
+//csrf
+app.UseAntiforgery();
 
 // controllers
 app.MapControllers();

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Nyxon.Client.Interfaces;
@@ -8,27 +9,34 @@ namespace Nyxon.Client.ViewModels
 {
     public class LoginViewModel
     {
-        private readonly IAuthenticationService _authService;
-        private readonly NavigationManager _nav;
+        public readonly IAuthenticationService _authService;
+        public readonly NavigationManager _nav;
+        public readonly AuthenticationStateProvider _authStateProvider;
 
-        public string Username { get; set; } = "FinalBoss_01";
-        public string Password { get; set; } = "password123";
+        [Required]
+        public string Username { get; set; } = "";
+        [Required]
+        public string Password { get; set; } = "";
+        public string ConfirmPassword { get; set; } = "";
         public string InviteCode { get; set; } = "";
 
-        public bool IsRegistering { get; private set; } = false;
-        public string? ErrorMessage { get; private set; }
-        public bool IsBusy { get; private set; }
+        public bool IsRegistering { get; set; } = false;
+        public string? ErrorMessage { get; set; } = "";
+        public bool IsBusy { get; set; } = false;
 
-        public LoginViewModel(IAuthenticationService authService, NavigationManager nav)
+        public LoginViewModel(IAuthenticationService authService, NavigationManager nav, AuthenticationStateProvider authStateProvider)
         {
             _authService = authService;
             _nav = nav;
+            _authStateProvider = authStateProvider;
         }
 
         public void ToggleMode()
         {
             IsRegistering = !IsRegistering;
             ErrorMessage = null;
+            ConfirmPassword = "";
+            InviteCode = "";
         }
 
         public async Task SubmitAsync()
@@ -42,6 +50,12 @@ namespace Nyxon.Client.ViewModels
 
             if (IsRegistering)
             {
+                if (Password != ConfirmPassword)
+                {
+                    ErrorMessage = "Passwords dont match.";
+                    IsBusy = false;
+                    return;
+                }
                 success = await _authService.RegisterAsync(Username, Password, InviteCode);
             }
             else
@@ -54,6 +68,7 @@ namespace Nyxon.Client.ViewModels
             if (success)
             {
                 _nav.NavigateTo("/");
+                ((HostAuthenticationStateProvider)_authStateProvider).NotifyStateChanged();
             }
             else
             {

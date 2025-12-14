@@ -8,13 +8,13 @@ namespace Nyxon.Client.Services
 {
     public class AuthenticationService : IAuthenticationService
     {
-        private readonly AppState _appState;
+        private readonly AuthenticationStateProvider _authStateProvider;
         private readonly IApiService _apiService;
         private readonly IHashService _hashService;
 
-        public AuthenticationService(AppState appState, IApiService apiService, IHashService hashService)
+        public AuthenticationService(AuthenticationStateProvider authStateProvider, IApiService apiService, IHashService hashService)
         {
-            _appState = appState;
+            _authStateProvider = authStateProvider;
             _apiService = apiService;
             _hashService = hashService;
         }
@@ -32,15 +32,6 @@ namespace Nyxon.Client.Services
                 // loginresponse -> id, token
                 var response = await _apiService.PostAsync<LoginResponse, LoginRequest>("api/auth/login", request);
                 if (response == null) return false;
-
-                var userContext = new UserContext
-                {
-                    UserId = response.UserId,
-                    Username = username,
-                    Token = response.Token
-                };
-
-                _appState.SetUser(userContext);
                 return true;
             }
             catch (Exception)
@@ -60,24 +51,19 @@ namespace Nyxon.Client.Services
             try
             {
                 // loginresponse -> id, token
-                var response = await _apiService.PostAsync<Guid, RegisterRequest>("api/auth/login", request);
-                if (response == null) return false;
+                var response = await _apiService.PostAsync<Guid, RegisterRequest>("api/auth/register", request);
+                if (response != null) return true;
             }
             catch (Exception)
             {
                 return false;
             }
-
-            // TODO: implement registration
-            await Task.Delay(100);
             return false;
         }
         public async Task LogoutAsync()
         {
-            // TODO: clear api token??
-
-            _appState.Logout();
-            await Task.CompletedTask;
+            await _apiService.PostAsync<object, object>("api/auth/logout", null);
+            ((HostAuthenticationStateProvider)_authStateProvider).NotifyStateChanged();
         }
     }
 }

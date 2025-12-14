@@ -8,6 +8,6 @@ namespace Nyxon.Server.Interfaces
 {
     public interface ILoginService
     {
-        public Task<LoginResponse?> LoginAsync(LoginRequest request);
+        public Task<User?> LoginAsync(LoginRequest request);
     }
 }
