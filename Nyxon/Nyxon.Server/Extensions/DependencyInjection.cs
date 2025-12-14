@@ -1,20 +1,7 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
-using Microsoft.AspNetCore.Authentication.JwtBearer; // Add this
-using Microsoft.IdentityModel.Tokens; // Add this
-using System.Text;
-using Microsoft.AspNetCore.SignalR;
-using Nyxon.Server.Hubs;
-using Nyxon.Core.Interfaces;
-using Nyxon.Server.Interfaces;
-using Nyxon.Server.Services;
-using Nyxon.Server.Services.Vault;
-using Nyxon.Server.Services.Messaging;
-using Nyxon.Server.Services.Cache;
-using Nyxon.Server.Data;
-using Nyxon.Server.Services.Auth;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Nyxon.Server.Extensions
 {
@@ -35,23 +22,48 @@ namespace Nyxon.Server.Extensions
                 connString = $"Host={pgHost};Port={pgPort};Database={pgDb};Username={pgUser};Password={pgPass}";
             }
 
-            // jwt
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
+            //anti forgery
+            services.AddAntiforgery(options =>
+            {
+                options.HeaderName = "X-CSRF-TOKEN";
+                options.Cookie.Name = "__Host-X-CSRF-TOKEN";
+                options.Cookie.SameSite = SameSiteMode.Strict;
+                // forces https
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            });
+
+            // cookies
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
                 {
-                    options.TokenValidationParameters = new TokenValidationParameters
+                    options.Cookie.Name = "__Host-NyxonAuth";
+                    //lax - industry standard
+                    //allows google links but blocks malicious
+                    options.Cookie.SameSite = SameSiteMode.Lax;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                    //xss protection
+                    options.Cookie.HttpOnly = true;
+
+                    //aspnet redirects to login by default
+                    //that would cause blazor to crash
+                    //need to disbale redirect and return access denied instead
+                    options.Events.OnRedirectToLogin = context =>
                     {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = config["Jwt:Issuer"],
-                        ValidAudience = config["Jwt:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(config["Jwt:Key"]!))
+                        context.Response.StatusCode = 401;
+                        return Task.CompletedTask;
+                    };
+                    //same thing just return forbidden
+                    options.Events.OnRedirectToAccessDenied = context =>
+                    {
+                        context.Response.StatusCode = 403;
+                        return Task.CompletedTask;
                     };
                 });
 
+            //authorization
+            services.AddAuthorization();
+
+            // db
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connString));
 
             // valkey

@@ -1,5 +1,9 @@
 using Nyxon.Core.DTOs;
 using Nyxon.Server.Interfaces;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Nyxon.Server.Controllers
 {
