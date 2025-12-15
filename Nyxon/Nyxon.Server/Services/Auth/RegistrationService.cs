@@ -37,9 +37,9 @@ namespace Nyxon.Server.Services.Auth
                     if (string.IsNullOrWhiteSpace(request.InviteCode))
                         throw new ArgumentException("Invite code is required");
 
-                    request.InviteCode = _hashService.HashInviteCode(request.InviteCode);
+                    //request.InviteCode = _hashService.HashInviteCode(request.InviteCode);
                     
-                    // TODO: impleemtn invites handling!!!
+                    // TODO: implement invites handling!!!
                     /*
                     var invite = await _context.InviteCodes
                         .FirstOrDefaultAsync(i => i.CodeHash == request.InviteCode && !i.Used);
@@ -48,8 +48,13 @@ namespace Nyxon.Server.Services.Auth
 
                     invite.Use();
                     */
+                    Console.WriteLine("Invite code: " + request.InviteCode);
                     if (request.InviteCode != "123-456-789")
-                        throw new("Invalid or already used invide code");
+                    {
+                        Console.WriteLine("Code is invalid");
+                        throw new Exception("Invalid or already used invide code");
+                    }
+                    Console.WriteLine("Code is valid");
                 }
 
                 // create user

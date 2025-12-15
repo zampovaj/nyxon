@@ -35,7 +35,10 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       VALKEY_HOST: ${VALKEY_HOST}
       VALKEY_PORT: 6379
+    volumes:
+      - dataprotection_keys:/root/.aspnet/DataProtection-Keys
 
 volumes:
   postgres_data:
   valkey_data:
+  dataprotection_keys:

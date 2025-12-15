@@ -9,6 +9,7 @@ namespace Nyxon.Server.Controllers
 {
     [ApiController]
     [Route("api/auth")]
+    [AutoValidateAntiforgeryToken]
     public class AuthController : ControllerBase
     {
         private readonly IRegistrationService _registrationService;
@@ -51,10 +52,10 @@ namespace Nyxon.Server.Controllers
 
                 //login
                 var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-            new Claim(ClaimTypes.Name, request.Username)
-        };
+                {
+                    new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                    new Claim(ClaimTypes.Name, request.Username)
+                };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties
