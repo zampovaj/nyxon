@@ -11,5 +11,14 @@ namespace Nyxon.Server.Services.Cache
         {
             return $"messages:recent:{conversationId}";
         }
+
+        public static string SessionId(Guid userId)
+        {
+            return $"user:{userId}:session";
+        }
+        public static string SessionId(string userId)
+        {
+            return $"user:{userId}:session";
+        }
     }
 }

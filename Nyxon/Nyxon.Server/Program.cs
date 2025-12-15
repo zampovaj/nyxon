@@ -20,7 +20,7 @@ using (var scope = app.Services.CreateScope())
     var logger = services.GetRequiredService<ILogger<Program>>();
     var dbContext = services.GetRequiredService<AppDbContext>();
 
-    try 
+    try
     {
         // Simple Retry Loop
         int retries = 0;
@@ -45,8 +45,8 @@ using (var scope = app.Services.CreateScope())
             retries++;
             Thread.Sleep(2000);
         }
-        
-        if (retries >= 5) 
+
+        if (retries >= 5)
         {
             throw new Exception("Could not connect to Database after 5 attempts.");
         }

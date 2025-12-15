@@ -2,6 +2,9 @@ using StackExchange.Redis;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.VisualBasic;
 
 namespace Nyxon.Server.Extensions
 {
@@ -9,12 +12,12 @@ namespace Nyxon.Server.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration config)
         {
-
             //cors
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(corsPolicy =>
                 {
+                    // TODO: allow any - fuck no
                     // "SetIsOriginAllowed(origin => true)" allows ANY origin (WSL, localhost, Caddy)
                     // This is much safer for dev than trying to guess the IP
                     corsPolicy.SetIsOriginAllowed(origin => true)
@@ -70,11 +73,39 @@ namespace Nyxon.Server.Extensions
                     }
                     else
                     {
-                        // Production Settings (Keep these strict!)
+                        //strict for production
                         options.Cookie.Name = "__Host-NyxonAuth";
                         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                         options.Cookie.SameSite = SameSiteMode.Strict;
                     }
+
+                    //sessionid validation
+                    options.Events.OnValidatePrincipal = async context =>
+                    {
+                        // get user id and session id form cookie
+                        var userPrincipal = context.Principal;
+                        var userId = userPrincipal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                        var cookieSessionId = userPrincipal?.FindFirst("SessionId")?.Value;
+
+                        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(cookieSessionId))
+                        {
+                            context.RejectPrincipal();
+                            await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                            return;
+                        }
+
+                        // fetch current session id from valkey
+                        var sessionIdService = context.HttpContext.RequestServices.GetRequiredService<ISessionIdService>();
+                        var activeSessionId = await sessionIdService.GetSessionIdAsync(userId);
+
+                        // 3. Compare
+                        if (activeSessionId != cookieSessionId)
+                        {
+                            // Mismatch! Someone else logged in. You are fired.
+                            context.RejectPrincipal();
+                            await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                        }
+                    };
                     //xss protection
                     options.Cookie.HttpOnly = true;
 
@@ -134,6 +165,7 @@ namespace Nyxon.Server.Extensions
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IConversationVaultService, ConversationVaultService>();
+            services.AddScoped<ISessionIdService, SessionIdService>();
 
 
             return services;

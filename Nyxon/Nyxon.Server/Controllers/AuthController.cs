@@ -15,12 +15,14 @@ namespace Nyxon.Server.Controllers
         private readonly IRegistrationService _registrationService;
         private readonly ILoginService _loginService;
         private readonly IAntiforgery _antiforgery;
+        private readonly ISessionIdService _sessionIdService;
 
-        public AuthController(IRegistrationService registrationService, ILoginService loginService, IAntiforgery antiforgery)
+        public AuthController(IRegistrationService registrationService, ILoginService loginService, IAntiforgery antiforgery, ISessionIdService sessionIdService)
         {
             _registrationService = registrationService;
             _loginService = loginService;
             _antiforgery = antiforgery;
+            _sessionIdService = sessionIdService;
         }
 
         [HttpGet("me")]
@@ -51,11 +53,15 @@ namespace Nyxon.Server.Controllers
             {
                 var userId = await _registrationService.RegisterUserAsync(request);
 
+                //session id check
+                var sessionId = await _sessionIdService.SaveSessionIdAsync(userId);
+
                 //login
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-                    new Claim(ClaimTypes.Name, request.Username)
+                    new Claim(ClaimTypes.Name, request.Username),
+                    new Claim("SessionId", sessionId)
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -100,10 +106,14 @@ namespace Nyxon.Server.Controllers
                 if (user == null)
                     return Unauthorized(new { error = "Invalid credentials" });
 
+                //session id check
+                var sessionId = await _sessionIdService.SaveSessionIdAsync(user.Id);
+
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Name, user.Username)
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim("SessionId", sessionId)
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
