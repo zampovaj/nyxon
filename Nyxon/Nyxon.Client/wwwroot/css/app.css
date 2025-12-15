@@ -107,6 +107,12 @@ body {
     flex-direction: column;
 }
 
+.loading-screen {
+    height: 100%;
+    width: 100%;
+    background-color: var(--bg-surface);
+}
+
 /*LAYOUT SHELL*/
 .layout-shell {
     height: 100%;
