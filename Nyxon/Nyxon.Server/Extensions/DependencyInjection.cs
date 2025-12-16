@@ -56,9 +56,14 @@ namespace Nyxon.Server.Extensions
                 }
                 options.Cookie.SameSite = SameSiteMode.Strict;
                 //TODO: enforce https in production
-                // forces https
-                //options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                if (isDevelopment)
+                {
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                }
+                else
+                {
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                }
             });
 
             // cookies
