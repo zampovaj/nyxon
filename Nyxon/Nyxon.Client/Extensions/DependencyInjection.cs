@@ -24,11 +24,16 @@ namespace Nyxon.Client
             // this makes me able to just inject httpclient into razor files
             services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Nyxon.ServerAPI"));
 
+            //crypto
+            services.AddScoped<IVaultDecryptionService, MockDecryptionService>();
+
             // services
             services.AddScoped<IApiService, ApiService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IHashService, Sha256HashService>();
             services.AddScoped<LayoutService>();
+            services.AddScoped<IUserVaultService, UserVaultService>();
+            services.AddScoped<EncryptedUserVaultSessionService>();
 
             //auth
             services.AddAuthorizationCore();
@@ -40,9 +45,7 @@ namespace Nyxon.Client
 
             // viewmodels
             services.AddTransient<LoginViewModel>();
-
-            //crypto
-            services.AddScoped<IVaultDecryptionService, MockDecryptionService>();
+            services.AddTransient<HomeViewModel>();
 
             return services;
         }

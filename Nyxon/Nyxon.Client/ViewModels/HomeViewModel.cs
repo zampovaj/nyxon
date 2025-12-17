@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Nyxon.Client.ViewModels
 {
@@ -13,7 +10,7 @@ namespace Nyxon.Client.ViewModels
     public class HomeViewModel : IDisposable
     {
         private readonly LayoutService _layoutService;
-        private readonly UserVaultService _userVaultService;
+        private readonly IUserVaultService _userVaultService;
         public event Action? StateChanged;
 
         public bool IsUnlocked => _layoutService.IsVaultUnlocked;
@@ -21,10 +18,9 @@ namespace Nyxon.Client.ViewModels
         public TerminalMode Mode => IsUnlocked ? TerminalMode.Unlocked : TerminalMode.Locked;
         public string InputMessage { get; set; } = "";
         public string? ErrorMessage { get; private set; } = "";
-        public string Passphrase { get; set; } = "";
 
 
-        public HomeViewModel(LayoutService layoutService, UserVaultService userVaultService)
+        public HomeViewModel(LayoutService layoutService, IUserVaultService userVaultService)
         {
             _layoutService = layoutService;
             _userVaultService = userVaultService;
@@ -36,17 +32,17 @@ namespace Nyxon.Client.ViewModels
         {
             try
             {
-                var success = await _userVaultService.UnlockVaultAsync(Passphrase);
+                var success = await _userVaultService.UnlockVaultAsync(InputMessage);
 
                 if (!success) ErrorMessage = "Invalid passphrase";
 
-                Passphrase = "";
+                InputMessage = "";
                 Notify();
             }
             catch (Exception ex)
             {
                 ErrorMessage = ex.Message;
-                Passphrase = "";
+                InputMessage = "";
                 Notify();
             }
         }
@@ -56,5 +52,25 @@ namespace Nyxon.Client.ViewModels
         {
             _layoutService.OnChange -= Notify;
         }
+
+        public bool ShouldFocusTerminal(KeyboardEventArgs e)
+        {
+            return e.Key == "/";
+        }
+        public async Task HandleTerminalKey(KeyboardEventArgs e)
+        {
+            if (e.Key != "Enter")
+                return;
+
+            if (!IsUnlocked)
+            {
+                await UnlockVaultAsync();
+            }
+            else
+            {
+                // TODO: commands
+            }
+        }
+
     }
 }

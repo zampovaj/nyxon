@@ -5,18 +5,29 @@
 
 <AuthorizeView>
     <Authorized>
-        <div class="dashboard-view">
+        <div class="dashboard-view" @onkeydown:window="HandleGlobalKey">
             <h1 class="dash-greeting">Good afternoon, @context.User.Identity?.Name.</h1>
 
             <div class="dash-search-wrapper">
                 <span class="dash-icon">></span>
-                <input type="text" class="dash-search" placeholder="Type a command or user...">
+                <input @ref="_terminalInput" type="text" class="dash-search"
+                    placeholder="@(_vm.IsUnlocked ? "Type a command or user..." : "Enter passphrase to unlock")"
+                    @bind="_vm.InputMessage" @onkeydown="_vm.HandleTerminalKey">
             </div>
 
             <div class="dash-shortcuts">
-                <div class="shortcut-chip">N : New Chat</div>
-                <div class="shortcut-chip">/ : Search</div>
+                @if (_vm.IsUnlocked)
+                {
+                    <div class="shortcut-chip">type ? for help</div>
+                    <div class="shortcut-chip">:command</div>
+                    <div class="shortcut-chip">@@username</div>
+                }
+                else
+                {
+                    <div class="shortcut-chip">:unlock <b>passphrase</b></div>
+                }
             </div>
+
         </div>
     </Authorized>
     <NotAuthorized>
@@ -33,4 +44,26 @@
 </AuthorizeView>
 
 @code {
+    private ElementReference _terminalInput;
+    protected override void OnInitialized()
+    {
+        _vm.StateChanged += StateHasChanged;
+    }
+
+    private async Task HandleGlobalKey(KeyboardEventArgs e)
+    {
+        if (_vm.ShouldFocusTerminal(e) && _terminalInput.Context != null)
+        {
+            await _terminalInput.FocusAsync();
+        }
+        else
+        {
+            Console.WriteLine("Not rendered");
+        }
+    }
+
+    public void Dispose()
+    {
+        _vm.StateChanged -= StateHasChanged;
+    }
 }

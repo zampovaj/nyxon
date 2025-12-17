@@ -12,6 +12,7 @@ namespace Nyxon.Client.ViewModels
         private readonly IAuthenticationService _authService;
         private readonly NavigationManager _nav;
         private readonly AuthenticationStateProvider _authStateProvider;
+        private readonly EncryptedUserVaultSessionService _userSessionService;
 
         [Required]
         public string Username { get; set; } = "";
@@ -26,11 +27,16 @@ namespace Nyxon.Client.ViewModels
 
         public event Action? StateChanged;
 
-        public LoginViewModel(IAuthenticationService authService, NavigationManager nav, AuthenticationStateProvider authStateProvider)
+        public LoginViewModel
+            (IAuthenticationService authService,
+            NavigationManager nav,
+            AuthenticationStateProvider authStateProvider,
+            EncryptedUserVaultSessionService userSessionService)
         {
             _authService = authService;
             _nav = nav;
             _authStateProvider = authStateProvider;
+            _userSessionService = userSessionService;
         }
 
         public void ToggleMode()
@@ -73,6 +79,9 @@ namespace Nyxon.Client.ViewModels
             {
                 _nav.NavigateTo("/");
                 ((HostAuthenticationStateProvider)_authStateProvider).NotifyStateChanged();
+
+                // TODO: actually fetch the key
+                _userSessionService.SetEncryptedVaultKey(null);
             }
             else
             {
