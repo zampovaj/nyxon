@@ -35,6 +35,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       VALKEY_HOST: ${VALKEY_HOST}
       VALKEY_PORT: 6379
+      NYXON_INVITE_HMAC_KEY: "${NYXON_INVITE_HMAC_KEY}"
     volumes:
       - dataprotection_keys:/root/.aspnet/DataProtection-Keys
 

@@ -61,7 +61,8 @@ namespace Nyxon.Server.Controllers
                 {
                     new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
                     new Claim(ClaimTypes.Name, request.Username),
-                    new Claim("SessionId", sessionId)
+                    new Claim("SessionId", sessionId),
+                    new Claim("CanCreateInvites", true.ToString())
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -113,7 +114,8 @@ namespace Nyxon.Server.Controllers
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Name, user.Username),
-                    new Claim("SessionId", sessionId)
+                    new Claim("SessionId", sessionId),
+                    new Claim("CanCreateInvites", user.CanCreateInvites.ToString())
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

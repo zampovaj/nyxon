@@ -10,13 +10,15 @@ namespace Nyxon.Server.Services.Auth
     {
         private readonly AppDbContext _context;
         private readonly IHashService _hashService;
+        private readonly IInviteCodeService _inviteCodeService;
         private readonly bool _enforceInvites;
 
-        public RegistrationService(AppDbContext context, IHashService hashService, IConfiguration config)
+        public RegistrationService(AppDbContext context, IHashService hashService, IConfiguration config, IInviteCodeService inviteCodeService)
         {
             _context = context;
             _hashService = hashService;
             _enforceInvites = config.GetValue<bool>("Security:EnforceInvites", false);
+            _inviteCodeService = inviteCodeService;
         }
         public async Task<Guid> RegisterUserAsync(RegisterRequest request)
         {
@@ -34,27 +36,8 @@ namespace Nyxon.Server.Services.Auth
                 // check invite code
                 if (_enforceInvites)
                 {
-                    if (string.IsNullOrWhiteSpace(request.InviteCode))
-                        throw new ArgumentException("Invite code is required");
-
-                    //request.InviteCode = _hashService.HashInviteCode(request.InviteCode);
-                    
-                    // TODO: implement invites handling!!!
-                    /*
-                    var invite = await _context.InviteCodes
-                        .FirstOrDefaultAsync(i => i.CodeHash == request.InviteCode && !i.Used);
-                    if (invite == null)
-                        throw new("Invalid or already used invide code");
-
-                    invite.Use();
-                    */
-                    Console.WriteLine("Invite code: " + request.InviteCode);
-                    if (request.InviteCode != "123-456-789")
-                    {
-                        Console.WriteLine("Code is invalid");
-                        throw new Exception("Invalid or already used invide code");
-                    }
-                    Console.WriteLine("Code is valid");
+                    var inviteId = await _inviteCodeService.ValidateAsync(request.InviteCode);
+                    await _inviteCodeService.MarkUsedAsync(inviteId);
                 }
 
                 // create user

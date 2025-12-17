@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.VisualBasic;
+using Nyxon.Server.Services.Crypto.Hash;
+using Nyxon.Server.Services.Invites;
 
 namespace Nyxon.Server.Extensions
 {
@@ -40,6 +42,10 @@ namespace Nyxon.Server.Extensions
             }
 
             var isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+
+            //invite hash
+            var serverSecret64 = Environment.GetEnvironmentVariable("NYXON_INVITE_HMAC_KEY");
+            services.AddSingleton<IHasher>(new Hasher(serverSecret64));
 
             //anti forgery
             services.AddAntiforgery(options =>
@@ -131,7 +137,11 @@ namespace Nyxon.Server.Extensions
                 });
 
             //authorization
-            services.AddAuthorization();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CanCreateInvites", policy =>
+                    policy.RequireClaim("CanCreateInvites", "True"));
+            });
 
             // db
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connString));
@@ -171,6 +181,7 @@ namespace Nyxon.Server.Extensions
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IConversationVaultService, ConversationVaultService>();
             services.AddScoped<ISessionIdService, SessionIdService>();
+            services.AddScoped<IInviteCodeService, InviteCodeService>();
 
 
             return services;
