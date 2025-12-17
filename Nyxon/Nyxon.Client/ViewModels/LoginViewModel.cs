@@ -9,9 +9,9 @@ namespace Nyxon.Client.ViewModels
 {
     public class LoginViewModel
     {
-        public readonly IAuthenticationService _authService;
-        public readonly NavigationManager _nav;
-        public readonly AuthenticationStateProvider _authStateProvider;
+        private readonly IAuthenticationService _authService;
+        private readonly NavigationManager _nav;
+        private readonly AuthenticationStateProvider _authStateProvider;
 
         [Required]
         public string Username { get; set; } = "";

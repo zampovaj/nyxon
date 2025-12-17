@@ -1,5 +1,6 @@
 using MudBlazor.Services;
 using Nyxon.Core.Services.Hash;
+using Nyxon.Core.Services.Vault;
 
 namespace Nyxon.Client
 {
@@ -39,6 +40,9 @@ namespace Nyxon.Client
 
             // viewmodels
             services.AddTransient<LoginViewModel>();
+
+            //crypto
+            services.AddScoped<IVaultDecryptionService, MockDecryptionService>();
 
             return services;
         }
