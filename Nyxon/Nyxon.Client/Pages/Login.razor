@@ -9,6 +9,7 @@
 @inject IAuthenticationService AuthenticationService
 @inject LoginViewModel _vm
 @inject ISnackbar Snackbar
+@implements IDisposable
 
 <div class="auth-wrapper">
     <div class="auth-card">
@@ -51,7 +52,7 @@
                 {
                     <div>
                         <label class="form-label">INVITE CODE</label>
-                        <InputText @bind-Value="_vm.InviteCode" class="input-std" placeholder="XXX-XXX-XXX" />
+                        <InputText @bind-value="_vm.InviteCode" class="input-std" placeholder="XXX-XXX-XXX" />
                     </div>
                 }
                 <button type="submit" class="btn-primary" style="margin-top: 10px; padding: 10px 0px; width: 100%;"
@@ -75,4 +76,12 @@
 
 @code
 {
+    protected override void OnInitialized()
+    {
+        _vm.StateChanged += StateHasChanged;
+    }
+    public void Dispose()
+    {
+        _vm.StateChanged -= StateHasChanged;
+    }
 }

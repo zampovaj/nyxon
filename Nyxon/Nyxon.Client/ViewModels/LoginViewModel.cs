@@ -24,6 +24,8 @@ namespace Nyxon.Client.ViewModels
         public string? ErrorMessage { get; set; } = "";
         public bool IsBusy { get; set; } = false;
 
+        public event Action? StateChanged;
+
         public LoginViewModel(IAuthenticationService authService, NavigationManager nav, AuthenticationStateProvider authStateProvider)
         {
             _authService = authService;
@@ -37,6 +39,7 @@ namespace Nyxon.Client.ViewModels
             ErrorMessage = null;
             ConfirmPassword = "";
             InviteCode = "";
+            Notify();
         }
 
         public async Task SubmitAsync()
@@ -54,6 +57,7 @@ namespace Nyxon.Client.ViewModels
                 {
                     ErrorMessage = "Passwords dont match.";
                     IsBusy = false;
+                    Notify();
                     return;
                 }
                 success = await _authService.RegisterAsync(Username, Password, InviteCode);
@@ -74,7 +78,10 @@ namespace Nyxon.Client.ViewModels
             {
                 ErrorMessage = IsRegistering ? "Registration failed." : "Invalid credentials or login failed.";
             }
+            Notify();
 
         }
+
+        public void Notify() => StateChanged?.Invoke();
     }
 }
