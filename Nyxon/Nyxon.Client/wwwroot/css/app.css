@@ -508,6 +508,10 @@ body {
     transition: border 0.2s;
 }
 
+.input-std::placeholder {
+    letter-spacing: 0.1em;
+}
+
 .input-std:focus {
     border-color: var(--primary);
 }
