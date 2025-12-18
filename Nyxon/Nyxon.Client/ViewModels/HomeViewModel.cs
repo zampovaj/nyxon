@@ -16,7 +16,7 @@ namespace Nyxon.Client.ViewModels
         public bool IsUnlocked => _layoutService.IsVaultUnlocked;
         //in case terminal gets more states in the future, enum is a better option
         public TerminalMode Mode => IsUnlocked ? TerminalMode.Unlocked : TerminalMode.Locked;
-        public string InputMessage { get; set; } = "";
+        public string InputString { get; set; } = "";
         public string? ErrorMessage { get; private set; } = "";
 
 
@@ -32,35 +32,45 @@ namespace Nyxon.Client.ViewModels
         {
             try
             {
-                var success = await _userVaultService.UnlockVaultAsync(InputMessage);
+                var success = await _userVaultService.UnlockVaultAsync(InputString);
 
                 if (!success) ErrorMessage = "Invalid passphrase";
 
-                InputMessage = "";
+                InputString = "";
                 Notify();
             }
             catch (Exception ex)
             {
                 ErrorMessage = ex.Message;
-                InputMessage = "";
+                InputString = "";
                 Notify();
             }
         }
 
         private void Notify() => StateChanged?.Invoke();
+        private bool IsInputSafe(string input)
+        {
+            if (input.Length > 100 || string.IsNullOrWhiteSpace(input))
+                return false;
+            
+            return true;
+        }
         public void Dispose()
         {
             _layoutService.OnChange -= Notify;
         }
 
-        public bool ShouldFocusTerminal(KeyboardEventArgs e)
-        {
-            return e.Key == "/";
-        }
         public async Task HandleTerminalKey(KeyboardEventArgs e)
         {
             if (e.Key != "Enter")
                 return;
+
+            if (!IsInputSafe(InputString))
+            {
+                ErrorMessage = "Invalid input detected.";
+                Notify();
+                return;
+            }
 
             if (!IsUnlocked)
             {

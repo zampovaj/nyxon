@@ -1,7 +1,9 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager Nav
+@inject IJSRuntime JS
 @inject HomeViewModel _vm
+@implements IAsyncDisposable
 
 <AuthorizeView>
     <Authorized>
@@ -10,9 +12,9 @@
 
             <div class="dash-search-wrapper">
                 <span class="dash-icon">></span>
-                <input @ref="_terminalInput" type="text" class="dash-search"
+                <input id="terminal-input" @ref="_terminalInput" type="text" class="dash-search"
                     placeholder="@(_vm.IsUnlocked ? "Type a command or user..." : "Enter passphrase to unlock")"
-                    @bind="_vm.InputMessage" @onkeydown="_vm.HandleTerminalKey">
+                    @bind="_vm.InputString" @bind:event="oninput" @onkeydown="_vm.HandleTerminalKey">
             </div>
 
             <div class="dash-shortcuts">
@@ -45,25 +47,44 @@
 
 @code {
     private ElementReference _terminalInput;
+    private bool _isHotKeyActive = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_isHotKeyActive)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("terminalHotKeyManager.register", "terminal-input");
+                _isHotKeyActive = true;
+            }
+            catch (JSException) { }
+        }
+    }
+
     protected override void OnInitialized()
     {
         _vm.StateChanged += StateHasChanged;
     }
 
-    private async Task HandleGlobalKey(KeyboardEventArgs e)
-    {
-        if (_vm.ShouldFocusTerminal(e) && _terminalInput.Context != null)
-        {
-            await _terminalInput.FocusAsync();
-        }
-        else
-        {
-            Console.WriteLine("Not rendered");
-        }
-    }
-
     public void Dispose()
     {
         _vm.StateChanged -= StateHasChanged;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_isHotKeyActive)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("terminalHotKeyManager.dispose");
+            }
+            catch (JSDisconnectedException)
+            {
+                // ignore -> browser is laready navigating
+            }
+            _isHotKeyActive = false;
+        }
     }
 }
