@@ -925,3 +925,9 @@ input[type="password"] {
 .send-btn:hover {
     border-color: var(--primary);
 }
+
+.error {
+    color: var(--error);
+    font-family: var(--font-body);
+    font-size: 1rem;
+}

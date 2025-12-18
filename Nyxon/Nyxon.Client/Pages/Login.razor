@@ -33,11 +33,13 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div>
                             <label class="form-label">PASSWORD</label>
-                            <InputText @bind-value="_vm.Password" type="password" class="input-std" placeholder="Password"/>
+                            <InputText @bind-value="_vm.Password" type="password" class="input-std"
+                                placeholder="Password" />
                         </div>
                         <div>
                             <label class="form-label">CONFIRM</label>
-                            <InputText @bind-value="_vm.ConfirmPassword" type="password" class="input-std" placeholder="Password"/>
+                            <InputText @bind-value="_vm.ConfirmPassword" type="password" class="input-std"
+                                placeholder="Password" />
                         </div>
                     </div>
                 }
@@ -45,7 +47,7 @@
                 {
                     <div>
                         <label class="form-label">PASSWORD</label>
-                        <InputText @bind-value="_vm.Password" type="password" class="input-std" placeholder="Password"/>
+                        <InputText @bind-value="_vm.Password" type="password" class="input-std" placeholder="Password" />
                     </div>
                 }
                 @if (_vm.IsRegistering)
@@ -54,6 +56,13 @@
                         <label class="form-label">INVITE CODE</label>
                         <InputText @bind-value="_vm.InviteCode" class="input-std" placeholder="123456ABCDEF" />
                     </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(_vm.ErrorMessage))
+                {
+                    <div class="error">
+                        @_vm.ErrorMessage
+                    </div>
+
                 }
                 <button type="submit" class="btn-primary" style="margin-top: 10px; padding: 10px 0px; width: 100%;"
                     disabled="@_vm.IsBusy">

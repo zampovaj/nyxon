@@ -100,7 +100,7 @@ namespace Nyxon.Client.ViewModels
             }
             if (!IsPasswordValid(Password))
             {
-                ErrorMessage = "Password invalid. Password must be between 12 and 30 characters long. Password must contain at least one number, uppercase letter, lowercase letter and special character.";
+                ErrorMessage = "Password invalid. Password must be between 12 and 30 characters long. Password must contain at least one number, uppercase letter, lowercase letter and special character (@$!%*?&_-)";
                 return false;
             }
 
@@ -108,7 +108,7 @@ namespace Nyxon.Client.ViewModels
             {
                 if (!IsInviteCodeValid(InviteCode))
                 {
-                    ErrorMessage = "Invite code invalid. Invite cide must be 12 characters long and contain only letters and numbers";
+                    ErrorMessage = "Invite code invalid. Invite code must be 12 characters long and contain only letters and numbers";
                     return false;
                 }
                 if (!IsConfirmValid(ConfirmPassword))
