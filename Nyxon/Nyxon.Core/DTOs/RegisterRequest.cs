@@ -6,15 +6,16 @@ namespace Nyxon.Core.DTOs
     {
 
         [Required]
-        [Length(5, 20)]
+        [MinLength(5)]
+        [MaxLength(20)]
         [NotNull]
         public string Username { get; set; } = string.Empty;
         [Required]
-        [Length(12, 30)]
         [NotNull]
         public string PasswordHash { get; set; } = string.Empty; // already hashed from client
         [Required]
-        [Length(12,12)]
+        [MinLength(12)]
+        [MaxLength(12)]
         [NotNull]
         public string InviteCode { get; set; }
 

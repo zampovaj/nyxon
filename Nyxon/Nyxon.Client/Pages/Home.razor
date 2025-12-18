@@ -13,7 +13,7 @@
             <div class="dash-search-wrapper">
                 <span class="dash-icon">></span>
                 <input id="terminal-input" @ref="_terminalInput" type="text" class="dash-search"
-                    placeholder="@(_vm.IsUnlocked ? "Type a command or user..." : "Enter passphrase to unlock")"
+                    placeholder="@(_vm.IsUnlocked ? "Type pa command or user..." : "Enter passphrase to unlock")"
                     @bind="_vm.InputString" @bind:event="oninput" @onkeydown="_vm.HandleTerminalKey">
             </div>
 
