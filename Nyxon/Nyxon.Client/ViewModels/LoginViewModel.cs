@@ -43,6 +43,18 @@ namespace Nyxon.Client.ViewModels
             get => inviteCode;
             set => inviteCode = value.ToUpper().Trim();
         }
+        private string passphrase = "";
+        public string Passphrase
+        {
+            get => passphrase;
+            set => passphrase = value.Trim();
+        }
+        private string confirmPassphrase = "";
+        public string ConfirmPassphrase
+        {
+            get => confirmPassphrase;
+            set => confirmPassphrase = value.Trim();
+        }
 
         public bool IsRegistering { get; set; } = false;
         public string? ErrorMessage { get; set; } = "";
@@ -89,7 +101,20 @@ namespace Nyxon.Client.ViewModels
             return true;
         }
 
-        private bool IsConfirmValid(string confirmPassword) => Password == confirmPassword;
+        private bool IsConfirmPasswordValid(string confirmPassword) => Password == confirmPassword;
+
+
+        private bool IsPassphraseValid(string passphrase)
+        {
+            if (string.IsNullOrWhiteSpace(passphrase)
+            || passphrase.Length < 16 || passphrase.Length > 256)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private bool IsConfirmPassphraseValid(string confirmPassphrase) => Passphrase == confirmPassphrase;
 
         private bool Validate()
         {
@@ -111,9 +136,18 @@ namespace Nyxon.Client.ViewModels
                     ErrorMessage = "Invite code invalid. Invite code must be 12 characters long and contain only letters and numbers";
                     return false;
                 }
-                if (!IsConfirmValid(ConfirmPassword))
+                if (!IsConfirmPasswordValid(ConfirmPassword))
                 {
                     ErrorMessage = "Passwords don't match.";
+                    return false;
+                }
+                if (!IsPassphraseValid(Passphrase))
+                {
+                    ErrorMessage = "Pasphrase invalid. Passphrase must be 16-256 characters long";
+                }
+                if (!IsConfirmPassphraseValid(ConfirmPassphrase))
+                {
+                    ErrorMessage = "Passphrases don't match.";
                     return false;
                 }
             }

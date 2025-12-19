@@ -931,3 +931,55 @@ input[type="password"] {
     font-family: var(--font-body);
     font-size: 1rem;
 }
+
+
+/* PASSPHRASE */
+
+.auth-card {
+    /* add transition */
+    transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-card.wide {
+    /*double the width*/
+    width: 850px;
+}
+
+/*grid container for form*/
+.form-content-grid {
+    display: grid;
+    /* default single column */
+    grid-template-columns: 1fr;
+    gap: 0;
+    transition: all 0.4s ease;
+}
+
+/* when wide -> two columns*/
+.auth-card.wide .form-content-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 20px;
+}
+
+.form-column {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* animation for pasphrase column*/
+.passphrase-col {
+    opacity: 0;
+    /* slide in animation */
+    animation: fadeIn 0.5s ease 0.1s forwards;
+    /* separator line...? wtf is even that */
+    border-left: 1px solid var(--border);
+    padding-left: 40px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(10px); }
+    to { opacity: 1; transform: translateX(0); }
+}

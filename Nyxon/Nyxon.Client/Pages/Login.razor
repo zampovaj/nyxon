@@ -12,7 +12,7 @@
 @implements IDisposable
 
 <div class="auth-wrapper">
-    <div class="auth-card">
+    <div class="@(_vm.IsRegistering ? "auth-card wide" : "auth-card")">
         <div style="text-align: center; margin-bottom: 30px;">
             <h2 class="auth-h1">
                 @(_vm.IsRegistering ? "New Identity" : "Welcome Back")
@@ -24,46 +24,75 @@
 
         <EditForm Model="@_vm" OnValidSubmit="_vm.SubmitAsync">
             <div class="auth-form">
-                <div>
-                    <label class="form-label">USERNAME</label>
-                    <InputText @bind-value="_vm.Username" class="input-std" placeholder="Username" />
+
+                <div class="form-content-grid">
+
+                    <div class="form-column">
+                        <div>
+                            <label class="form-label">USERNAME</label>
+                            <InputText @bind-value="_vm.Username" class="input-std" placeholder="Username" />
+                        </div>
+
+                        @if (_vm.IsRegistering)
+                        {
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div>
+                                    <label class="form-label">PASSWORD</label>
+                                    <InputText @bind-value="_vm.Password" type="password" class="input-std"
+                                        placeholder="at least 12 characters" />
+                                </div>
+                                <div>
+                                    <label class="form-label">CONFIRM</label>
+                                    <InputText @bind-value="_vm.ConfirmPassword" type="password" class="input-std"
+                                        placeholder="At least 12 characters" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label">INVITE CODE</label>
+                                <InputText @bind-value="_vm.InviteCode" class="input-std" placeholder="123456ABCDEF" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div>
+                                <label class="form-label">PASSWORD</label>
+                                <InputText @bind-value="_vm.Password" type="password" class="input-std"
+                                    placeholder="Password" />
+                            </div>
+                        }
+                    </div>
+
+                    @if (_vm.IsRegistering)
+                    {
+                        <div class="form-column passphrase-col">
+                            <p class="auth-p" style="font-size: 0.8rem; margin-bottom: 15px;">
+                                This passphrase encrypts your private keys and message history.
+                                It is never stored or recoverable. Losing it means permanent loss of access to your
+                                messages.
+                                <span style="color: var(--error);">If lost, it cannot be recovered.</span>
+                            </p>
+
+                            <div>
+                                <label class="form-label">SECURE PASSPHRASE</label>
+                                <InputText @bind-value="_vm.Passphrase" type="text" class="input-std"
+                                    placeholder="long phrases beat complex passwords" />
+                            </div>
+                            <div>
+                                <label class="form-label">CONFIRM</label>
+                                <InputText @bind-value="_vm.ConfirmPassphrase" type="text" class="input-std"
+                                    placeholder="long phrases beat complex passwords" />
+                            </div>
+                        </div>
+                    }
                 </div>
-                @if (_vm.IsRegistering)
-                {
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div>
-                            <label class="form-label">PASSWORD</label>
-                            <InputText @bind-value="_vm.Password" type="password" class="input-std"
-                                placeholder="Password" />
-                        </div>
-                        <div>
-                            <label class="form-label">CONFIRM</label>
-                            <InputText @bind-value="_vm.ConfirmPassword" type="password" class="input-std"
-                                placeholder="Password" />
-                        </div>
-                    </div>
-                }
-                else
-                {
-                    <div>
-                        <label class="form-label">PASSWORD</label>
-                        <InputText @bind-value="_vm.Password" type="password" class="input-std" placeholder="Password" />
-                    </div>
-                }
-                @if (_vm.IsRegistering)
-                {
-                    <div>
-                        <label class="form-label">INVITE CODE</label>
-                        <InputText @bind-value="_vm.InviteCode" class="input-std" placeholder="123456ABCDEF" />
-                    </div>
-                }
+
                 @if (!string.IsNullOrWhiteSpace(_vm.ErrorMessage))
                 {
                     <div class="error">
                         @_vm.ErrorMessage
                     </div>
-
                 }
+
                 <button type="submit" class="btn-primary" style="margin-top: 10px; padding: 10px 0px; width: 100%;"
                     disabled="@_vm.IsBusy">
                     @if (_vm.IsBusy)
@@ -78,13 +107,13 @@
                 <p class="auth-link" @onclick="_vm.ToggleMode">
                     @(_vm.IsRegistering ? "I already have an account" : "Create new identity")
                 </p>
+
             </div>
         </EditForm>
     </div>
 </div>
 
-@code
-{
+@code {
     protected override void OnInitialized()
     {
         _vm.StateChanged += StateHasChanged;
