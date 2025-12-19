@@ -13,7 +13,7 @@
 
 <div class="auth-wrapper">
     <div class="@(_vm.IsRegistering ? "auth-card wide" : "auth-card")">
-        <div style="text-align: center; margin-bottom: 30px;">
+        <div style="text-align: center; @(_vm.IsRegistering ? "margin-bottom: 16px;" : "margin-bottom: 30px;")">
             <h2 class="auth-h1">
                 @(_vm.IsRegistering ? "New Identity" : "Welcome Back")
             </h2>
@@ -54,8 +54,7 @@
                         {
                             <div>
                                 <label class="form-label">PASSWORD</label>
-                                <InputText @bind-value="_vm.Password" type="password" class="input-std"
-                                    placeholder="Password" />
+                                <InputText @bind-value="_vm.Password" type="password" class="input-std"/>
                             </div>
                         }
                     </div>
@@ -63,7 +62,7 @@
                     @if (_vm.IsRegistering)
                     {
                         <div class="form-column passphrase-col">
-                            <p class="auth-p" style="font-size: 0.8rem; margin-bottom: 15px;">
+                            <p class="auth-p" style="font-size: 0.8rem; margin-bottom: 4px;">
                                 This passphrase encrypts your private keys and message history.
                                 It is never stored or recoverable. Losing it means permanent loss of access to your
                                 messages.
@@ -91,7 +90,7 @@
                     </div>
                 }
 
-                <button type="submit" class="btn-primary" style="margin-top: 10px; padding: 10px 0px; width: 100%;"
+                <button type="submit" class="btn-primary" style="@(_vm.IsRegistering ? "margin-top: 0px;" : "margin-top: 10px;") padding: 10px 0px; width: 100%;"
                     disabled="@_vm.IsBusy">
                     @if (_vm.IsBusy)
                     {
