@@ -27,7 +27,7 @@ namespace Nyxon.Core.Crypto
         public byte[] Sign(byte[] data, byte[] privateKey)
         {
             ValidateInput(data, nameof(data));
-            ValidateKey(privateKey, PublicKeySize, nameof(privateKey));
+            ValidateKey(privateKey, PrivateKeySize, nameof(privateKey));
 
             var signature = new byte[SignatureSize];
 
