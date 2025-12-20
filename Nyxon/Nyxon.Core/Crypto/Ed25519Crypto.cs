@@ -3,29 +3,65 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualBasic;
-using NSec.Cryptography;
+
+using Geralt;
 
 namespace Nyxon.Core.Crypto
 {
     public class Ed25519Crypto : IEd25519Crypto
     {
+        public const int PublicKeySize = 32;
+        public const int PrivateKeySize = 64;
+        public const int SignatureSize = 64;
+
         public (byte[] PublicKey, byte[] PrivateKey) GenerateKeyPair()
         {
-            var key = new Key(SignatureAlgorithm.Ed25519);
-            return (key.PublicKey.Export(KeyBlobFormat.RawPublicKey),
-                key.Export(KeyBlobFormat.RawPrivateKey));
+            var publicKey = new byte[PublicKeySize];
+            var privateKey = new byte[PrivateKeySize];
+
+            Ed25519.GenerateKeyPair(publicKey, privateKey);
+
+            return (publicKey, privateKey);
         }
 
         public byte[] Sign(byte[] data, byte[] privateKey)
         {
-            var key = Key.Import(SignatureAlgorithm.Ed25519, privateKey, KeyBlobFormat.RawPrivateKey);
-            return SignatureAlgorithm.Ed25519.Sign(key, data);
+            ValidateInput(data, nameof(data));
+            ValidateKey(privateKey, PublicKeySize, nameof(privateKey));
+
+            var signature = new byte[SignatureSize];
+
+            Ed25519.Sign(signature, data, privateKey);
+
+            return signature;
         }
 
         public bool Verify(byte[] data, byte[] signature, byte[] publicKey)
         {
-            var key = PublicKey.Import(SignatureAlgorithm.Ed25519, publicKey, KeyBlobFormat.RawPublicKey);
-            return SignatureAlgorithm.Ed25519.Verify(key, data, signature);
+            // verify doesnt need too descriptive errors, just return false
+            if (data == null) throw new ArgumentNullException(nameof(data));
+            if (signature == null || signature.Length != SignatureSize) return false;
+            if (publicKey == null || publicKey.Length != PublicKeySize) return false;
+
+            return Ed25519.Verify(signature, data, publicKey);
+        }
+
+        // validation
+
+        private static void ValidateInput(byte[] input, string paramName)
+        {
+            if (input == null)
+                throw new ArgumentNullException(paramName);
+            if (input.Length == 0)
+                throw new ArgumentException("Input cannot be empty.", paramName);
+        }
+
+        private static void ValidateKey(byte[] key, int expectedSize, string paramName)
+        {
+            if (key == null)
+                throw new ArgumentNullException(paramName);
+            if (key.Length != expectedSize)
+                throw new ArgumentException($"Key must be exactly {expectedSize} bytes.", paramName);
         }
     }
 }

@@ -38,6 +38,8 @@ namespace Nyxon.Core.Crypto
             return sharedSecret;
         }
 
+        // validation
+
         private static void ValidateKey(byte[] key, string paramName)
         {
             if (key == null)
