@@ -1,53 +1,55 @@
 using Nyxon.Core.Version;
 
+// signed_prekeys
+// -------------
+// id           : uuid pk
+// user_id      : references users(id)
+// public_key   : bytea
+// encrypted_key: bytea
+// signature    : bytea
+// created_at   : datetime
+// version      : smallint
+
+
 namespace Nyxon.Server.Models
 {
-    public class Prekeys
+    public class SignedPrekey
     {
         public Guid Id { get; set; }
 
         public Guid UserId { get; set; }
         public virtual User User { get; set; }
-
-        public string Type { get; set; }
         public byte[] PublicKey { get; set; }
         public byte[] EncryptedKey { get; set; }
+        public byte[] Signature { get; set; }
         public DateTime CreatedAt { get; set; }
         public short Version { get; set; }
-        public bool Used { get; private set; }
 
-        protected Prekeys() { }
+        protected SignedPrekey() { }
 
-        public Prekeys(Guid id, Guid userId, string type, byte[] publicKey, byte[] encryptedKey, DateTime createdAt, short version, bool used)
+        public SignedPrekey(Guid id, Guid userId, byte[] publicKey, byte[] encryptedKey, byte[] signature, DateTime createdAt, short version)
         {
             Id = id;
             UserId = userId;
-            Type = type;
             PublicKey = publicKey;
             EncryptedKey = encryptedKey;
+            Signature = signature;
             CreatedAt = createdAt;
             Version = version;
-            Used = used;
         }
 
         /// <summary>
-        /// Creates a brand new prekey
+        /// Creates a new signed prekey
         /// </summary>
-        public Prekeys(Guid userId, string type, byte[] publicKey, byte[] encryptedKey)
+        public SignedPrekey(Guid userId, byte[] publicKey, byte[] encryptedKey, byte[] signature)
         {
             Id = Guid.NewGuid();
             UserId = userId;
-            Type = type;
             PublicKey = publicKey;
             EncryptedKey = encryptedKey;
+            Signature = signature;
             CreatedAt = DateTime.UtcNow;
             Version = AppVersion.Current;
-            Used = false;
-        }
-
-        public void Use()
-        {
-            Used = true;
         }
     }
 }

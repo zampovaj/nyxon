@@ -16,13 +16,14 @@ namespace Nyxon.Server.Models
         public bool Admin { get; set; }
         public bool CanCreateInvites { get; set; }
 
-        public virtual ICollection<Prekeys> Prekeys { get; set; } = new List<Prekeys>();
+        public virtual ICollection<SignedPrekey> SignedPrekeys { get; set; } = new List<SignedPrekey>();
+        public virtual ICollection<OneTimePrekey> OneTimePrekeys { get; set; } = new List<OneTimePrekey>();
         public virtual ICollection<ConversationVault> ConversationVaults { get; set; } = new List<ConversationVault>();
         public virtual ICollection<ConversationUser> ConversationUsers { get; set; } = new List<ConversationUser>();
 
         protected User() { }
 
-        public User(Guid id, UserVault userVault, string username, string passwordHash, byte[] publicKey, DateTime createdAt, short version, bool admin, bool canCreateInvites, Prekeys prekeys, ICollection<ConversationVault> conversationVaults, ICollection<ConversationUser> conversationUsers = null)
+        public User(Guid id, UserVault userVault, string username, string passwordHash, byte[] publicKey, DateTime createdAt, short version, bool admin, bool canCreateInvites, SignedPrekey signedPrekeys, OneTimePrekey oneTimePrekeys, ICollection<ConversationVault> conversationVaults, ICollection<ConversationUser> conversationUsers = null)
         {
             Id = id;
             UserVault = userVault;
@@ -33,9 +34,13 @@ namespace Nyxon.Server.Models
             Version = version;
             Admin = admin;
             CanCreateInvites = canCreateInvites;
-            if (prekeys != null)
+            if (signedPrekeys != null)
             {
-                Prekeys.Add(prekeys);
+                SignedPrekeys.Add(signedPrekeys);
+            }
+            if (oneTimePrekeys != null)
+            {
+                OneTimePrekeys.Add(oneTimePrekeys);
             }
             if (conversationVaults != null)
             {

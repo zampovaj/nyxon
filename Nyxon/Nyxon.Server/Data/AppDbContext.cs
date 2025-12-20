@@ -13,9 +13,10 @@ namespace Nyxon.Server.Data
         public DbSet<Conversation> Conversations { get; set; }
         public DbSet<ConversationUser> ConversationUsers { get; set; }
         public DbSet<ConversationVault> ConversationVaults { get; set; }
-        public DbSet<MessageMetadata> MessageMetadatas { get; set; }
+        public DbSet<MessageMetadata> MessageMetadata { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
-        public DbSet<Prekeys> Prekeys { get; set; }
+        public DbSet<SignedPrekey> SignedPrekeys { get; set; }
+        public DbSet<OneTimePrekey> OneTimePrekeys { get; set; }
         public DbSet<InviteCode> InviteCodes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -33,11 +34,18 @@ namespace Nyxon.Server.Data
                 .HasForeignKey<UserVault>(uv => uv.UserId)
                 .OnDelete(DeleteBehavior.Cascade); // Important: Delete Vault when User is deleted
 
-            // --- 2. User & Prekeys (1:N) ---
+            // --- 2. User & SignedPrekeys (1:N) ---
             modelBuilder.Entity<User>()
-                .HasMany(u => u.Prekeys)
-                .WithOne(p => p.User)
-                .HasForeignKey(p => p.UserId)
+                .HasMany(u => u.SignedPrekeys)
+                .WithOne(spk => spk.User)
+                .HasForeignKey(spk => spk.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // --- 3. User & OneTimePrekeys (1:N) ---
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.OneTimePrekeys)
+                .WithOne(opk => opk.User)
+                .HasForeignKey(opk => opk.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // --- 3. ConversationUser (M:N Junction) ---

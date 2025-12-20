@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NSec.Cryptography;
+using Nyxon.Core.Models.Vaults;
 
 namespace Nyxon.Core.Interfaces
 {
@@ -10,13 +12,13 @@ namespace Nyxon.Core.Interfaces
         byte[] GenerateVaultKey();
         byte[] DeriveKeyFromPassphrase(string passphrase, byte[] salt);
 
-        (byte[] PublicKey, byte[] PrivateKey) GenerateIdentityKeyPair();
+        CryptographicKey GenerateIdentityKeyPair();
         byte[] SignWithIdentityKey(byte[] data, byte[] privateKey);
         bool VerifyWithIdentityKey(byte[] data, byte[] signature, byte[] publicKey);
 
-        (byte[] PublicKey, byte[] PrivateKey) GenerateEphemeralKeyPair();
+        CryptographicKey GenerateEphemeralKeyPair();
 
-        List<(byte[] PublicKey, byte[] PrivateKey)> GeneratePrekeyBundle(int count);
+        List<CryptographicKey> GeneratePrekeyBundle(int count);
 
         byte[] GenerateRandomBytes(int length);
         byte[] GenerateRandomSalt(int length);
