@@ -17,7 +17,7 @@ namespace Nyxon.Core.Crypto
 
         public byte[] DeriveKey(string passphrase, byte[] salt, int length)
         {
-            using var argon2 = new Argon2id(Encoding.UTF8.GetBytes(passphrase));
+            using var argon2 = new Konscious.Security.Cryptography.Argon2id(Encoding.UTF8.GetBytes(passphrase));
 
             argon2.Salt = salt;
             argon2.DegreeOfParallelism = degreeOfParallelism;
