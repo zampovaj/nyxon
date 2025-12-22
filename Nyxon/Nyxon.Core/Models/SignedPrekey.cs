@@ -8,12 +8,14 @@ namespace Nyxon.Core.Models
 {
     public class SignedPrekey
     {
+        Guid Id { get; set; }
         public byte[] PublicKey { get; set; }
         public byte[] PrivateKey { get; set; }
         public byte[] Signature { get; set; }
 
         public SignedPrekey(byte[] publicKey, byte[] privateKey, byte[] signature)
         {
+            Id = Guid.NewGuid();
             PublicKey = publicKey;
             PrivateKey = privateKey;
             Signature = signature;
