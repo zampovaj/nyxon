@@ -15,8 +15,8 @@ namespace Nyxon.Server.Data
         public DbSet<ConversationVault> ConversationVaults { get; set; }
         public DbSet<MessageMetadata> MessageMetadata { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
-        public DbSet<SignedPrekey> SignedPrekeys { get; set; }
-        public DbSet<OneTimePrekey> OneTimePrekeys { get; set; }
+        public DbSet<Nyxon.Server.Models.SignedPrekey> SignedPrekeys { get; set; }
+        public DbSet<Nyxon.Server.Models.OneTimePrekey> OneTimePrekeys { get; set; }
         public DbSet<InviteCode> InviteCodes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

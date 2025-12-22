@@ -3,6 +3,7 @@ global using Nyxon.Core.DTOs;
 global using Nyxon.Core.Interfaces;
 global using Nyxon.Core.Version;
 global using Nyxon.Core.Models.Vaults;
+global using Nyxon.Core.Models;
 
 //frontend
 global using Microsoft.AspNetCore.Components;
@@ -15,6 +16,8 @@ global using MudBlazor;
 
 //client
 global using Nyxon.Client.Services;
+global using Nyxon.Client.Services.Hub;
+global using Nyxon.Client.Services.Crypto;
 global using Nyxon.Client.Models;
 global using Nyxon.Client.ViewModels;
 global using Nyxon.Client.Interfaces;

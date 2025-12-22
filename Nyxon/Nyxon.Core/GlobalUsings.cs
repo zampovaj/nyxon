@@ -11,3 +11,4 @@ global using Nyxon.Core.Interfaces;
 global using Nyxon.Core.Version;
 global using Nyxon.Core.Interfaces.Crypto;
 global using Nyxon.Core.Crypto;
+global using Nyxon.Core.Models;

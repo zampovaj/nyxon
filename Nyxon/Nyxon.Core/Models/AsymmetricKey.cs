@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Nyxon.Core.Models.Vaults
+namespace Nyxon.Core.Models
 {
-    public class CryptographicKey
+    public class AsymmetricKey
     {
         public byte[] PublicKey { get; init; }
         public byte[] PrivateKey { get; init; }
 
-        public CryptographicKey(byte[] publicKey, byte[] privateKey)
+        public AsymmetricKey(byte[] publicKey, byte[] privateKey)
         {
             PublicKey = publicKey;
             PrivateKey = privateKey;

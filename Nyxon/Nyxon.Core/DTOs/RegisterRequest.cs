@@ -14,6 +14,11 @@ namespace Nyxon.Core.DTOs
         [NotNull]
         public string PasswordHash { get; set; } = string.Empty; // already hashed from client
         [Required]
+        [NotNull]
+        [MinLength(16)]
+        [MaxLength(16)]
+        public byte[] Salt {get; set;}
+        [Required]
         [MinLength(12)]
         [MaxLength(12)]
         [NotNull]

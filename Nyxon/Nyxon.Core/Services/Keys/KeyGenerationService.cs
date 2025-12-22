@@ -13,16 +13,19 @@ namespace Nyxon.Core.Services.Keys
         private readonly ISymmetricKeyService _symmetricKeyService;
         private readonly IX25519Crypto _x25519;
         private readonly IEd25519Crypto _ed25519;
+        private readonly IAesCrypto _aes;
 
         public KeyGenerationService(ISymmetricKeyService symmetricKeyService,
             IRandomService random,
             IX25519Crypto x25519,
-            IEd25519Crypto ed25519)
+            IEd25519Crypto ed25519,
+            IAesCrypto aes)
         {
             _symmetricKeyService = symmetricKeyService;
             _random = random;
             _x25519 = x25519;
             _ed25519 = ed25519;
+            _aes = aes;
         }
 
         public byte[] DeriveKeyFromPassphrase(string passphrase, byte[] salt)
@@ -30,16 +33,16 @@ namespace Nyxon.Core.Services.Keys
             return _symmetricKeyService.DeriveKeyFromPassphrase(passphrase, salt);
         }
 
-        public CryptographicKey GenerateEphemeralKeyPair()
+        public AsymmetricKey GenerateEphemeralKeyPair()
         {
             (byte[] publicBytes, byte[] privateBytes) = _x25519.GenerateKeyPair();
-            return new CryptographicKey(publicBytes, privateBytes);
+            return new AsymmetricKey(publicBytes, privateBytes);
         }
 
-        public CryptographicKey GenerateIdentityKeyPair()
+        public AsymmetricKey GenerateIdentityKeyPair()
         {
             (byte[] publicBytes, byte[] privateBytes) = _ed25519.GenerateKeyPair();
-            return new CryptographicKey(publicBytes, privateBytes);
+            return new AsymmetricKey(publicBytes, privateBytes);
         }
 
         public byte[] GenerateRandomBytes(int length)
@@ -54,22 +57,40 @@ namespace Nyxon.Core.Services.Keys
 
         public byte[] GenerateVaultKey()
         {
-            throw new NotImplementedException();
+            return _symmetricKeyService.GenerateVaultKey();
         }
 
         public byte[] SignWithIdentityKey(byte[] data, byte[] privateKey)
         {
-            throw new NotImplementedException();
+            return _ed25519.Sign(data, privateKey);
         }
 
         public bool VerifyWithIdentityKey(byte[] data, byte[] signature, byte[] publicKey)
         {
-            throw new NotImplementedException();
+            return _ed25519.Verify(data, signature, publicKey);
         }
 
-        List<CryptographicKey> IKeyGenerationService.GeneratePrekeyBundle(int count)
+        public byte[] EncryptWithKey(byte[] data, byte[] key)
         {
-            throw new NotImplementedException();
+            return _aes.Encrypt(data, key);
+        }
+
+        public byte[] DecryptWithKey(byte[] data, byte[] key)
+        {
+            return _aes.Decrypt(data, key);
+        }
+
+        public OneTimePrekey GenerateOPK()
+        {
+            var key = _x25519.GenerateKeyPair();
+            return new OneTimePrekey(key.PublicKey, key.PrivateKey);
+        }
+
+        public SignedPrekey GenerateSPK(byte[] privateIdentityKey)
+        {
+            var key = _x25519.GenerateKeyPair();
+            var signature = _ed25519.Sign(key.PublicKey, privateIdentityKey);
+            return new SignedPrekey(key.PublicKey, key.PrivateKey, signature);
         }
     }
 }

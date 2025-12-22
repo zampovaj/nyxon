@@ -10,6 +10,7 @@ namespace Nyxon.Server.Models
 
         public string Username { get; set; }
         public string PasswordHash { get; set; }
+        public byte[] Salt { get; set; } // 16 bytes
         public byte[] PublicKey { get; set; }
         public DateTime CreatedAt { get; set; }
         public short Version { get; set; }
@@ -23,12 +24,13 @@ namespace Nyxon.Server.Models
 
         protected User() { }
 
-        public User(Guid id, UserVault userVault, string username, string passwordHash, byte[] publicKey, DateTime createdAt, short version, bool admin, bool canCreateInvites, SignedPrekey signedPrekeys, OneTimePrekey oneTimePrekeys, ICollection<ConversationVault> conversationVaults, ICollection<ConversationUser> conversationUsers = null)
+        public User(Guid id, UserVault userVault, string username, string passwordHash, byte[] salt, byte[] publicKey, DateTime createdAt, short version, bool admin, bool canCreateInvites, SignedPrekey signedPrekeys, OneTimePrekey oneTimePrekeys, ICollection<ConversationVault> conversationVaults, ICollection<ConversationUser> conversationUsers = null)
         {
             Id = id;
             UserVault = userVault;
             Username = username;
             PasswordHash = passwordHash;
+            Salt = salt;
             PublicKey = publicKey;
             CreatedAt = createdAt;
             Version = version;
@@ -55,11 +57,12 @@ namespace Nyxon.Server.Models
         /// <summary>
         /// Creates a brand new user
         /// </summary>
-        public User(string username, string passwordHash, byte[] publicKey, bool admin, bool canCreateInvites)
+        public User(string username, string passwordHash, byte[] salt, byte[] publicKey, bool admin, bool canCreateInvites)
         {
             Id = Guid.NewGuid();
             Username = username;
             PasswordHash = passwordHash;
+            Salt = salt;
             PublicKey = publicKey;
             CreatedAt = DateTime.UtcNow;
             Version = AppVersion.Current;

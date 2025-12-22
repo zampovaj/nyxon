@@ -12,16 +12,19 @@ namespace Nyxon.Core.Interfaces
         byte[] GenerateVaultKey();
         byte[] DeriveKeyFromPassphrase(string passphrase, byte[] salt);
 
-        CryptographicKey GenerateIdentityKeyPair();
+        AsymmetricKey GenerateIdentityKeyPair();
         byte[] SignWithIdentityKey(byte[] data, byte[] privateKey);
         bool VerifyWithIdentityKey(byte[] data, byte[] signature, byte[] publicKey);
 
-        CryptographicKey GenerateEphemeralKeyPair();
+        AsymmetricKey GenerateEphemeralKeyPair();
 
-        List<CryptographicKey> GeneratePrekeyBundle(int count);
+        OneTimePrekey GenerateOPK();
+        SignedPrekey GenerateSPK(byte[] privateIdentityKey);
 
         byte[] GenerateRandomBytes(int length);
         byte[] GenerateRandomSalt(int length);
+        byte[] EncryptWithKey(byte[] data, byte[] key);
+        byte[] DecryptWithKey(byte[] data, byte[] key);
     }
 
 }

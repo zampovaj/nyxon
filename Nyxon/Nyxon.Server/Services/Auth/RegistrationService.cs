@@ -44,6 +44,7 @@ namespace Nyxon.Server.Services.Auth
                 var newUser = new User(
                     request.Username,
                     request.PasswordHash,
+                    request.Salt,
                     request.PublicKey,
                     false,
                     false);
@@ -54,6 +55,7 @@ namespace Nyxon.Server.Services.Auth
                 // create uservault
                 var newUserVault = new UserVault(
                     newUser.Id,
+                    request.Salt,
                     request.EncryptedVaultKey,
                     request.EncryptedIdentityKey);
 

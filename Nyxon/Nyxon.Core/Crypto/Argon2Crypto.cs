@@ -3,26 +3,47 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Konscious.Security.Cryptography;
+using NSec.Cryptography;
 
 namespace Nyxon.Core.Crypto
 {
     public class Argon2Crypto : IArgon2Crypto
     {
-        //number of threads
-        private const int degreeOfParallelism = 4;
-        private const int iterations = 4;
-        //64 bytes
-        //memory used by iteration
-        private const int memorySize = 64 * 1024;
-
         public byte[] DeriveKey(string passphrase, byte[] salt, int length)
         {
             using var argon2 = new Konscious.Security.Cryptography.Argon2id(Encoding.UTF8.GetBytes(passphrase));
 
             argon2.Salt = salt;
+            // only 1 thread to mitigate gpu powered attacks
+            argon2.DegreeOfParallelism = 1;
+            argon2.Iterations = 4;
+            //strict settings cause passphrase is the key to everyhitng
+            argon2.MemorySize = 256 * 1024;
+
+            return argon2.GetBytes(length);
+        }
+
+        public byte[] HashPassword(string password, byte[] salt, int length)
+        {
+            using var argon2 = new Konscious.Security.Cryptography.Argon2id(Encoding.UTF8.GetBytes(password));
+
+            argon2.Salt = salt;
+            // only 1 thread to mitigate gpu powered attacks
+            argon2.DegreeOfParallelism = 1;
+            argon2.Iterations = 2;
+            argon2.MemorySize = 64 * 1024;
+
+            return argon2.GetBytes(length);
+        }
+
+        public byte[] Hash(string text, byte[] salt, int length, int degreeOfParallelism, int iterations, int memorySize)
+        {
+            using var argon2 = new Konscious.Security.Cryptography.Argon2id(Encoding.UTF8.GetBytes(text));
+
+            argon2.Salt = salt;
             argon2.DegreeOfParallelism = degreeOfParallelism;
             argon2.Iterations = iterations;
-            argon2.MemorySize = memorySize;
+            argon2.MemorySize = memorySize * 1024;
 
             return argon2.GetBytes(length);
         }

@@ -9,5 +9,6 @@ namespace Nyxon.Core.DTOs
     {
         public byte[] EncryptedVaultKey { get; set; }
         public byte[] EncryptedIdentityKey { get; set; }
+        public byte[] Salt { get; set; }
     }
 }
