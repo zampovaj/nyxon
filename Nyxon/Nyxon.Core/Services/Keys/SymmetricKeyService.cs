@@ -16,7 +16,7 @@ namespace Nyxon.Core.Services.Keys
             _randomService = randomService;
         }
 
-        public byte[] DeriveKeyFromPassphrase(string passphrase, byte[] salt, int length = 32)
+        public byte[] DeriveKeyFromPassphrase(byte[] passphrase, byte[] salt, int length = 32)
         {
             return _argon2Crypto.DeriveKey(passphrase, salt, length);
         }

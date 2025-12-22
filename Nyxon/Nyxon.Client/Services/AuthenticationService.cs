@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Nyxon.Client.Interfaces;
 
@@ -11,12 +13,17 @@ namespace Nyxon.Client.Services
         private readonly AuthenticationStateProvider _authStateProvider;
         private readonly IApiService _apiService;
         private readonly IHashService _hashService;
+        private readonly ICryptoService _cryptoService;
 
-        public AuthenticationService(AuthenticationStateProvider authStateProvider, IApiService apiService, IHashService hashService)
+        public AuthenticationService(AuthenticationStateProvider authStateProvider,
+            IApiService apiService,
+            IHashService hashService,
+            ICryptoService cryptoService)
         {
             _authStateProvider = authStateProvider;
             _apiService = apiService;
             _hashService = hashService;
+            _cryptoService = cryptoService;
         }
 
         public async Task<bool> LoginAsync(string username, string password)
@@ -31,34 +38,59 @@ namespace Nyxon.Client.Services
             {
                 // loginresponse -> id, token
                 var response = await _apiService.PostAsync<LoginResponse, LoginRequest>("api/auth/login", request);
-                if (response == null) return false;
-                return true;
+                return response != null;
             }
             catch (Exception)
             {
                 return false;
             }
         }
-        public async Task<bool> RegisterAsync(string username, string password, string inviteCode)
+        public async Task<bool> RegisterAsync(string username, string password, string inviteCode, byte[] passphrase)
         {
-            var request = new RegisterRequest
+            var passwordSalt = _cryptoService.GeneratePasswordSalt();
+            var passphraseSalt = _cryptoService.GeneratePassphraseSalt();
+            var passphraseKey = _cryptoService.DerivePassphraseKey(passphrase, passphraseSalt);
+            var vaultKey = _cryptoService.GenerateVaultKey();
+            var identityKey = _cryptoService.GenerateIdentityKey();
+            var prekeyBundle = _cryptoService.GeneratePrekeyBundle(identityKey.PrivateKey, vaultKey, 100);
+
+            var encryptedVaultKey = _cryptoService.EncryptWithKey(vaultKey, passphraseKey);
+            var encryptedPrivateIdentityKey = _cryptoService.EncryptWithKey(identityKey.PrivateKey, vaultKey);
+
+
+            var request = new RegisterRequest()
             {
                 Username = username,
                 PasswordHash = _hashService.HashPassword(password),
-                InviteCode = inviteCode
+                InviteCode = inviteCode,
+                PasswordSalt = passwordSalt,
+                PublicIdentityKey = identityKey.PublicKey,
+                EncryptedVaultKey = encryptedVaultKey,
+                EncryptedPrivateIdentityKey = encryptedPrivateIdentityKey,
+                PassphraseSalt = passphraseSalt,
+                PrekeyBundle = prekeyBundle
             };
 
             try
             {
                 // loginresponse -> id, token
                 var response = await _apiService.PostAsync<Guid, RegisterRequest>("api/auth/register", request);
-                if (response != null) return true;
+                return response != null;
             }
             catch (Exception)
             {
                 return false;
             }
-            return false;
+            finally
+            {
+                CryptographicOperations.ZeroMemory(passwordSalt);
+                CryptographicOperations.ZeroMemory(passphraseSalt);
+                CryptographicOperations.ZeroMemory(passphraseKey);
+                CryptographicOperations.ZeroMemory(vaultKey);
+                CryptographicOperations.ZeroMemory(identityKey.PrivateKey);
+                CryptographicOperations.ZeroMemory(encryptedVaultKey);
+                CryptographicOperations.ZeroMemory(encryptedPrivateIdentityKey);
+            }
         }
         public async Task LogoutAsync()
         {

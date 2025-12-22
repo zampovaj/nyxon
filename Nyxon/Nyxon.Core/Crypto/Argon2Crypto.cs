@@ -9,9 +9,9 @@ namespace Nyxon.Core.Crypto
 {
     public class Argon2Crypto : IArgon2Crypto
     {
-        public byte[] DeriveKey(string passphrase, byte[] salt, int length)
+        public byte[] DeriveKey(byte[] passphrase, byte[] salt, int length)
         {
-            using var argon2 = new Konscious.Security.Cryptography.Argon2id(Encoding.UTF8.GetBytes(passphrase));
+            using var argon2 = new Konscious.Security.Cryptography.Argon2id(passphrase);
 
             argon2.Salt = salt;
             // only 1 thread to mitigate gpu powered attacks

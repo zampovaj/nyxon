@@ -10,7 +10,7 @@ namespace Nyxon.Core.Interfaces
     public interface IKeyGenerationService
     {
         byte[] GenerateVaultKey();
-        byte[] DeriveKeyFromPassphrase(string passphrase, byte[] salt);
+        byte[] DeriveKeyFromPassphrase(byte[] passphrase, byte[] salt);
 
         AsymmetricKey GenerateIdentityKeyPair();
         byte[] SignWithIdentityKey(byte[] data, byte[] privateKey);

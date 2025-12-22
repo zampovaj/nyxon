@@ -14,12 +14,12 @@ namespace Nyxon.Client.Services.Crypto
             _keyGenerationService = keyGenerationService;
         }
 
-        public byte[] DerivePassphraseKey(string passphrase, byte[] salt)
+        public byte[] DerivePassphraseKey(byte[] passphrase, byte[] salt)
         {
             return _keyGenerationService.DeriveKeyFromPassphrase(passphrase, salt);
         }
 
-        public byte[] EncryptKey(byte[] data, byte[] key)
+        public byte[] EncryptWithKey(byte[] data, byte[] key)
         {
             return _keyGenerationService.EncryptWithKey(data, key);
         }

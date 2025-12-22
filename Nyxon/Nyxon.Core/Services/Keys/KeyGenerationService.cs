@@ -28,7 +28,7 @@ namespace Nyxon.Core.Services.Keys
             _aes = aes;
         }
 
-        public byte[] DeriveKeyFromPassphrase(string passphrase, byte[] salt)
+        public byte[] DeriveKeyFromPassphrase(byte[] passphrase, byte[] salt)
         {
             return _symmetricKeyService.DeriveKeyFromPassphrase(passphrase, salt);
         }

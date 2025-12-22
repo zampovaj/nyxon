@@ -118,5 +118,6 @@
     public void Dispose()
     {
         _vm.StateChanged -= StateHasChanged;
+        _vm.Dispose();
     }
 }

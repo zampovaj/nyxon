@@ -17,7 +17,12 @@ namespace Nyxon.Core.DTOs
         [NotNull]
         [MinLength(16)]
         [MaxLength(16)]
-        public byte[] Salt {get; set;}
+        public byte[] PasswordSalt { get; set; }
+        [Required]
+        [NotNull]
+        [MinLength(32)]
+        [MaxLength(32)]
+        public byte[] PassphraseSalt { get; set; }
         [Required]
         [MinLength(12)]
         [MaxLength(12)]
@@ -25,9 +30,20 @@ namespace Nyxon.Core.DTOs
         public string InviteCode { get; set; }
 
         // keys created on client
-        public byte[] PublicKey { get; set; } = Array.Empty<byte>();
+
+        [Required]
+        [NotNull]
+        public byte[] PublicIdentityKey { get; set; } = Array.Empty<byte>();
+        [Required]
+        [NotNull]
         public byte[] EncryptedVaultKey { get; set; } = Array.Empty<byte>();
-        public byte[] EncryptedIdentityKey { get; set; } = Array.Empty<byte>();
+        [Required]
+        [NotNull]
+        public byte[] EncryptedPrivateIdentityKey { get; set; } = Array.Empty<byte>();
+
+        [Required]
+        [NotNull]
+        public PrekeyBundle PrekeyBundle { get; set; }
 
     }
 }

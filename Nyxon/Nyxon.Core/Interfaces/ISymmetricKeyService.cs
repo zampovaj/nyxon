@@ -8,6 +8,6 @@ namespace Nyxon.Core.Interfaces
     public interface ISymmetricKeyService
     {
         byte[] GenerateVaultKey();
-        byte[] DeriveKeyFromPassphrase(string passphrase, byte[] salt, int length = 32);
+        byte[] DeriveKeyFromPassphrase(byte[] passphrase, byte[] salt, int length = 32);
     }
 }

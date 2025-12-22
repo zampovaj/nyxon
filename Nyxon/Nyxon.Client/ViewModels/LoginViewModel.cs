@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.VisualBasic;
 using Nyxon.Client.Interfaces;
+using System.Text;
 
 namespace Nyxon.Client.ViewModels
 {
-    public class LoginViewModel
+    public class LoginViewModel : IDisposable
     {
         private readonly IAuthenticationService _authService;
         private readonly NavigationManager _nav;
@@ -49,6 +51,7 @@ namespace Nyxon.Client.ViewModels
             get => passphrase;
             set => passphrase = value.Trim();
         }
+        private byte[] passphraseBytes = Array.Empty<byte>();
         private string confirmPassphrase = "";
         public string ConfirmPassphrase
         {
@@ -184,7 +187,9 @@ namespace Nyxon.Client.ViewModels
 
             if (IsRegistering)
             {
-                success = await _authService.RegisterAsync(Username, Password, InviteCode);
+
+                passphraseBytes = Encoding.UTF8.GetBytes(passphrase);
+                success = await _authService.RegisterAsync(Username, Password, InviteCode, passphraseBytes);
             }
             else
             {
@@ -195,10 +200,11 @@ namespace Nyxon.Client.ViewModels
 
             if (success)
             {
+                Passphrase = String.Empty;
                 _nav.NavigateTo("/");
                 ((HostAuthenticationStateProvider)_authStateProvider).NotifyStateChanged();
 
-                // TODO: actually fetch the key
+                // TODO: actually fetch the user vault and set the key
                 _userSessionService.SetEncryptedVaultKey(null);
             }
             else
@@ -209,5 +215,12 @@ namespace Nyxon.Client.ViewModels
         }
 
         public void Notify() => StateChanged?.Invoke();
+
+        public void Dispose()
+        {
+            CryptographicOperations.ZeroMemory(passphraseBytes);
+            Passphrase = string.Empty;
+            ConfirmPassphrase = string.Empty;
+        }
     }
 }
