@@ -12,6 +12,9 @@ builder.Services.AddCoreServices();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApiDocument();
 
+//logger
+builder.Logging.AddConsole();
+
 var app = builder.Build();
 
 // ... after builder.Build()

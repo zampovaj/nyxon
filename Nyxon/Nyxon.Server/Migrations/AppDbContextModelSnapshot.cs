@@ -8,7 +8,7 @@ using Nyxon.Server.Data;
 
 #nullable disable
 
-namespace Backend.Migrations
+namespace Nyxon.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -22,7 +22,7 @@ namespace Backend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Backend.Models.Attachment", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.Attachment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -62,7 +62,7 @@ namespace Backend.Migrations
                     b.ToTable("Attachments");
                 });
 
-            modelBuilder.Entity("Backend.Models.Conversation", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.Conversation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -79,7 +79,7 @@ namespace Backend.Migrations
                     b.ToTable("Conversations");
                 });
 
-            modelBuilder.Entity("Backend.Models.ConversationUser", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.ConversationUser", b =>
                 {
                     b.Property<Guid>("ConversationId")
                         .HasColumnType("uuid");
@@ -100,7 +100,7 @@ namespace Backend.Migrations
                     b.ToTable("ConversationUsers");
                 });
 
-            modelBuilder.Entity("Backend.Models.ConversationVault", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.ConversationVault", b =>
                 {
                     b.Property<Guid>("ConversationId")
                         .HasColumnType("uuid");
@@ -131,15 +131,15 @@ namespace Backend.Migrations
                     b.ToTable("ConversationVaults");
                 });
 
-            modelBuilder.Entity("Backend.Models.InviteCode", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.InviteCode", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("CodeHash")
+                    b.Property<byte[]>("CodeHash")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("bytea");
 
                     b.Property<bool>("Used")
                         .HasColumnType("boolean");
@@ -152,7 +152,7 @@ namespace Backend.Migrations
                     b.ToTable("InviteCodes");
                 });
 
-            modelBuilder.Entity("Backend.Models.MessageMetadata", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.MessageMetadata", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -186,10 +186,40 @@ namespace Backend.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("MessageMetadatas");
+                    b.ToTable("MessageMetadata");
                 });
 
-            modelBuilder.Entity("Backend.Models.Prekeys", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.OneTimePrekey", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("EncryptedKey")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<byte[]>("PublicKey")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<bool>("Used")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<short>("Version")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("OneTimePrekeys");
+                });
+
+            modelBuilder.Entity("Nyxon.Server.Models.SignedPrekey", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -206,12 +236,9 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasColumnType("bytea");
 
-                    b.Property<string>("Type")
+                    b.Property<byte[]>("Signature")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("Used")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bytea");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -223,10 +250,10 @@ namespace Backend.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Prekeys");
+                    b.ToTable("SignedPrekeys");
                 });
 
-            modelBuilder.Entity("Backend.Models.User", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -241,9 +268,13 @@ namespace Backend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("PasswordHash")
+                    b.Property<byte[]>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("bytea");
+
+                    b.Property<byte[]>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("bytea");
 
                     b.Property<byte[]>("PublicKey")
                         .IsRequired()
@@ -261,12 +292,16 @@ namespace Backend.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Backend.Models.UserVault", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.UserVault", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
-                    b.Property<byte[]>("IdentityKey")
+                    b.Property<byte[]>("PassphraseSalt")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<byte[]>("PrivateIdentityKey")
                         .IsRequired()
                         .HasColumnType("bytea");
 
@@ -285,21 +320,21 @@ namespace Backend.Migrations
                     b.ToTable("UserVaults");
                 });
 
-            modelBuilder.Entity("Backend.Models.Attachment", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.Attachment", b =>
                 {
-                    b.HasOne("Backend.Models.Conversation", "Conversation")
+                    b.HasOne("Nyxon.Server.Models.Conversation", "Conversation")
                         .WithMany()
                         .HasForeignKey("ConversationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Backend.Models.MessageMetadata", "Message")
+                    b.HasOne("Nyxon.Server.Models.MessageMetadata", "Message")
                         .WithMany("Attachments")
                         .HasForeignKey("MessageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Backend.Models.User", "Owner")
+                    b.HasOne("Nyxon.Server.Models.User", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -312,15 +347,15 @@ namespace Backend.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("Backend.Models.ConversationUser", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.ConversationUser", b =>
                 {
-                    b.HasOne("Backend.Models.Conversation", "Conversation")
+                    b.HasOne("Nyxon.Server.Models.Conversation", "Conversation")
                         .WithMany("ConversationUsers")
                         .HasForeignKey("ConversationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Backend.Models.User", "User")
+                    b.HasOne("Nyxon.Server.Models.User", "User")
                         .WithMany("ConversationUsers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -331,15 +366,15 @@ namespace Backend.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Backend.Models.ConversationVault", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.ConversationVault", b =>
                 {
-                    b.HasOne("Backend.Models.Conversation", "Conversation")
+                    b.HasOne("Nyxon.Server.Models.Conversation", "Conversation")
                         .WithMany()
                         .HasForeignKey("ConversationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Backend.Models.User", "User")
+                    b.HasOne("Nyxon.Server.Models.User", "User")
                         .WithMany("ConversationVaults")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -350,15 +385,15 @@ namespace Backend.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Backend.Models.MessageMetadata", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.MessageMetadata", b =>
                 {
-                    b.HasOne("Backend.Models.Conversation", "Conversation")
+                    b.HasOne("Nyxon.Server.Models.Conversation", "Conversation")
                         .WithMany()
                         .HasForeignKey("ConversationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Backend.Models.User", "Sender")
+                    b.HasOne("Nyxon.Server.Models.User", "Sender")
                         .WithMany()
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -369,10 +404,10 @@ namespace Backend.Migrations
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("Backend.Models.Prekeys", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.OneTimePrekey", b =>
                 {
-                    b.HasOne("Backend.Models.User", "User")
-                        .WithMany("Prekeys")
+                    b.HasOne("Nyxon.Server.Models.User", "User")
+                        .WithMany("OneTimePrekeys")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -380,34 +415,47 @@ namespace Backend.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Backend.Models.UserVault", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.SignedPrekey", b =>
                 {
-                    b.HasOne("Backend.Models.User", "User")
-                        .WithOne("UserVault")
-                        .HasForeignKey("Backend.Models.UserVault", "UserId")
+                    b.HasOne("Nyxon.Server.Models.User", "User")
+                        .WithMany("SignedPrekeys")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Backend.Models.Conversation", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.UserVault", b =>
+                {
+                    b.HasOne("Nyxon.Server.Models.User", "User")
+                        .WithOne("UserVault")
+                        .HasForeignKey("Nyxon.Server.Models.UserVault", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Nyxon.Server.Models.Conversation", b =>
                 {
                     b.Navigation("ConversationUsers");
                 });
 
-            modelBuilder.Entity("Backend.Models.MessageMetadata", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.MessageMetadata", b =>
                 {
                     b.Navigation("Attachments");
                 });
 
-            modelBuilder.Entity("Backend.Models.User", b =>
+            modelBuilder.Entity("Nyxon.Server.Models.User", b =>
                 {
                     b.Navigation("ConversationUsers");
 
                     b.Navigation("ConversationVaults");
 
-                    b.Navigation("Prekeys");
+                    b.Navigation("OneTimePrekeys");
+
+                    b.Navigation("SignedPrekeys");
 
                     b.Navigation("UserVault")
                         .IsRequired();

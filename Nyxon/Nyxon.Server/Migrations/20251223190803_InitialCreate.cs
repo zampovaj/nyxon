@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Backend.Migrations
+namespace Nyxon.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialFullSchema : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -29,7 +29,7 @@ namespace Backend.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    CodeHash = table.Column<string>(type: "text", nullable: false),
+                    CodeHash = table.Column<byte[]>(type: "bytea", nullable: false),
                     Used = table.Column<bool>(type: "boolean", nullable: false),
                     Version = table.Column<short>(type: "smallint", nullable: false)
                 },
@@ -44,7 +44,8 @@ namespace Backend.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Username = table.Column<string>(type: "text", nullable: false),
-                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    PasswordHash = table.Column<byte[]>(type: "bytea", nullable: false),
+                    PasswordSalt = table.Column<byte[]>(type: "bytea", nullable: false),
                     PublicKey = table.Column<byte[]>(type: "bytea", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Version = table.Column<short>(type: "smallint", nullable: false),
@@ -112,7 +113,7 @@ namespace Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MessageMetadatas",
+                name: "MessageMetadata",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -126,15 +127,15 @@ namespace Backend.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MessageMetadatas", x => x.Id);
+                    table.PrimaryKey("PK_MessageMetadata", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MessageMetadatas_Conversations_ConversationId",
+                        name: "FK_MessageMetadata_Conversations_ConversationId",
                         column: x => x.ConversationId,
                         principalTable: "Conversations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_MessageMetadatas_Users_SenderId",
+                        name: "FK_MessageMetadata_Users_SenderId",
                         column: x => x.SenderId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -142,23 +143,44 @@ namespace Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Prekeys",
+                name: "OneTimePrekeys",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Type = table.Column<string>(type: "text", nullable: false),
                     PublicKey = table.Column<byte[]>(type: "bytea", nullable: false),
                     EncryptedKey = table.Column<byte[]>(type: "bytea", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Version = table.Column<short>(type: "smallint", nullable: false),
-                    Used = table.Column<bool>(type: "boolean", nullable: false)
+                    Used = table.Column<bool>(type: "boolean", nullable: false),
+                    Version = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Prekeys", x => x.Id);
+                    table.PrimaryKey("PK_OneTimePrekeys", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Prekeys_Users_UserId",
+                        name: "FK_OneTimePrekeys_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SignedPrekeys",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    PublicKey = table.Column<byte[]>(type: "bytea", nullable: false),
+                    EncryptedKey = table.Column<byte[]>(type: "bytea", nullable: false),
+                    Signature = table.Column<byte[]>(type: "bytea", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Version = table.Column<short>(type: "smallint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SignedPrekeys", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SignedPrekeys_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -172,8 +194,9 @@ namespace Backend.Migrations
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Version = table.Column<short>(type: "smallint", nullable: false),
+                    PassphraseSalt = table.Column<byte[]>(type: "bytea", nullable: false),
                     VaultKey = table.Column<byte[]>(type: "bytea", nullable: false),
-                    IdentityKey = table.Column<byte[]>(type: "bytea", nullable: false)
+                    PrivateIdentityKey = table.Column<byte[]>(type: "bytea", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -209,9 +232,9 @@ namespace Backend.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Attachments_MessageMetadatas_MessageId",
+                        name: "FK_Attachments_MessageMetadata_MessageId",
                         column: x => x.MessageId,
-                        principalTable: "MessageMetadatas",
+                        principalTable: "MessageMetadata",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -248,18 +271,23 @@ namespace Backend.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MessageMetadatas_ConversationId",
-                table: "MessageMetadatas",
+                name: "IX_MessageMetadata_ConversationId",
+                table: "MessageMetadata",
                 column: "ConversationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MessageMetadatas_SenderId",
-                table: "MessageMetadatas",
+                name: "IX_MessageMetadata_SenderId",
+                table: "MessageMetadata",
                 column: "SenderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Prekeys_UserId",
-                table: "Prekeys",
+                name: "IX_OneTimePrekeys_UserId",
+                table: "OneTimePrekeys",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SignedPrekeys_UserId",
+                table: "SignedPrekeys",
                 column: "UserId");
         }
 
@@ -279,13 +307,16 @@ namespace Backend.Migrations
                 name: "InviteCodes");
 
             migrationBuilder.DropTable(
-                name: "Prekeys");
+                name: "OneTimePrekeys");
+
+            migrationBuilder.DropTable(
+                name: "SignedPrekeys");
 
             migrationBuilder.DropTable(
                 name: "UserVaults");
 
             migrationBuilder.DropTable(
-                name: "MessageMetadatas");
+                name: "MessageMetadata");
 
             migrationBuilder.DropTable(
                 name: "Conversations");

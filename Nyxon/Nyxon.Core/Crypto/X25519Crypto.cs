@@ -1,56 +1,37 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Geralt;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Generators;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
 
 namespace Nyxon.Core.Crypto
 {
     public class X25519Crypto : IX25519Crypto
     {
-        private const int KeySize = 32; // standard for curve25519
+        private readonly SecureRandom _secureRandom = new SecureRandom();
         public (byte[] PublicKey, byte[] PrivateKey) GenerateKeyPair()
         {
-            var publicKey = new byte[KeySize];
-            var privateKey = new byte[KeySize];
+            var generator = new X25519KeyPairGenerator();
+            generator.Init(new X25519KeyGenerationParameters(_secureRandom));
 
-            X25519.GenerateKeyPair(publicKey, privateKey);
+            var pair = generator.GenerateKeyPair();
+            var privateKeyParams = (X25519PrivateKeyParameters)pair.Private;
+            var publicKeyParams = (X25519PublicKeyParameters)pair.Public;
 
-            return (publicKey, privateKey);
+            return (publicKeyParams.GetEncoded(), privateKeyParams.GetEncoded());
         }
 
         public byte[] DeriveSharedSecret(byte[] localPrivateKey, byte[] remotePublicKey)
         {
-            ValidateKey(remotePublicKey, nameof(remotePublicKey));
-            ValidateKey(localPrivateKey, nameof(localPrivateKey));
+            var privParam = new X25519PrivateKeyParameters(localPrivateKey, 0);
+            var pubParam = new X25519PublicKeyParameters(remotePublicKey, 0);
 
-            var sharedSecret = new byte[KeySize];
+            var agreement = new Org.BouncyCastle.Crypto.Agreement.X25519Agreement();
+            agreement.Init(privParam);
 
-            try
-            {
-                X25519.ComputeSharedSecret(sharedSecret, localPrivateKey, remotePublicKey);
-            }
-            catch (Exception ex) when (ex is CryptographicException || ex is ArgumentException)
-            {
-                throw new InvalidOperationException("Failed to compute X25519 shared secret. The remote key may be invalid.", ex);
-            }
+            var secret = new byte[agreement.AgreementSize];
+            agreement.CalculateAgreement(pubParam, secret, 0);
 
-            return sharedSecret;
-        }
-
-        // validation
-
-        private static void ValidateKey(byte[] key, string paramName)
-        {
-            if (key == null)
-            {
-                throw new ArgumentNullException(paramName);
-            }
-
-            if (key.Length != KeySize)
-            {
-                throw new ArgumentException($"X25519 key must be exactly {KeySize} bytes, but was {key.Length}.", paramName);
-            }
+            return secret;
         }
 
     }
