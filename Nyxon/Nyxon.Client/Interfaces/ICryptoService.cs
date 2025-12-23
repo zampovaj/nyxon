@@ -10,7 +10,7 @@ namespace Nyxon.Client.Interfaces
     {
         byte[] GeneratePassphraseSalt();
         byte[] GeneratePasswordSalt();
-        byte[] DerivePassphraseKey(byte[] passphrase, byte[] salt);
+        Task<byte[]> DerivePassphraseKeyAsync(byte[] passphrase, byte[] salt);
         byte[] GenerateVaultKey();
         PrekeyBundle GeneratePrekeyBundle(byte[] privateIdentityKey, byte[] vaultKey, int opkCount);
         AsymmetricKey GenerateIdentityKey();

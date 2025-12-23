@@ -46,5 +46,16 @@ namespace Nyxon.Client.Crypto
                 CryptographicOperations.ZeroMemory(passphrase);
             }
         }
+        public async Task<byte[]> DerivePassphraseKeyAsync(byte[] passphrase, byte[] salt)
+        {
+            return await DeriveKeyAsync(
+                passphrase,
+                salt,
+                length: 32,
+                iterations: 2,
+                memoryKb: 64 * 1024,
+                parallelism: 1
+            );
+        }
     }
 }

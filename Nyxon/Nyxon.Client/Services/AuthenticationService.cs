@@ -49,7 +49,7 @@ namespace Nyxon.Client.Services
         {
             var passwordSalt = _cryptoService.GeneratePasswordSalt();
             var passphraseSalt = _cryptoService.GeneratePassphraseSalt();
-            var passphraseKey = _cryptoService.DerivePassphraseKey(passphrase, passphraseSalt);
+            var passphraseKey = await _cryptoService.DerivePassphraseKeyAsync(passphrase, passphraseSalt);
             var vaultKey = _cryptoService.GenerateVaultKey();
             var identityKey = _cryptoService.GenerateIdentityKey();
             var prekeyBundle = _cryptoService.GeneratePrekeyBundle(identityKey.PrivateKey, vaultKey, 100);

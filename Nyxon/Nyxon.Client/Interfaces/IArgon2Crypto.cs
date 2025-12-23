@@ -14,5 +14,7 @@ namespace Nyxon.Client.Interfaces.Crypto
             int iterations,
             int memoryKb,
             int parallelism);
+
+        Task<byte[]> DerivePassphraseKeyAsync(byte[] passphrase, byte[] salt);
     }
 }

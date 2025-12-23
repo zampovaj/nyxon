@@ -2,21 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Nyxon.Client.Interfaces.Crypto;
 
 namespace Nyxon.Client.Services.Crypto
 {
     public class CryptoService : ICryptoService
     {
         private readonly IKeyGenerationService _keyGenerationService;
+        private readonly IArgon2Crypto _argon2Crypto;
 
-        public CryptoService(IKeyGenerationService keyGenerationService)
+        public CryptoService(IKeyGenerationService keyGenerationService, IArgon2Crypto argon2Crypto)
         {
             _keyGenerationService = keyGenerationService;
+            _argon2Crypto = argon2Crypto;
         }
 
-        public byte[] DerivePassphraseKey(byte[] passphrase, byte[] salt)
+        public async Task<byte[]> DerivePassphraseKeyAsync(byte[] passphrase, byte[] salt)
         {
-            return _keyGenerationService.DeriveKeyFromPassphrase(passphrase, salt);
+            return await _argon2Crypto.DerivePassphraseKeyAsync(passphrase, salt);
         }
 
         public byte[] EncryptWithKey(byte[] data, byte[] key)
