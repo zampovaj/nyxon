@@ -7,6 +7,6 @@ namespace Nyxon.Server.Interfaces
 {
     public interface IHasher
     {
-        string HashInvite (string code);
+        byte[] HashInvite (string code);
     }
 }

@@ -7,8 +7,8 @@ namespace Nyxon.Client.Interfaces
 {
     public interface IAuthenticationService
     {
-        Task<bool> LoginAsync(string username, string password);
-        Task<bool> RegisterAsync(string username, string password, string inviteCode, byte[] passphrase);
+        Task<bool> LoginAsync(string username, byte[] password);
+        Task<bool> RegisterAsync(string username, byte[] password, string inviteCode, byte[] passphrase);
         Task LogoutAsync();
     }
 }

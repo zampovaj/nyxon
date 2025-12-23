@@ -5,23 +5,10 @@ namespace Nyxon.Core.Services.Hash
 {
     public class Sha256HashService : IHashService
     {
-        public string HashInviteCode(string rawCode)
+        public byte[] HashPassword(byte[] password)
         {
-            if (string.IsNullOrEmpty(rawCode)) return string.Empty;
-
             using var sha = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(rawCode);
-            var hash = sha.ComputeHash(bytes);
-            return Convert.ToHexString(hash);
-        }
-        public string HashPassword(string password)
-        {
-            if (string.IsNullOrEmpty(password)) return string.Empty;
-
-            using var sha = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(password);
-            var hash = sha.ComputeHash(bytes);
-            return Convert.ToHexString(hash);
+            return sha.ComputeHash(password);
         }
     }
 }

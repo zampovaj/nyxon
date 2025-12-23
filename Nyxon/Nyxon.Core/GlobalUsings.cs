@@ -4,6 +4,7 @@ global using System.Text.Json;
 global using System.Text;
 global using System.Security.Cryptography;
 global using System.Net.WebSockets;
+global using Microsoft.Extensions.DependencyInjection;
 
 // Nyxon.Core
 global using Nyxon.Core.DTOs;
@@ -12,3 +13,8 @@ global using Nyxon.Core.Version;
 global using Nyxon.Core.Interfaces.Crypto;
 global using Nyxon.Core.Crypto;
 global using Nyxon.Core.Models;
+global using Nyxon.Core.Services;
+global using Nyxon.Core.Extensions;
+global using Nyxon.Core.Services.Keys;
+global using Nyxon.Core.Services.Hash;
+global using Nyxon.Core.Services.Vault;

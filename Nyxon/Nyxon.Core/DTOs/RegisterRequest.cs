@@ -12,7 +12,7 @@ namespace Nyxon.Core.DTOs
         public string Username { get; set; } = string.Empty;
         [Required]
         [NotNull]
-        public string PasswordHash { get; set; } = string.Empty; // already hashed from client
+        public byte[] PasswordHash { get; set; } // already prehashed from client
         [Required]
         [NotNull]
         [MinLength(16)]

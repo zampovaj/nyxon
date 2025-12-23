@@ -26,8 +26,8 @@ namespace Nyxon.Server.Services.Vault
             return new UserVaultRequest
             {
                 EncryptedVaultKey = vault.VaultKey,
-                EncryptedIdentityKey = vault.IdentityKey,
-                Salt = vault.Salt
+                EncryptedIdentityKey = vault.PrivateIdentityKey,
+                Salt = vault.PassphraseSalt
             };
         }
     }

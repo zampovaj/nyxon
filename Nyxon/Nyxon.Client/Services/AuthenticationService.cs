@@ -26,7 +26,7 @@ namespace Nyxon.Client.Services
             _cryptoService = cryptoService;
         }
 
-        public async Task<bool> LoginAsync(string username, string password)
+        public async Task<bool> LoginAsync(string username, byte[] password)
         {
             var request = new LoginRequest
             {
@@ -45,7 +45,7 @@ namespace Nyxon.Client.Services
                 return false;
             }
         }
-        public async Task<bool> RegisterAsync(string username, string password, string inviteCode, byte[] passphrase)
+        public async Task<bool> RegisterAsync(string username, byte[] password, string inviteCode, byte[] passphrase)
         {
             var passwordSalt = _cryptoService.GeneratePasswordSalt();
             var passphraseSalt = _cryptoService.GeneratePassphraseSalt();

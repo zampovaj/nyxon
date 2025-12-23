@@ -39,9 +39,9 @@ namespace Nyxon.Server.Models
         /// <summary>
         /// Creates a new signed prekey
         /// </summary>
-        public OneTimePrekey(Guid userId, byte[] publicKey, byte[] encryptedKey)
+        public OneTimePrekey(Guid id, Guid userId, byte[] publicKey, byte[] encryptedKey)
         {
-            Id = Guid.NewGuid();
+            Id = id;
             UserId = userId;
             PublicKey = publicKey;
             EncryptedKey = encryptedKey;

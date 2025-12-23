@@ -32,10 +32,10 @@ namespace Nyxon.Server.Services.Invites
 
         public async Task<Guid> ValidateAsync(string code)
         {
-            code = _hasher.HashInvite(code);
+            var hash = _hasher.HashInvite(code);
 
             var invite = await _context.InviteCodes
-                .Where(c => c.CodeHash == code && !c.Used)
+                .Where(c => c.CodeHash == hash && !c.Used)
                 .FirstOrDefaultAsync();
 
             if (invite == null)

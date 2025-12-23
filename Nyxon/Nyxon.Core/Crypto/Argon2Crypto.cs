@@ -23,9 +23,9 @@ namespace Nyxon.Core.Crypto
             return argon2.GetBytes(length);
         }
 
-        public byte[] HashPassword(string password, byte[] salt, int length)
+        public byte[] HashPassword(byte[] password, byte[] salt, int length)
         {
-            using var argon2 = new Konscious.Security.Cryptography.Argon2id(Encoding.UTF8.GetBytes(password));
+            using var argon2 = new Konscious.Security.Cryptography.Argon2id(password);
 
             argon2.Salt = salt;
             // only 1 thread to mitigate gpu powered attacks
@@ -36,9 +36,9 @@ namespace Nyxon.Core.Crypto
             return argon2.GetBytes(length);
         }
 
-        public byte[] Hash(string text, byte[] salt, int length, int degreeOfParallelism, int iterations, int memorySize)
+        public byte[] Hash(byte[] data, byte[] salt, int length, int degreeOfParallelism, int iterations, int memorySize)
         {
-            using var argon2 = new Konscious.Security.Cryptography.Argon2id(Encoding.UTF8.GetBytes(text));
+            using var argon2 = new Konscious.Security.Cryptography.Argon2id(data);
 
             argon2.Salt = salt;
             argon2.DegreeOfParallelism = degreeOfParallelism;

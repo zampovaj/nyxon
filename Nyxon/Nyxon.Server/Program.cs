@@ -1,9 +1,12 @@
+using Nyxon.Core.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // add controllers
 builder.Services.AddControllersWithViews();
 // di
 builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddCoreServices();
 
 // swagger
 builder.Services.AddEndpointsApiExplorer();

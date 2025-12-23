@@ -9,15 +9,21 @@ namespace Nyxon.Server.Services.Auth
     public class RegistrationService : IRegistrationService
     {
         private readonly AppDbContext _context;
-        private readonly IHashService _hashService;
+        private readonly IHasher _hasher;
+        private readonly IPasswordService _passwordService;
         private readonly IInviteCodeService _inviteCodeService;
         private readonly bool _enforceInvites;
 
-        public RegistrationService(AppDbContext context, IHashService hashService, IConfiguration config, IInviteCodeService inviteCodeService)
+        public RegistrationService(AppDbContext context,
+            IHasher hasher,
+            IConfiguration config,
+            IPasswordService passwordService,
+            IInviteCodeService inviteCodeService)
         {
             _context = context;
-            _hashService = hashService;
+            _hasher = hasher;
             _enforceInvites = config.GetValue<bool>("Security:EnforceInvites", false);
+            _passwordService = passwordService;
             _inviteCodeService = inviteCodeService;
         }
         public async Task<Guid> RegisterUserAsync(RegisterRequest request)
@@ -28,7 +34,8 @@ namespace Nyxon.Server.Services.Auth
             {
                 // check username uniqueness
                 var usernameExists = await _context.Users
-                    .AnyAsync(u => u.Username == request.Username);
+                    // invariant is the correct choise for string comparisons
+                    .AnyAsync(u => u.Username.ToLowerInvariant() == request.Username.ToLowerInvariant());
 
                 if (usernameExists)
                     throw new InvalidOperationException("Username taken");
@@ -40,24 +47,51 @@ namespace Nyxon.Server.Services.Auth
                     await _inviteCodeService.MarkUsedAsync(inviteId);
                 }
 
+                var passwordHash = _passwordService.HashPassword(request.PasswordHash, request.PasswordSalt);
+
                 // create user
                 var newUser = new User(
-                    request.Username,
-                    request.PasswordHash,
-                    request.PasswordSalt,
-                    request.PublicIdentityKey,
-                    false,
-                    false);
+                    username: request.Username,
+                    passwordHash: passwordHash,
+                    passwordSalt: request.PasswordSalt,
+                    publicKey: request.PublicIdentityKey,
+                    admin: false,
+                    canCreateInvites: false);
 
+                //spk
+                var spk = new Nyxon.Server.Models.SignedPrekey
+                (
+                    id: request.PrekeyBundle.SPK.Id,
+                    userId: newUser.Id,
+                    publicKey: request.PrekeyBundle.SPK.PublicKey,
+                    encryptedKey: request.PrekeyBundle.SPK.PrivateKey,
+                    signature: request.PrekeyBundle.SPK.Signature
+                );
+                newUser.SignedPrekeys.Add(spk);
+
+                //opk
+                foreach (var opk in request.PrekeyBundle.OPKs)
+                {
+                    var oneTimePrekey = new Nyxon.Server.Models.OneTimePrekey
+                    (
+                        id: opk.Id,
+                        userId: newUser.Id,
+                        publicKey: opk.PublicKey,
+                        encryptedKey: opk.PrivateKey
+                    );
+                    newUser.OneTimePrekeys.Add(oneTimePrekey);
+                }
+
+                //save user to db
                 _context.Users.Add(newUser);
                 await _context.SaveChangesAsync(); // wait for db to save changes
 
                 // create uservault
                 var newUserVault = new UserVault(
-                    newUser.Id,
-                    request.PassphraseSalt,
-                    request.EncryptedVaultKey,
-                    request.EncryptedPrivateIdentityKey);
+                    userId: newUser.Id,
+                    passphraseSalt: request.PassphraseSalt,
+                    vaultKey: request.EncryptedVaultKey,
+                    privateIdentityKey: request.EncryptedPrivateIdentityKey);
 
                 _context.UserVaults.Add(newUserVault);
                 await _context.SaveChangesAsync();

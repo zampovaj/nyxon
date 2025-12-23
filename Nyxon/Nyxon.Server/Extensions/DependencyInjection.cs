@@ -7,6 +7,8 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.VisualBasic;
 using Nyxon.Server.Services.Crypto.Hash;
 using Nyxon.Server.Services.Invites;
+using Nyxon.Core.Interfaces.Crypto;
+using Nyxon.Core.Crypto;
 
 namespace Nyxon.Server.Extensions
 {
@@ -182,6 +184,7 @@ namespace Nyxon.Server.Extensions
             services.AddScoped<IConversationVaultService, ConversationVaultService>();
             services.AddScoped<ISessionIdService, SessionIdService>();
             services.AddScoped<IInviteCodeService, InviteCodeService>();
+            services.AddScoped<IPasswordService, PasswordService>();
 
 
             return services;

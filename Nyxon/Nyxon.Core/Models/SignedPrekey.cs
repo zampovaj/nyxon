@@ -8,7 +8,7 @@ namespace Nyxon.Core.Models
 {
     public class SignedPrekey
     {
-        Guid Id { get; set; }
+        public Guid Id { get; set; }
         public byte[] PublicKey { get; set; }
         public byte[] PrivateKey { get; set; }
         public byte[] Signature { get; set; }

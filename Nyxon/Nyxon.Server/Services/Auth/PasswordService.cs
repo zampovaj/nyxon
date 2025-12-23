@@ -15,12 +15,12 @@ namespace Nyxon.Server.Services.Auth
             _argon2Crypto = argon2Crypto;
         }
 
-        public byte[] HashPassword(string password, byte[] salt)
+        public byte[] HashPassword(byte[] password, byte[] salt)
         {
             return _argon2Crypto.HashPassword(password, salt, 32);
         }
 
-        public bool VerifyPassword(string password, byte[] salt, byte[] expectedHash)
+        public bool VerifyPassword(byte[] password, byte[] salt, byte[] expectedHash)
         {
             return HashPassword(password, salt) == expectedHash;
         }

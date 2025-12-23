@@ -53,7 +53,7 @@ namespace Nyxon.Server.Services.Messaging
                 attachments: null
             );
 
-            _context.MessageMetadatas.Add(messageMetadata);
+            _context.MessageMetadata.Add(messageMetadata);
             await _context.SaveChangesAsync();
 
             return messageId;

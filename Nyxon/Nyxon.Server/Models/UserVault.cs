@@ -22,33 +22,33 @@ namespace Nyxon.Server.Models
 
         public DateTime UpdatedAt { get; set; }
         public short Version { get; set; }
-        public byte[] Salt { get; set; } // 32 bytes
+        public byte[] PassphraseSalt { get; set; } // 32 bytes
         public byte[] VaultKey { get; set; }
-        public byte[] IdentityKey { get; set; }
+        public byte[] PrivateIdentityKey { get; set; }
 
         protected UserVault() {}
 
-        public UserVault(Guid userId, DateTime updatedAt, short version, byte[] salt, byte[] vaultKey, byte[] identityKey)
+        public UserVault(Guid userId, DateTime updatedAt, short version, byte[] passphraseSalt, byte[] vaultKey, byte[] privateIdentityKey)
         {
             UserId = userId;
             UpdatedAt = updatedAt;
             Version = version;
-            Salt = salt;
+            PassphraseSalt = passphraseSalt;
             VaultKey = vaultKey;
-            IdentityKey = identityKey;
+            PrivateIdentityKey = privateIdentityKey;
         }
 
         /// <summary>
         /// Creates a brand new user vault
         /// </summary>
-        public UserVault(Guid userId, byte[] salt, byte[] vaultKey, byte[] identityKey)
+        public UserVault(Guid userId, byte[] passphraseSalt, byte[] vaultKey, byte[] privateIdentityKey)
         {
             UserId = userId;
             UpdatedAt = DateTime.UtcNow;
             Version = AppVersion.Current;
-            Salt = salt;
+            PassphraseSalt = passphraseSalt;
             VaultKey = vaultKey;
-            IdentityKey = identityKey;
+            PrivateIdentityKey = privateIdentityKey;
         }
     }
 }

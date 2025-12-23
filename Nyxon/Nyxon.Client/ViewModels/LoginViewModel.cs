@@ -33,6 +33,7 @@ namespace Nyxon.Client.ViewModels
             get => password;
             set => password = value.Trim();
         }
+        private byte[] passwordBytes = Array.Empty<byte>();
         private string confirmPassword = "";
         public string ConfirmPassword
         {
@@ -185,15 +186,17 @@ namespace Nyxon.Client.ViewModels
                 return;
             }
 
+            passwordBytes = Encoding.UTF8.GetBytes(Password);
+
             if (IsRegistering)
             {
 
                 passphraseBytes = Encoding.UTF8.GetBytes(passphrase);
-                success = await _authService.RegisterAsync(Username, Password, InviteCode, passphraseBytes);
+                success = await _authService.RegisterAsync(Username, passwordBytes, InviteCode, passphraseBytes);
             }
             else
             {
-                success = await _authService.LoginAsync(Username, Password);
+                success = await _authService.LoginAsync(Username, passwordBytes);
             }
 
             IsBusy = false;
@@ -219,8 +222,11 @@ namespace Nyxon.Client.ViewModels
         public void Dispose()
         {
             CryptographicOperations.ZeroMemory(passphraseBytes);
+            CryptographicOperations.ZeroMemory(passwordBytes);
             Passphrase = string.Empty;
             ConfirmPassphrase = string.Empty;
+            Password = string.Empty;
+            ConfirmPassword = string.Empty;
         }
     }
 }

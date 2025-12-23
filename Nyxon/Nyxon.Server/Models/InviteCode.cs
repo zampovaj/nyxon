@@ -5,13 +5,13 @@ namespace Nyxon.Server.Models
     public class InviteCode
     {
         public Guid Id { get; set; }
-        public string CodeHash { get; set; }
+        public byte[] CodeHash { get; set; }
         public bool Used { get; private set; }
         public short Version { get; set; }
 
         protected InviteCode() { }
         
-        public InviteCode(Guid id, string codeHash, bool used)
+        public InviteCode(Guid id, byte[] codeHash, bool used)
         {
             Id = id;
             CodeHash = codeHash;
@@ -22,7 +22,7 @@ namespace Nyxon.Server.Models
         /// <summary>
         /// Creates a brand new invite code 
         /// </summary>
-        public InviteCode(string codeHash)
+        public InviteCode(byte[] codeHash)
         {
             Id = Guid.NewGuid();
             CodeHash = codeHash;

@@ -34,6 +34,7 @@ namespace Nyxon.Client
             services.AddScoped<LayoutService>();
             services.AddScoped<IUserVaultService, UserVaultService>();
             services.AddScoped<EncryptedUserVaultSessionService>();
+            services.AddScoped<ICryptoService, CryptoService>();
 
             //auth
             services.AddAuthorizationCore();
