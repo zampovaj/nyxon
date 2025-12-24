@@ -8,6 +8,7 @@
 @inject LayoutService LayoutState
 @inject IAuthenticationService AuthService 
 @inject AuthenticationStateProvider AuthStateProvider
+@inject IUserVaultService UserVaultService
 
 <MudThemeProvider Theme="NyxonTheme.Default" IsDarkMode="true" />
 <MudDialogProvider />
@@ -83,6 +84,7 @@
     {
         LayoutState.OnChange += StateHasChanged;
         Nav.LocationChanged += OnLocationChanged;
+        UserVaultService.SyncVaultAsync();
     }
 
     // ... Dispose and LocationChanged methods stay the same ...

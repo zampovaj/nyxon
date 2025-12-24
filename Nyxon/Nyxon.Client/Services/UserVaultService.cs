@@ -11,6 +11,8 @@ namespace Nyxon.Client.Services
         private readonly IVaultDecryptionService _vaultDecryptionService;
         private readonly AuthenticationStateProvider _authStateProvider;
         private readonly EncryptedUserVaultSessionService _vaultSessionService;
+        private readonly IVaultRepository _vaultRepository;
+        private readonly ICryptoService _cryptoService;
 
         private byte[]? decryptedVaultKey;
         public byte[]? DecryptedVaultKey
@@ -24,11 +26,15 @@ namespace Nyxon.Client.Services
 
         public UserVaultService(IVaultDecryptionService vaultDecryptionService,
         AuthenticationStateProvider authStateProvider,
-        EncryptedUserVaultSessionService vaultSessionService)
+        EncryptedUserVaultSessionService vaultSessionService,
+        IVaultRepository vaultRepository,
+        ICryptoService cryptoService)
         {
             _vaultDecryptionService = vaultDecryptionService;
             _authStateProvider = authStateProvider;
             _vaultSessionService = vaultSessionService;
+            _vaultRepository = vaultRepository;
+            _cryptoService = cryptoService;
 
             // lock on logout
             _authStateProvider.AuthenticationStateChanged += async state =>
@@ -39,22 +45,25 @@ namespace Nyxon.Client.Services
             };
         }
 
-        public async Task<bool> UnlockVaultAsync(string passphrase)
+        public async Task<bool> UnlockVaultAsync(byte[] passphrase)
         {
             if (!_vaultSessionService.HasVault)
-                throw new Exception("Vault not loaded");
-                
-            var decryptedKey = await _vaultDecryptionService.DecryptAsync(_vaultSessionService.EncryptedVaultKey, passphrase);
+            {
+                var sync = await SyncVaultAsync();
+                if (!sync) return false;
+            }
+
+            var decryptedVaultKey = _cryptoService.DecryptKey(_vaultSessionService.EncryptedVaultKey, passphrase);
 
             // safety net for unauthenticated user
             var state = await _authStateProvider.GetAuthenticationStateAsync();
             if (!state.User.Identity?.IsAuthenticated ?? true)
                 return false;
 
-            if (decryptedKey == null)
+            if (decryptedVaultKey == null)
                 return false;
 
-            DecryptedVaultKey = decryptedKey;
+            DecryptedVaultKey = decryptedVaultKey;
             Notify();
             return true;
         }
@@ -62,6 +71,19 @@ namespace Nyxon.Client.Services
         {
             DecryptedVaultKey = null;
             Notify();
+        }
+
+        public async Task<bool> SyncVaultAsync()
+        {
+            var userVault = await _vaultRepository.FetchUserVaultAsync();
+            if (userVault == null)
+            {
+                Console.WriteLine("vault: null");
+                return false;
+            }
+
+            _vaultSessionService.LoadVault(userVault);
+            return true;
         }
 
         private void Notify() => StateChanged?.Invoke();

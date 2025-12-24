@@ -1,6 +1,7 @@
 using MudBlazor.Services;
 using Nyxon.Client.Crypto;
 using Nyxon.Client.Interfaces.Crypto;
+using Nyxon.Client.Repositories;
 using Nyxon.Core.Services.Hash;
 using Nyxon.Core.Services.Vault;
 
@@ -28,16 +29,17 @@ namespace Nyxon.Client
 
             //crypto
             services.AddScoped<IVaultDecryptionService, MockDecryptionService>();
+            services.AddScoped<IArgon2Crypto, Argon2CryptoWasm>();
+            services.AddScoped<ICryptoService, CryptoService>();
+            services.AddScoped<IHashService, Sha256HashService>();
 
             // services
             services.AddScoped<IApiService, ApiService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
-            services.AddScoped<IHashService, Sha256HashService>();
             services.AddScoped<LayoutService>();
             services.AddScoped<IUserVaultService, UserVaultService>();
             services.AddScoped<EncryptedUserVaultSessionService>();
-            services.AddScoped<IArgon2Crypto, Argon2CryptoWasm>();
-            services.AddScoped<ICryptoService, CryptoService>();
+            services.AddScoped<IVaultRepository, VaultRepository>();
 
             //auth
             services.AddAuthorizationCore();

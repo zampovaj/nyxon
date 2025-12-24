@@ -7,6 +7,6 @@ namespace Nyxon.Core.Interfaces
 {
     public interface IVaultDecryptionService
     {
-        Task<byte[]> DecryptAsync(byte[] encryptedKey, string passphrase);
+        Task<byte[]> DecryptAsync(byte[] encryptedKey, byte[] passphrase);
     }
 }

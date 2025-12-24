@@ -78,7 +78,12 @@ namespace Nyxon.Server.Controllers
                     authProperties);
                 
                 //success
-                return Ok(userId);
+                return Ok(new UserSessionDto
+                {
+                    IsAuthenticated = true,
+                    Username = request.Username,
+                    UserId = userId.ToString()
+                });
             }
             catch (ArgumentException argEx)
             {

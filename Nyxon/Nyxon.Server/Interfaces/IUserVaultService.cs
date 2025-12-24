@@ -8,6 +8,6 @@ namespace Nyxon.Server.Interfaces
 {
     public interface IUserVaultService
     {
-        public Task<UserVaultRequest?> GetVaultAsync(Guid userId);
+        public Task<UserVaultResponse?> GetVaultAsync(Guid userId);
     }
 }

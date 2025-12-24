@@ -88,7 +88,7 @@ namespace Nyxon.Client.Services
             try
             {
                 // loginresponse -> id, token
-                var response = await _apiService.PostAsync<Guid, RegisterRequest>("api/auth/register", request);
+                var response = await _apiService.PostAsync<LoginResponse, RegisterRequest>("api/auth/register", request);
                 return response != null;
             }
             catch (Exception)

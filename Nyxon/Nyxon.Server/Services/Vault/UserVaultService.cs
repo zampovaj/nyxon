@@ -16,18 +16,18 @@ namespace Nyxon.Server.Services.Vault
         {
             _context = context;
         }
-        public async Task<UserVaultRequest?> GetVaultAsync(Guid userId)
+        public async Task<UserVaultResponse?> GetVaultAsync(Guid userId)
         {
             var vault = await _context.UserVaults
                 .FirstOrDefaultAsync(v => v.UserId == userId);
             
             if (vault == null) return null;
 
-            return new UserVaultRequest
+            return new UserVaultResponse
             {
                 EncryptedVaultKey = vault.VaultKey,
-                EncryptedIdentityKey = vault.PrivateIdentityKey,
-                Salt = vault.PassphraseSalt
+                EncryptedPrivateIdentityKey = vault.PrivateIdentityKey,
+                PassphraseSalt = vault.PassphraseSalt
             };
         }
     }

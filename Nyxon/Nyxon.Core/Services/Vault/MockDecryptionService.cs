@@ -7,7 +7,7 @@ namespace Nyxon.Core.Services.Vault
 {
     public class MockDecryptionService : IVaultDecryptionService
     {
-        public async Task<byte[]> DecryptAsync(byte[] encryptedKey, string passphrase)
+        public async Task<byte[]> DecryptAsync(byte[] encryptedKey, byte[] passphrase)
         {
             //TODO: implement vault key decryptionm
             await Task.Delay(5);

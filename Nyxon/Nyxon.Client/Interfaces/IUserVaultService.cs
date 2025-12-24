@@ -9,7 +9,8 @@ namespace Nyxon.Client.Interfaces
     {
         bool IsUnlocked { get; }
         event Action? StateChanged;
-        Task<bool> UnlockVaultAsync(string passphrase);
+        Task<bool> SyncVaultAsync();
+        Task<bool> UnlockVaultAsync(byte[] passphrase);
         void LockVault();
     }
 }

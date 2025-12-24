@@ -17,7 +17,7 @@ namespace Nyxon.Client.ViewModels
         private readonly IAuthenticationService _authService;
         private readonly NavigationManager _nav;
         private readonly AuthenticationStateProvider _authStateProvider;
-        private readonly EncryptedUserVaultSessionService _userSessionService;
+        private readonly IUserVaultService _userVaultService;
 
         [Required]
         private string username = "";
@@ -70,12 +70,12 @@ namespace Nyxon.Client.ViewModels
             (IAuthenticationService authService,
             NavigationManager nav,
             AuthenticationStateProvider authStateProvider,
-            EncryptedUserVaultSessionService userSessionService)
+            IUserVaultService userVaultService)
         {
             _authService = authService;
             _nav = nav;
             _authStateProvider = authStateProvider;
-            _userSessionService = userSessionService;
+            _userVaultService = userVaultService;
         }
 
         //validation
@@ -206,9 +206,6 @@ namespace Nyxon.Client.ViewModels
                 Passphrase = String.Empty;
                 _nav.NavigateTo("/");
                 ((HostAuthenticationStateProvider)_authStateProvider).NotifyStateChanged();
-
-                // TODO: actually fetch the user vault and set the key
-                _userSessionService.SetEncryptedVaultKey(null);
             }
             else
             {
