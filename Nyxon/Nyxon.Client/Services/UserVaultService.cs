@@ -132,6 +132,11 @@ namespace Nyxon.Client.Services
             Notify();
         }
 
+        public void CheckEncryptedVault()
+        {
+            _vaultSessionService.CheckVault();
+        }
+
         private void Notify() => StateChanged?.Invoke();
     }
 }

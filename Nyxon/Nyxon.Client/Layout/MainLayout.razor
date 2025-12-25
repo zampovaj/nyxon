@@ -84,6 +84,7 @@
     {
         LayoutState.OnChange += StateHasChanged;
         Nav.LocationChanged += OnLocationChanged;
+        UserVaultService.SyncVaultAsync();
         Console.WriteLine(UserVaultService.IsUnlocked ? "Vault is unlocked." : "Vault is locked.");
     }
 
