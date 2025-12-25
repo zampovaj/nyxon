@@ -41,18 +41,13 @@ namespace Nyxon.Client.Services
 
                 if (user.Identity?.IsAuthenticated == true)
                 {
-                    // CASE 1: USER LOGGED IN
-                    // We are authenticated, but do we have the vault?
                     if (!_vaultSessionService.HasVault)
                     {
-                        // Auto-Sync!
-                        Console.WriteLine("[UserVaultService] Auth detected. Syncing vault...");
                         await SyncVaultAsync();
                     }
                 }
                 else
                 {
-                    Console.WriteLine("[UserVaultService] User logged out. Locking vault.");
                     Clear();
                 }
             };
@@ -60,7 +55,6 @@ namespace Nyxon.Client.Services
 
         public async Task<bool> UnlockVaultAsync(byte[] passphrase)
         {
-            Console.WriteLine("Unloking vault for who knows what reason");
             // safety net for unauthenticated user
             var state = await _authStateProvider.GetAuthenticationStateAsync();
             if (!state.User.Identity?.IsAuthenticated ?? true)

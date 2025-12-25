@@ -73,21 +73,7 @@ namespace Nyxon.Client.Services
                 PassphraseSalt = passphraseSalt,
                 PrekeyBundle = prekeyBundle
             };
-
-            //console log register request
-            Console.WriteLine("Username: {0}", request.Username);
-            Console.WriteLine("InviteCode: {0}", request.InviteCode);
-            Console.WriteLine("PasswordHash: {0}", Convert.ToBase64String(request.PasswordHash));
-            Console.WriteLine("PasswordSalt: {0}", Convert.ToBase64String(request.PasswordSalt));
-            Console.WriteLine("PublicIdentityKey: {0}", Convert.ToBase64String(request.PublicIdentityKey));
-            Console.WriteLine("EncryptedVaultKey: {0}", Convert.ToBase64String(request.EncryptedVaultKey));
-            Console.WriteLine("EncryptedPrivateIdentityKey: {0}", Convert.ToBase64String(request.EncryptedPrivateIdentityKey));
-            Console.WriteLine("PassphraseSalt: {0}", Convert.ToBase64String(request.PassphraseSalt));
-            Console.WriteLine("PrekeyBundle SPK Id: {0}", request.PrekeyBundle.SPK.Id);
-            Console.WriteLine("PrekeyBundle SPK PublicKey: {0}", Convert.ToBase64String(request.PrekeyBundle.SPK.PublicKey));
-            Console.WriteLine("PrekeyBundle OPKs Count: {0}", request.PrekeyBundle.OPKs.Count);
-
-
+            
             try
             {
                 // loginresponse -> id, token
