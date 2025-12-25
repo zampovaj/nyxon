@@ -15,7 +15,7 @@ namespace Nyxon.Client.Interfaces
         PrekeyBundle GeneratePrekeyBundle(byte[] privateIdentityKey, byte[] vaultKey, int opkCount);
         AsymmetricKey GenerateIdentityKey();
         byte[] EncryptWithKey(byte[] data, byte[] key);
-        byte[] DecryptKey(byte[] data, byte[] key);
+        byte[] DecryptWithKey(byte[] data, byte[] key);
 
     }
 }

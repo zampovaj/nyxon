@@ -22,7 +22,7 @@ namespace Nyxon.Server.Services.Auth
 
         public bool VerifyPassword(byte[] password, byte[] salt, byte[] expectedHash)
         {
-            return HashPassword(password, salt) == expectedHash;
+            return HashPassword(password, salt).SequenceEqual(expectedHash);
         }
     }
 }

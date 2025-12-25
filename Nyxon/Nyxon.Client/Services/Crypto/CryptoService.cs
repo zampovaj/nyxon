@@ -27,7 +27,7 @@ namespace Nyxon.Client.Services.Crypto
             return _keyGenerationService.EncryptWithKey(data, key);
         }
 
-        public byte[] DecryptKey(byte[] data, byte[] key)
+        public byte[] DecryptWithKey(byte[] data, byte[] key)
         {
             return _keyGenerationService.DecryptWithKey(data, key);
         }

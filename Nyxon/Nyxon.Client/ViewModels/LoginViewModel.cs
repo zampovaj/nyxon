@@ -203,7 +203,7 @@ namespace Nyxon.Client.ViewModels
 
             if (success)
             {
-                Passphrase = String.Empty;
+                Passphrase = string.Empty;
                 _nav.NavigateTo("/");
                 ((HostAuthenticationStateProvider)_authStateProvider).NotifyStateChanged();
             }

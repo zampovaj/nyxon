@@ -55,6 +55,7 @@ Consistent headers.</div>
     {
         // Set the UI title when this page loads
         // This fixes the issue where refreshing the page clears the header
+        if (!LayoutState.IsVaultUnlocked) Nav.NavigateTo("/", false);
         LayoutState.SetHeaderTitle(username);
     }
 }

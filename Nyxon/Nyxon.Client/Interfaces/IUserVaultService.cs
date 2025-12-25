@@ -12,5 +12,8 @@ namespace Nyxon.Client.Interfaces
         Task<bool> SyncVaultAsync();
         Task<bool> UnlockVaultAsync(byte[] passphrase);
         void LockVault();
+        Task<byte[]> DecryptAsync(byte[] data);
+        Task<byte[]> EncryptAsync(byte[] data);
+        void Clear();
     }
 }

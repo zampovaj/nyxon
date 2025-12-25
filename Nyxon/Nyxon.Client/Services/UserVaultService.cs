@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
@@ -14,21 +15,17 @@ namespace Nyxon.Client.Services
         private readonly IVaultRepository _vaultRepository;
         private readonly ICryptoService _cryptoService;
 
-        private byte[]? decryptedVaultKey;
-        public byte[]? DecryptedVaultKey
-        {
-            get => decryptedVaultKey;
-            private set => decryptedVaultKey = value;
-        }
-        public bool IsUnlocked => DecryptedVaultKey != null;
+        private byte[]? DecryptedVaultKey { get; set; } = null;
+        private byte[]? DecryptedPrivateIdentityKey { get; set; } = null;
+        public bool IsUnlocked => DecryptedVaultKey != null && DecryptedPrivateIdentityKey != null;
 
         public event Action? StateChanged;
 
         public UserVaultService(IVaultDecryptionService vaultDecryptionService,
-        AuthenticationStateProvider authStateProvider,
-        EncryptedUserVaultSessionService vaultSessionService,
-        IVaultRepository vaultRepository,
-        ICryptoService cryptoService)
+            AuthenticationStateProvider authStateProvider,
+            EncryptedUserVaultSessionService vaultSessionService,
+            IVaultRepository vaultRepository,
+            ICryptoService cryptoService)
         {
             _vaultDecryptionService = vaultDecryptionService;
             _authStateProvider = authStateProvider;
@@ -37,39 +34,73 @@ namespace Nyxon.Client.Services
             _cryptoService = cryptoService;
 
             // lock on logout
-            _authStateProvider.AuthenticationStateChanged += async state =>
+            _authStateProvider.AuthenticationStateChanged += async task =>
             {
-                var user = (await state).User;
-                if (!user.Identity?.IsAuthenticated ?? true)
-                    LockVault();
+                var state = await task;
+                var user = state.User;
+
+                if (user.Identity?.IsAuthenticated == true)
+                {
+                    // CASE 1: USER LOGGED IN
+                    // We are authenticated, but do we have the vault?
+                    if (!_vaultSessionService.HasVault)
+                    {
+                        // Auto-Sync!
+                        Console.WriteLine("[UserVaultService] Auth detected. Syncing vault...");
+                        await SyncVaultAsync();
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("[UserVaultService] User logged out. Locking vault.");
+                    Clear();
+                }
             };
         }
 
         public async Task<bool> UnlockVaultAsync(byte[] passphrase)
         {
+            Console.WriteLine("Unloking vault for who knows what reason");
+            // safety net for unauthenticated user
+            var state = await _authStateProvider.GetAuthenticationStateAsync();
+            if (!state.User.Identity?.IsAuthenticated ?? true)
+                return false;
+
             if (!_vaultSessionService.HasVault)
             {
                 var sync = await SyncVaultAsync();
                 if (!sync) return false;
             }
 
-            var decryptedVaultKey = _cryptoService.DecryptKey(_vaultSessionService.EncryptedVaultKey, passphrase);
+            try
+            {
+                var passphraseKey = await _cryptoService.DerivePassphraseKeyAsync(passphrase, _vaultSessionService.PassphraseSalt);
 
-            // safety net for unauthenticated user
-            var state = await _authStateProvider.GetAuthenticationStateAsync();
-            if (!state.User.Identity?.IsAuthenticated ?? true)
-                return false;
+                if (passphraseKey == null) return false;
 
-            if (decryptedVaultKey == null)
-                return false;
+                DecryptedVaultKey = _cryptoService.DecryptWithKey(_vaultSessionService.EncryptedVaultKey, passphraseKey);
+                DecryptedPrivateIdentityKey = _cryptoService.DecryptWithKey(_vaultSessionService.EncryptedPrivateIdentityKey, DecryptedVaultKey);
 
-            DecryptedVaultKey = decryptedVaultKey;
-            Notify();
-            return true;
+                if (DecryptedVaultKey == null || DecryptedPrivateIdentityKey == null)
+                    return false;
+
+                Notify();
+                return IsUnlocked;
+            }
+            finally
+            {
+                CryptographicOperations.ZeroMemory(passphrase);
+            }
         }
         public void LockVault()
         {
+            if (DecryptedPrivateIdentityKey != null)
+                CryptographicOperations.ZeroMemory(DecryptedPrivateIdentityKey);
+            if (DecryptedVaultKey != null)
+                CryptographicOperations.ZeroMemory(DecryptedVaultKey);
+
             DecryptedVaultKey = null;
+            DecryptedPrivateIdentityKey = null;
             Notify();
         }
 
@@ -84,6 +115,27 @@ namespace Nyxon.Client.Services
 
             _vaultSessionService.LoadVault(userVault);
             return true;
+        }
+        public async Task<byte[]> DecryptAsync(byte[] data)
+        {
+            if (!IsUnlocked)
+                throw new UnauthorizedAccessException("Vault needs to be decrypted to decrypt ciphertext using vault key.");
+
+            return _cryptoService.DecryptWithKey(data, DecryptedVaultKey);
+        }
+        public async Task<byte[]> EncryptAsync(byte[] data)
+        {
+            if (!IsUnlocked)
+                throw new UnauthorizedAccessException("Vault needs to be decrypted to encrypt plaintext using vault key.");
+
+            return _cryptoService.EncryptWithKey(data, DecryptedVaultKey);
+        }
+
+        public void Clear()
+        {
+            LockVault();
+            _vaultSessionService.Clear();
+            Notify();
         }
 
         private void Notify() => StateChanged?.Invoke();

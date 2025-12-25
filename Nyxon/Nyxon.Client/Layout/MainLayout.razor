@@ -84,7 +84,7 @@
     {
         LayoutState.OnChange += StateHasChanged;
         Nav.LocationChanged += OnLocationChanged;
-        UserVaultService.SyncVaultAsync();
+        Console.WriteLine(UserVaultService.IsUnlocked ? "Vault is unlocked." : "Vault is locked.");
     }
 
     // ... Dispose and LocationChanged methods stay the same ...

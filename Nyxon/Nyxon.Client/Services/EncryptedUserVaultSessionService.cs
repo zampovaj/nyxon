@@ -9,9 +9,9 @@ namespace Nyxon.Client.Services
 {
     public class EncryptedUserVaultSessionService
     {
-        public byte[]? PassphraseSalt { get; private set; }
-        public byte[]? EncryptedVaultKey { get; private set; }
-        public byte[]? EncryptedPrivateIdentityKey { get; private set; }
+        public byte[]? PassphraseSalt { get; private set; } = null;
+        public byte[]? EncryptedVaultKey { get; private set; } = null;
+        public byte[]? EncryptedPrivateIdentityKey { get; private set; } = null;
 
         public bool HasVault => EncryptedVaultKey != null && PassphraseSalt != null;
 

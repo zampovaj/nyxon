@@ -12,21 +12,36 @@ namespace Nyxon.Server.Services.Auth
     public class LoginService : ILoginService
     {
         private readonly AppDbContext _context;
+        private readonly IPasswordService _passwordService;
+        private readonly ILogger<LoginService> _logger;
 
-        public LoginService(AppDbContext context)
+        public LoginService(AppDbContext context, IPasswordService passwordService, ILogger<LoginService> logger)
         {
             _context = context;
+            _passwordService = passwordService;
+            _logger = logger;
         }
 
         public async Task<User?> LoginAsync(LoginRequest request)
         {
             // verify username and password
             var user = await _context.Users
-                .Where(u => u.Username == request.Username
-                && u.PasswordHash == request.PasswordHash)
+                .Where(u => u.Username == request.Username)
                 .FirstOrDefaultAsync();
 
-            return user;
+            if (user == null)
+            {
+                _logger.LogInformation("User not found");
+                return null;
+            }
+
+            if (_passwordService.VerifyPassword(request.PasswordHash, user.PasswordSalt, user.PasswordHash))
+            {
+                _logger.LogInformation("User checks out");
+                return user;
+            }
+
+            return null;
         }
     }
 }
