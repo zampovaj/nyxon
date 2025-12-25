@@ -2,6 +2,7 @@
 @inject NavigationManager Nav
 @inject ISnackbar Snackbar
 @inject LayoutService LayoutState
+@inject IInboxService InboxService
 
 <aside class="sidebar">
     <div class="sidebar-top">
@@ -11,25 +12,31 @@
         </div>
     </div>
     <div class="side-nav-list">
-        <div class="side-nav-item" @onclick='() => TryOpenChat("Alice")'>
-            <MudAvatar class="avatar side-avatar">
-                A
-            </MudAvatar>
-            <div class="side-nav-info">
-                <span class="chat-name">Alice</span>
-                <span class="chat-preview">Project Nyxon is live.</span>
+        @if (InboxService.Conversations == null || !InboxService.Conversations.Any())
+        {
+            <div class="side-nav-item" style="opacity: 0.5; cursor: default;">
+                <MudAvatar class="avatar side-avatar">?</MudAvatar>
+                <div class="side-nav-info">
+                    <span class="chat-name">No Chats</span>
+                    <span class="chat-preview">Inbox is empty</span>
+                </div>
             </div>
-        </div>
-        
-        <div class="side-nav-item" @onclick='() => TryOpenChat("Bob")'>
-            <MudAvatar class="avatar side-avatar">
-                B
-            </MudAvatar>
-            <div class="side-nav-info">
-                <span class="chat-name">Bob (Dev)</span>
-                <span class="chat-preview">Key rotation successful.</span>
-            </div>
-        </div>
+        }
+        else
+        {
+            foreach (Conversation conv in InboxService.Conversations)
+            {
+                <div class="side-nav-item" @onclick='() => TryOpenChat(conv)'>
+                    <MudAvatar class="avatar side-avatar">
+                        @conv.TargetUsername
+                    </MudAvatar>
+                    <div class="side-nav-info">
+                        <span class="chat-name">@conv.TargetUsername</span>
+                        <span class="chat-preview" style=@(conv.HasUnreadMessages ? "text-style: bold" : "")>@conv.LastMessageAt.ToShortTimeString()</span>
+                    </div>
+                </div>
+            }
+        }
     </div>
     <div class="sidebar-bottom">
         <div class="status-dot-wrapper">
@@ -45,19 +52,21 @@
     protected override void OnInitialized()
     {
         LayoutState.OnChange += StateHasChanged;
+        InboxService.OnChange += StateHasChanged;
+        InboxService.SyncInboxAsync();
     }
 
     public void Dispose()
     {
         LayoutState.OnChange -= StateHasChanged;
+        InboxService.OnChange -= StateHasChanged;
     }
 
-    private void TryOpenChat(string name)
+    private void TryOpenChat(Conversation conversation)
     {
-        // TODO: Re-implement Vault check later when we have EncryptionService
-        // if (!LayoutState.IsVaultUnlocked) ...
-
-        LayoutState.SetHeaderTitle(name);
+        if (!LayoutState.IsVaultUnlocked) return;
+        LayoutState.SetHeaderTitle(conversation.TargetUsername);
+        // TODO: naviuaget to actual chat/{userID} or chat/{username}
         Nav.NavigateTo($"/chat");
     }
 }

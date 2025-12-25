@@ -40,6 +40,8 @@ namespace Nyxon.Client
             services.AddScoped<IUserVaultService, UserVaultService>();
             services.AddScoped<EncryptedUserVaultSessionService>();
             services.AddScoped<IVaultRepository, VaultRepository>();
+            services.AddScoped<IConversationRepository, ConversationRepository>();
+            services.AddScoped<IInboxService, InboxService>();
 
             //auth
             services.AddAuthorizationCore();

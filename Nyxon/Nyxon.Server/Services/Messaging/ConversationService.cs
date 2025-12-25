@@ -56,5 +56,27 @@ namespace Nyxon.Server.Services.Messaging
                 throw;
             }
         }
+
+        public async Task<List<ConversationSummaryDto>> GetInboxAsync(Guid userId)
+        {
+            return await _context.ConversationUsers
+                .AsNoTracking()
+                .OrderByDescending(cu => cu.Conversation.LastMessageAt) // Hits the [Index] we made
+                .Select(cu => new ConversationSummaryDto
+                {
+                    Id = cu.ConversationId,
+                    LastMessageAt = cu.Conversation.LastMessageAt,
+                    
+                    // unread if the chat was update and the suer hasnt seen it yet
+                    HasUnreadMessages = cu.Conversation.LastMessageAt > cu.LastRead,
+
+                    // find the other user
+                    Username = cu.Conversation.ConversationUsers
+                        .Where(other => other.UserId != userId)
+                        .Select(other => other.User.Username)
+                        .FirstOrDefault() ?? "Unknown"
+                })
+                .ToListAsync();
+        }
     }
 }

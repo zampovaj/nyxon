@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Nyxon.Core.DTOs;
 using Nyxon.Server.Interfaces;
+using YamlDotNet.Core.Tokens;
 
 namespace Nyxon.Server.Controllers
 {
@@ -38,8 +39,26 @@ namespace Nyxon.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new {error = ex.Message});
-            }     
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<List<ConversationSummaryDto>>> GetInbox()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
+                return Unauthorized();
+
+            try
+            {
+                var inbox = await _conversationService.GetInboxAsync(userId);
+                return Ok(inbox);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
         }
     }
 }

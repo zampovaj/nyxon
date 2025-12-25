@@ -2,6 +2,7 @@ using Nyxon.Core.Version;
 
 namespace Nyxon.Server.Models
 {
+    [Index(nameof(LastMessageAt))]
     public class Conversation
     {
         public Guid Id { get; set; }
