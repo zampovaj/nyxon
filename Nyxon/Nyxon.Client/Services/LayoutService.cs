@@ -18,6 +18,8 @@ namespace Nyxon.Client.Services
 
         public void SetHeaderTitle(string title)
         {
+            if (!IsVaultUnlocked) return;
+
             HeaderTitle = title;
             NotifyStateChanged();
         }

@@ -87,8 +87,6 @@
         Console.WriteLine(UserVaultService.IsUnlocked ? "Vault is unlocked." : "Vault is locked.");
     }
 
-    // ... Dispose and LocationChanged methods stay the same ...
-
     public void Dispose()
     {
         LayoutState.OnChange -= StateHasChanged;
@@ -103,15 +101,13 @@
     private void Home() 
     {
         LayoutState.SetHeaderTitle("");
-        // Optional: Nav.NavigateTo("/") if logo should redirect
     }
 
     private async Task Logout()
     {
-        // Use the proper Auth service now!
         await AuthService.LogoutAsync();
         
-        LayoutState.SetHeaderTitle(""); // Clear UI state
+        LayoutState.SetHeaderTitle("");
         Nav.NavigateTo("/");
     }
 }
