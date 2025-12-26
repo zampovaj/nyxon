@@ -13,7 +13,10 @@ namespace Nyxon.Client.Services
         public byte[]? EncryptedVaultKey { get; private set; } = null;
         public byte[]? EncryptedPrivateIdentityKey { get; private set; } = null;
 
-        public bool HasVault => EncryptedVaultKey != null && PassphraseSalt != null;
+        public bool HasVault =>
+            EncryptedVaultKey != null &&
+            PassphraseSalt != null &&
+            EncryptedPrivateIdentityKey != null;
 
         public void CheckVault()
         {

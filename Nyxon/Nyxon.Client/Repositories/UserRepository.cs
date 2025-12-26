@@ -5,20 +5,20 @@ using System.Threading.Tasks;
 
 namespace Nyxon.Client.Repositories
 {
-    public class ConversationRepository : IConversationRepository
+    public class UserRepository : IUserRepository
     {
         private readonly IApiService _apiService;
 
-        public ConversationRepository(IApiService apiService)
+        public UserRepository(IApiService apiService)
         {
             _apiService = apiService;
         }
 
-        public async Task<List<ConversationSummaryDto>?> FetchInboxAsync()
+        public async Task<List<UserListDto>?> FetchUserListAsync()
         {
             try
             {
-                return await _apiService.GetAsync<List<ConversationSummaryDto>>("api/conversation/inbox");
+                return await _apiService.GetAsync<List<UserListDto>>("api/user/list");
             }
             catch
             {

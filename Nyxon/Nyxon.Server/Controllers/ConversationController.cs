@@ -23,7 +23,7 @@ namespace Nyxon.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateConversation([FromBody] CreateConversationRequest request)
+        public async Task<ActionResult<CreateConversationResponse>> CreateConversation([FromBody] CreateConversationRequest request)
         {
             var initiatorIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (initiatorIdString == null || !Guid.TryParse(initiatorIdString, out var initiatorId))
@@ -43,7 +43,7 @@ namespace Nyxon.Server.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("inbox")]
         public async Task<ActionResult<List<ConversationSummaryDto>>> GetInbox()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

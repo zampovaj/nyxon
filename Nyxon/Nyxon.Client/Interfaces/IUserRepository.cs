@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace Nyxon.Client.Interfaces
 {
-    public interface IConversationRepository
+    public interface IUserRepository
     {
-        Task<List<ConversationSummaryDto>?> FetchInboxAsync();
+        Task<List<UserListDto>?> FetchUserListAsync();
     }
 }

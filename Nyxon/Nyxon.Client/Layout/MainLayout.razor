@@ -2,13 +2,13 @@
 @using MudBlazor
 @using Microsoft.AspNetCore.Components.Authorization
 @using Nyxon.Client.Services
-@using Nyxon.Client.Interfaces 
+@using Nyxon.Client.Interfaces
 
 @inject NavigationManager Nav
 @inject LayoutService LayoutState
-@inject IAuthenticationService AuthService 
+@inject IAuthenticationService AuthService
 @inject AuthenticationStateProvider AuthStateProvider
-@inject IUserVaultService UserVaultService
+@inject ISyncService SyncService
 
 <MudThemeProvider Theme="NyxonTheme.Default" IsDarkMode="true" />
 <MudDialogProvider />
@@ -40,11 +40,11 @@
                         <div class="nav-links-log">
                             <div class="user-link">
                                 <MudAvatar class="avatar user-avatar">
-                                    @(context.User.Identity?.Name?.Substring(0,1).ToUpper() ?? "?")
+                                    @(context.User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "?")
                                 </MudAvatar>
                                 <a class="username">@context.User.Identity?.Name</a>
                             </div>
-                            <a class="logout-link" href="#" @onclick="Logout">➜]  Logout</a>
+                            <a class="logout-link" href="#" @onclick="Logout">➜] Logout</a>
                         </div>
                     </Authorized>
                     <NotAuthorized>
@@ -52,7 +52,7 @@
                         <a href="security" class="nav-item">Security</a>
                         @if (!Nav.Uri.Contains("login"))
                         {
-                             <button style="margin-left: 20px" class="btn-primary" @onclick='() => Nav.NavigateTo("/login")'>
+                            <button style="margin-left: 20px" class="btn-primary" @onclick='() => Nav.NavigateTo("/login")'>
                                 Login / Register
                             </button>
                         }
@@ -80,18 +80,18 @@
 </div>
 
 @code {
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         LayoutState.OnChange += StateHasChanged;
         Nav.LocationChanged += OnLocationChanged;
-        UserVaultService.SyncVaultAsync();
-        Console.WriteLine(UserVaultService.IsUnlocked ? "Vault is unlocked." : "Vault is locked.");
+        await SyncService.SyncAsync();
     }
 
     public void Dispose()
     {
         LayoutState.OnChange -= StateHasChanged;
         Nav.LocationChanged -= OnLocationChanged;
+        SyncService.Clear();
     }
 
     private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
@@ -99,7 +99,7 @@
         StateHasChanged();
     }
 
-    private void Home() 
+    private void Home()
     {
         LayoutState.SetHeaderTitle("");
     }
@@ -107,7 +107,7 @@
     private async Task Logout()
     {
         await AuthService.LogoutAsync();
-        
+
         LayoutState.SetHeaderTitle("");
         Nav.NavigateTo("/");
     }

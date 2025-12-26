@@ -4,6 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // add controllers
 builder.Services.AddControllersWithViews();
+
 // di
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddCoreServices();
@@ -16,8 +17,6 @@ builder.Services.AddOpenApiDocument();
 builder.Logging.AddConsole();
 
 var app = builder.Build();
-
-// ... after builder.Build()
 
 // migrations -> didnt work, now it should work even if postgres takes too long
 using (var scope = app.Services.CreateScope())
@@ -63,7 +62,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-
 if (app.Environment.IsDevelopment())
 {
     app.UseOpenApi();
@@ -79,6 +77,7 @@ app.UseRouting();
 // auth
 app.UseAuthentication();
 app.UseAuthorization();
+
 //csrf
 app.UseAntiforgery();
 

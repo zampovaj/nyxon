@@ -33,15 +33,21 @@ namespace Nyxon.Client
             services.AddScoped<ICryptoService, CryptoService>();
             services.AddScoped<IHashService, Sha256HashService>();
 
+            // repositories
+            services.AddScoped<IVaultRepository, VaultRepository>();
+            services.AddScoped<IConversationRepository, ConversationRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+
             // services
             services.AddScoped<IApiService, ApiService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<LayoutService>();
             services.AddScoped<IUserVaultService, UserVaultService>();
             services.AddScoped<EncryptedUserVaultSessionService>();
-            services.AddScoped<IVaultRepository, VaultRepository>();
-            services.AddScoped<IConversationRepository, ConversationRepository>();
             services.AddScoped<IInboxService, InboxService>();
+            services.AddScoped<IUserListService, UserListService>();
+            services.AddScoped<IUserListService, UserListService>();
+            services.AddScoped<ISyncService, SyncService>();
 
             //auth
             services.AddAuthorizationCore();

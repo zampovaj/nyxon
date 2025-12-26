@@ -32,25 +32,6 @@ namespace Nyxon.Client.Services
             _vaultSessionService = vaultSessionService;
             _vaultRepository = vaultRepository;
             _cryptoService = cryptoService;
-
-            // lock on logout
-            _authStateProvider.AuthenticationStateChanged += async task =>
-            {
-                var state = await task;
-                var user = state.User;
-
-                if (user.Identity?.IsAuthenticated == true)
-                {
-                    if (!_vaultSessionService.HasVault)
-                    {
-                        await SyncVaultAsync();
-                    }
-                }
-                else
-                {
-                    Clear();
-                }
-            };
         }
 
         public async Task<bool> UnlockVaultAsync(byte[] passphrase)
@@ -100,16 +81,20 @@ namespace Nyxon.Client.Services
 
         public async Task<bool> SyncVaultAsync()
         {
-            var userVault = await _vaultRepository.FetchUserVaultAsync();
-            if (userVault == null)
+            if (!_vaultSessionService.HasVault)
             {
-                Console.WriteLine("vault: null");
-                return false;
-            }
+                var userVault = await _vaultRepository.FetchUserVaultAsync();
+                if (userVault == null)
+                {
+                    Console.WriteLine("vault: null");
+                    return false;
+                }
 
-            _vaultSessionService.LoadVault(userVault);
+                _vaultSessionService.LoadVault(userVault);
+            }
             return true;
         }
+
         public async Task<byte[]> DecryptAsync(byte[] data)
         {
             if (!IsUnlocked)

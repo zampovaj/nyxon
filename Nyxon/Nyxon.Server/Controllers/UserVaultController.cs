@@ -20,7 +20,7 @@ namespace Nyxon.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetVault()
+        public async Task<ActionResult<ConversationVaultDto>> GetVault()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdString == null || !Guid.TryParse(userIdString, out var userId))

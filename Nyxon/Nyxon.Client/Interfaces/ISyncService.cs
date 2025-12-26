@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace Nyxon.Client.Interfaces
 {
-    public interface IConversationRepository
+    public interface ISyncService
     {
-        Task<List<ConversationSummaryDto>?> FetchInboxAsync();
+        Task SyncAsync();
+        void Clear();
     }
 }

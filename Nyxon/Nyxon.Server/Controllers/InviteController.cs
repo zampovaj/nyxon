@@ -25,7 +25,7 @@ namespace Nyxon.Server.Controllers
 
         [HttpPost]
         [Authorize(Policy = "CanCreateInvites")]
-        public async Task<IActionResult> CreateInvite()
+        public async Task<ActionResult<InviteCodeDto>> CreateInvite()
         {
             try
             {

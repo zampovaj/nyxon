@@ -47,7 +47,7 @@ namespace Nyxon.Server.Controllers
         [HttpPost("register")]
         [AllowAnonymous]
         [IgnoreAntiforgeryToken]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        public async Task<ActionResult<UserSessionDto>> Register([FromBody] RegisterRequest request)
         {
             try
             {
@@ -103,7 +103,7 @@ namespace Nyxon.Server.Controllers
         [HttpPost("login")]
         [AllowAnonymous]
         [IgnoreAntiforgeryToken]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<ActionResult<UserSessionDto>> Login([FromBody] LoginRequest request)
         {
             try
             {

@@ -9,6 +9,7 @@ using Nyxon.Server.Services.Crypto.Hash;
 using Nyxon.Server.Services.Invites;
 using Nyxon.Core.Interfaces.Crypto;
 using Nyxon.Core.Crypto;
+using Nyxon.Server.Services;
 
 namespace Nyxon.Server.Extensions
 {
@@ -185,6 +186,7 @@ namespace Nyxon.Server.Extensions
             services.AddScoped<ISessionIdService, SessionIdService>();
             services.AddScoped<IInviteCodeService, InviteCodeService>();
             services.AddScoped<IPasswordService, PasswordService>();
+            services.AddScoped<IUserService, UserService>();
 
 
             return services;

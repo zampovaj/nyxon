@@ -23,20 +23,19 @@ namespace Nyxon.Client.Services
             {
                 var dtos = await _repository.FetchInboxAsync();
 
-                if (dtos != null)
-                {
-                    Conversations = dtos.Select(d => new Conversation()
-                    {
-                        ConversationId = d.Id,
-                        TargetUsername = d.Username,
-                        LastMessageAt = d.LastMessageAt,
-                        HasUnreadMessages = d.HasUnreadMessages
-                    }).ToList();
+                if (dtos == null) return;
 
-                    NotifyStateChanged();
-                }
+                Conversations = dtos.Select(d => new Conversation()
+                {
+                    ConversationId = d.Id,
+                    TargetUsername = d.Username,
+                    LastMessageAt = d.LastMessageAt,
+                    HasUnreadMessages = d.HasUnreadMessages
+                }).ToList();
+
+                NotifyStateChanged();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"Inbox sync failed: {ex.Message}");
             }

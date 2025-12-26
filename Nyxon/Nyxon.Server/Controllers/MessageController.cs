@@ -52,7 +52,7 @@ namespace Nyxon.Server.Controllers
             }
         }
         [HttpGet("{conversationId}/recent")]
-        public async Task<IActionResult> GetRecentMessages([FromRoute] Guid conversationId)
+        public async Task<ActionResult<List<MessageResponse>>> GetRecentMessages([FromRoute] Guid conversationId)
         {
             try
             {
@@ -66,7 +66,7 @@ namespace Nyxon.Server.Controllers
         }
         
         [HttpGet("{conversationId}/message/{sequenceNumber}")]
-        public async Task<IActionResult> GetMessage([FromRoute] Guid conversationId, [FromRoute] int sequenceNumber)
+        public async Task<ActionResult<MessageResponse>> GetMessage([FromRoute] Guid conversationId, [FromRoute] int sequenceNumber)
         {
             try
             {
