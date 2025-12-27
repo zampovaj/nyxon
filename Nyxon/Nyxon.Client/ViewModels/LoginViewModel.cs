@@ -214,6 +214,16 @@ namespace Nyxon.Client.ViewModels
             Notify();
         }
 
+        public async Task InitializeAsync()
+        {
+            var authState = await _authStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity?.IsAuthenticated == true)
+            {
+                _nav.NavigateTo("/");
+            }
+        }
+
+
         public void Notify() => StateChanged?.Invoke();
 
         public void Dispose()

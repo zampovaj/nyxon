@@ -111,9 +111,10 @@
 </div>
 
 @code {
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         _vm.StateChanged += StateHasChanged;
+        await _vm.InitializeAsync();
     }
     public void Dispose()
     {
