@@ -18,6 +18,7 @@ namespace Nyxon.Server.Data
         public DbSet<Nyxon.Server.Models.SignedPrekey> SignedPrekeys { get; set; }
         public DbSet<Nyxon.Server.Models.OneTimePrekey> OneTimePrekeys { get; set; }
         public DbSet<InviteCode> InviteCodes { get; set; }
+        public DbSet<Handshake> Handshakes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -79,6 +80,45 @@ namespace Nyxon.Server.Data
                 .WithMany(u => u.ConversationVaults)
                 .HasForeignKey(cv => cv.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // handshakes
+            modelBuilder.Entity<Handshake>(entity =>
+            {
+                entity.HasKey(h => h.Id);
+
+                // 1. Initiator Relationship
+                // If the User is deleted, the Handshake is meaningless -> Cascade
+                entity.HasOne(h => h.Initiator)
+                    .WithMany()
+                    .HasForeignKey(h => h.InitiatorId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // 2. Conversation Relationship
+                // If the Conversation is deleted, the Handshake is gone -> Cascade
+                entity.HasOne(h => h.Conversation)
+                    .WithMany()
+                    .HasForeignKey(h => h.ConversationId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // 3. Signed Prekey (SPK)
+                // If SPK is deleted (rotated out), we keep the handshake record but null the reference? 
+                // actually SPKs are rarely deleted immediately. Let's use Restrict to be safe, 
+                // or SetNull if you plan to aggressively prune keys.
+                // Recommendation: Restrict (force explicit cleanup) or NoAction.
+                entity.HasOne(h => h.Spk)
+                    .WithMany()
+                    .HasForeignKey(h => h.SpkId)
+                    .OnDelete(DeleteBehavior.Restrict); // Don't delete an SPK if it's involved in a pending handshake
+
+                // 4. One-Time Prekey (OPK) - CRITICAL
+                // OPKs are deleted *immediately* upon use.
+                // We MUST use SetNull here. If we used Restrict, we couldn't delete the OPK.
+                // If we used Cascade, deleting the OPK would delete the whole Handshake (bad).
+                entity.HasOne(h => h.Opk)
+                    .WithMany()
+                    .HasForeignKey(h => h.OpkId)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
 
             // --- 5. MessageMetadata Relationships ---
             modelBuilder.Entity<MessageMetadata>()
