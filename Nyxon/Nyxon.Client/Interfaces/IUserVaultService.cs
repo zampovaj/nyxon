@@ -17,6 +17,6 @@ namespace Nyxon.Client.Interfaces
         void Clear();
         void CheckEncryptedVault();
         //TODO: remove this shit!!!
-        void CheckDecryptedKeys();
+        //void CheckDecryptedKeys();
     }
 }

@@ -88,7 +88,6 @@ namespace Nyxon.Client.ViewModels
             {
                 await UnlockVaultAsync();
                 _userVaultService.CheckEncryptedVault();
-                _userVaultService.CheckDecryptedKeys();
             }
             else
             {

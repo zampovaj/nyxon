@@ -124,11 +124,11 @@ namespace Nyxon.Client.Services
         }
         
         //TODO: remove this shit!!!
-        public void CheckDecryptedKeys()
+        /*public void CheckDecryptedKeys()
         {
             Console.WriteLine("DecryptedVaultKey: " + (DecryptedVaultKey == null ? "null" : Convert.ToBase64String(DecryptedVaultKey)));
             Console.WriteLine("DecryptedPrivateIdentityKey: " + (DecryptedPrivateIdentityKey == null ? "null" : Convert.ToBase64String(DecryptedPrivateIdentityKey)));
-        }
+        }*/
 
         private void Notify() => StateChanged?.Invoke();
     }
