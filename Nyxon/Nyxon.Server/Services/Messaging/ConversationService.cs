@@ -16,17 +16,29 @@ namespace Nyxon.Server.Services.Messaging
         {
             _context = context;
         }
-        public async Task<Guid> CreateConversationAsync(Guid initiatorId, string targetUsername)
+        public async Task<CreateConversationResponse> CreateConversationAsync(Guid initiatorId, string targetUsername)
         {
             var targetUser = await _context.Users
                 .FirstOrDefaultAsync(u => u.Username == targetUsername);
 
-            if (targetUser == null) 
+            if (targetUser == null)
                 throw new Exception("User not found");
 
             if (targetUser.Id == initiatorId)
                 throw new Exception("Cannot create conversation with yourself");
 
+            // check if conversation already exists
+            var conversationId = await GetConversationAsync(targetUser.Id, initiatorId);
+            if (conversationId != null)
+            {
+                return new CreateConversationResponse()
+                {
+                    ConversationId = (Guid)conversationId,
+                    AlreadyExisted = true
+                };
+            }
+
+            // if it doesnt, create one
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
@@ -48,7 +60,11 @@ namespace Nyxon.Server.Services.Messaging
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
-                return conversation.Id;
+                return new CreateConversationResponse()
+                {
+                    ConversationId = conversation.Id,
+                    AlreadyExisted = false
+                };
             }
             catch
             {
@@ -66,7 +82,7 @@ namespace Nyxon.Server.Services.Messaging
                 {
                     Id = cu.ConversationId,
                     LastMessageAt = cu.Conversation.LastMessageAt,
-                    
+
                     // unread if the chat was updated and the user hasnt seen it yet
                     HasUnreadMessages = cu.Conversation.LastMessageAt > cu.LastRead,
 
@@ -77,6 +93,19 @@ namespace Nyxon.Server.Services.Messaging
                         .FirstOrDefault() ?? "Unknown"
                 })
                 .ToListAsync();
+        }
+
+        private async Task<Guid?> GetConversationAsync(Guid targetId, Guid initiatiorId)
+        {
+            var conversation = await _context.Conversations
+                .Where(c => c.ConversationUsers.Any(u => u.UserId == initiatiorId) &&
+                            c.ConversationUsers.Any(u => u.UserId == targetId) &&
+                            c.ConversationUsers.Count() == 2)
+                .FirstOrDefaultAsync();
+
+            if (conversation == null) return null;
+
+            return conversation.Id;
         }
     }
 }

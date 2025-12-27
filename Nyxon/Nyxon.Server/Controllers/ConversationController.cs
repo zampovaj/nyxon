@@ -31,11 +31,8 @@ namespace Nyxon.Server.Controllers
 
             try
             {
-                var conversationId = await _conversationService.CreateConversationAsync(initiatorId, request.Username);
-                return Ok(new CreateConversationResponse
-                {
-                    ConversationId = conversationId
-                });
+                var conversation = await _conversationService.CreateConversationAsync(initiatorId, request.Username);
+                return Ok(conversation);
             }
             catch (Exception ex)
             {
