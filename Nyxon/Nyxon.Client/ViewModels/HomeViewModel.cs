@@ -51,11 +51,15 @@ namespace Nyxon.Client.ViewModels
                 Notify();
             }
         }
-
-        private void Notify() => StateChanged?.Invoke();
         private bool IsInputSafe(string input)
         {
-            if (input.Length > 100 || string.IsNullOrWhiteSpace(input))
+            if (!IsUnlocked)
+            {
+                if (string.IsNullOrWhiteSpace(input) || input.Length > 256 || input.Length < 16)
+                    return false;
+            }
+
+            if (input.Length > 160 || string.IsNullOrWhiteSpace(input))
                 return false;
 
             return true;
@@ -65,6 +69,7 @@ namespace Nyxon.Client.ViewModels
             _layoutService.OnChange -= Notify;
             CryptographicOperations.ZeroMemory(PassphraseBytes);
             InputString = "";
+            ErrorMessage = "";
         }
 
         public async Task HandleTerminalKey(KeyboardEventArgs e)
@@ -82,6 +87,8 @@ namespace Nyxon.Client.ViewModels
             if (!IsUnlocked)
             {
                 await UnlockVaultAsync();
+                _userVaultService.CheckEncryptedVault();
+                _userVaultService.CheckDecryptedKeys();
             }
             else
             {
@@ -89,5 +96,6 @@ namespace Nyxon.Client.ViewModels
             }
         }
 
+        private void Notify() => StateChanged?.Invoke();
     }
 }

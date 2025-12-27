@@ -639,6 +639,7 @@ input[type="password"] {
 
 .side-nav-item:hover {
     background: var(--bg-surface-hover);
+    cursor: pointer;
 }
 
 .side-avatar {

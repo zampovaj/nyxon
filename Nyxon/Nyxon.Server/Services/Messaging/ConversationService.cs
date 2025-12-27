@@ -61,13 +61,13 @@ namespace Nyxon.Server.Services.Messaging
         {
             return await _context.ConversationUsers
                 .AsNoTracking()
-                .OrderByDescending(cu => cu.Conversation.LastMessageAt) // Hits the [Index] we made
+                .OrderByDescending(cu => cu.Conversation.LastMessageAt) // using index
                 .Select(cu => new ConversationSummaryDto
                 {
                     Id = cu.ConversationId,
                     LastMessageAt = cu.Conversation.LastMessageAt,
                     
-                    // unread if the chat was update and the suer hasnt seen it yet
+                    // unread if the chat was updated and the user hasnt seen it yet
                     HasUnreadMessages = cu.Conversation.LastMessageAt > cu.LastRead,
 
                     // find the other user

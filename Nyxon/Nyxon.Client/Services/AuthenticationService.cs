@@ -32,7 +32,8 @@ namespace Nyxon.Client.Services
         public async Task<bool> LoginAsync(string username, byte[] password)
         {
             var state = await _authStateProvider.GetAuthenticationStateAsync();
-            if (state.User.Identity?.IsAuthenticated ?? true)
+            var isAuthenticated = state.User.Identity?.IsAuthenticated ?? false;
+            if (isAuthenticated)
                 await LogoutAsync();
 
             var request = new LoginRequest
@@ -55,7 +56,8 @@ namespace Nyxon.Client.Services
         public async Task<bool> RegisterAsync(string username, byte[] password, string inviteCode, byte[] passphrase)
         {
             var state = await _authStateProvider.GetAuthenticationStateAsync();
-            if (state.User.Identity?.IsAuthenticated ?? true)
+            var isAuthenticated = state.User.Identity?.IsAuthenticated ?? false;
+            if (isAuthenticated)
                 await LogoutAsync();
 
             var passwordSalt = _cryptoService.GeneratePasswordSalt();

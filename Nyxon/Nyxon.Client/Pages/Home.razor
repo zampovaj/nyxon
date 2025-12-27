@@ -22,13 +22,20 @@
                 {
                     <div class="shortcut-chip">type ? for help</div>
                     <div class="shortcut-chip">:command</div>
-                    <div class="shortcut-chip">@@username</div>
+                    <div class="shortcut-chip">@@username message</div>
                 }
                 else
                 {
-                    <div class="shortcut-chip">:unlock <b>passphrase</b></div>
+                    <div class="shortcut-chip"><b>commands</b> will be available after unlock</div>
                 }
             </div>
+
+            @if (!string.IsNullOrWhiteSpace(_vm.ErrorMessage))
+            {
+                <div class="error">
+                    @_vm.ErrorMessage
+                </div>
+            }
 
         </div>
     </Authorized>

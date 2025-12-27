@@ -16,5 +16,7 @@ namespace Nyxon.Client.Interfaces
         Task<byte[]> EncryptAsync(byte[] data);
         void Clear();
         void CheckEncryptedVault();
+        //TODO: remove this shit!!!
+        void CheckDecryptedKeys();
     }
 }
