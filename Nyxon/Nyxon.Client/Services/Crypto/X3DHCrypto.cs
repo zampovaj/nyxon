@@ -175,7 +175,7 @@ namespace Nyxon.Client.Services.Crypto
             }
             finally
             {
-                if (buffer != null) CryptographicOperations.ZeroMemory(buffer);
+                CryptographicOperations.ZeroMemory(buffer);
             }
         }
 
@@ -198,7 +198,7 @@ namespace Nyxon.Client.Services.Crypto
             }
             finally
             {
-                if (buffer != null) CryptographicOperations.ZeroMemory(buffer);
+                CryptographicOperations.ZeroMemory(buffer);
             }
         }
 
