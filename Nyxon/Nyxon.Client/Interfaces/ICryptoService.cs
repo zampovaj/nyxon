@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NSec.Cryptography;
 
-namespace Nyxon.Client.Interfaces
+namespace Nyxon.Client.Interfaces.Crypto
 {
     public interface ICryptoService
     {
@@ -16,6 +16,8 @@ namespace Nyxon.Client.Interfaces
         AsymmetricKey GenerateIdentityKey();
         byte[] EncryptWithKey(byte[] data, byte[] key);
         byte[] DecryptWithKey(byte[] data, byte[] key);
+        AsymmetricKey GenerateEphemeralKeyPair();
+        byte[] DeriveSharedSecret(byte[] privateKey, byte[] publicKey);
 
     }
 }

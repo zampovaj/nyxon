@@ -25,6 +25,7 @@ namespace Nyxon.Core.Interfaces
         byte[] GenerateRandomSalt(int length);
         byte[] EncryptWithKey(byte[] data, byte[] key);
         byte[] DecryptWithKey(byte[] data, byte[] key);
+        byte[] DeriveSharedX25519Secret(byte[] privateKey, byte[] publicKey);
     }
 
 }

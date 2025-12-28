@@ -29,8 +29,8 @@ namespace Nyxon.Core.Crypto
 
             //prepare output
             // getciphertext() returns the prediction of how many bytes will get used based on input and tag
-            var outpuSize = cipher.GetOutputSize(plaintext.Length);
-            var result = new byte[NonceSize + outpuSize];
+            var outputSize = cipher.GetOutputSize(plaintext.Length);
+            var result = new byte[NonceSize + outputSize];
 
             Array.Copy(nonce, 0, result, 0, NonceSize);
 

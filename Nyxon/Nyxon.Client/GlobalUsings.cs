@@ -21,4 +21,5 @@ global using Nyxon.Client.Services.Crypto;
 global using Nyxon.Client.Models;
 global using Nyxon.Client.ViewModels;
 global using Nyxon.Client.Interfaces;
+global using Nyxon.Client.Interfaces.Crypto;
 global using Nyxon.Client.Components;

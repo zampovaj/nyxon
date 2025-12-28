@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Nyxon.Client.Interfaces.Crypto;
 
@@ -64,12 +65,23 @@ namespace Nyxon.Client.Services.Crypto
                 var opk = _keyGenerationService.GenerateOPK();
                 opk.PrivateKey = _keyGenerationService.EncryptWithKey(opk.PrivateKey, vaultKey);
 
-                if (opk == null) throw new ArgumentNullException(nameof(opk), "OneTimePrekey generation failed.");
+                if (opk == null)
+                    throw new ArgumentNullException(nameof(opk), "OneTimePrekey generation failed.");
                 
                 opkList.Add(opk);
             }
 
             return new PrekeyBundle(spk, opkList);
+        }
+
+        public AsymmetricKey GenerateEphemeralKeyPair()
+        {
+            return _keyGenerationService.GenerateEphemeralKeyPair();
+        }
+
+        public byte[] DeriveSharedSecret(byte[] privateKey, byte[] publicKey)
+        {
+            return _keyGenerationService.DeriveSharedX25519Secret(privateKey, publicKey);
         }
     }
 }

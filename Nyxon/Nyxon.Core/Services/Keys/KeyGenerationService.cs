@@ -92,5 +92,10 @@ namespace Nyxon.Core.Services.Keys
             var signature = _ed25519.Sign(key.PublicKey, privateIdentityKey);
             return new SignedPrekey(key.PublicKey, key.PrivateKey, signature);
         }
+
+        public byte[] DeriveSharedX25519Secret(byte[] privateKey, byte[] publicKey)
+        {
+            return _x25519.DeriveSharedSecret(privateKey, publicKey);
+        }
     }
 }

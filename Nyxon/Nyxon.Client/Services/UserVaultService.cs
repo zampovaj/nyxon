@@ -45,9 +45,11 @@ namespace Nyxon.Client.Services
                 if (!sync) return false;
             }
 
+            byte[]? passphraseKey = null;
+
             try
             {
-                var passphraseKey = await _cryptoService.DerivePassphraseKeyAsync(passphrase, _vaultSessionService.PassphraseSalt);
+                passphraseKey = await _cryptoService.DerivePassphraseKeyAsync(passphrase, _vaultSessionService.PassphraseSalt);
 
                 if (passphraseKey == null) return false;
 
@@ -63,6 +65,7 @@ namespace Nyxon.Client.Services
             finally
             {
                 CryptographicOperations.ZeroMemory(passphrase);
+                CryptographicOperations.ZeroMemory(passphraseKey);
             }
         }
         public void LockVault()
@@ -119,7 +122,7 @@ namespace Nyxon.Client.Services
         {
             _vaultSessionService.CheckVault();
         }
-        
+
         //TODO: remove this shit!!!
         /*public void CheckDecryptedKeys()
         {
