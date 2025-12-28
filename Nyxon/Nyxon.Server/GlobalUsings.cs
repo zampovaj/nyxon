@@ -19,6 +19,7 @@ global using Nyxon.Server.Interfaces;
 global using Nyxon.Server.Services.Messaging;
 global using Nyxon.Server.Models.Valkey;
 global using Nyxon.Server.Hubs;
+global using Nyxon.Server.Services.Users;
 
 // Nyxon.Core
 global using Nyxon.Core.DTOs;

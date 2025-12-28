@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Nyxon.Server.Services
+namespace Nyxon.Server.Services.Users
 {
     public class UserService : IUserService
     {
