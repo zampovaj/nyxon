@@ -10,7 +10,6 @@ namespace Nyxon.Client.Services
 {
     public class UserVaultService : IUserVaultService
     {
-        private readonly IVaultDecryptionService _vaultDecryptionService;
         private readonly AuthenticationStateProvider _authStateProvider;
         private readonly EncryptedUserVaultSessionService _vaultSessionService;
         private readonly IVaultRepository _vaultRepository;
@@ -22,13 +21,11 @@ namespace Nyxon.Client.Services
 
         public event Action? StateChanged;
 
-        public UserVaultService(IVaultDecryptionService vaultDecryptionService,
-            AuthenticationStateProvider authStateProvider,
+        public UserVaultService(AuthenticationStateProvider authStateProvider,
             EncryptedUserVaultSessionService vaultSessionService,
             IVaultRepository vaultRepository,
             ICryptoService cryptoService)
         {
-            _vaultDecryptionService = vaultDecryptionService;
             _authStateProvider = authStateProvider;
             _vaultSessionService = vaultSessionService;
             _vaultRepository = vaultRepository;

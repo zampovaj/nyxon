@@ -12,7 +12,7 @@ namespace Nyxon.Core.DTOs
         [NotNull]
         public Guid ConversationId { get; set; }
         [Required]
-        // TODO: try to remmeber why is this nullable
+        // TODO: try to remember why is this nullable
         public DateTime? UpdatedAt { get; set; }
         [Required]
         [NotNull]

@@ -19,7 +19,6 @@ namespace Nyxon.Core.Extensions
             services.AddScoped<IKeyGenerationService, KeyGenerationService>();
 
             //services
-            services.AddScoped<IVaultDecryptionService, MockDecryptionService>();
 
             return services;
         }

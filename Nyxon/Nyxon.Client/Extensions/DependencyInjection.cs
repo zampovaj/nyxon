@@ -3,7 +3,6 @@ using Nyxon.Client.Crypto;
 using Nyxon.Client.Interfaces.Crypto;
 using Nyxon.Client.Repositories;
 using Nyxon.Core.Services.Hash;
-using Nyxon.Core.Services.Vault;
 
 namespace Nyxon.Client
 {
@@ -28,7 +27,6 @@ namespace Nyxon.Client
             services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Nyxon.ServerAPI"));
 
             //crypto
-            services.AddScoped<IVaultDecryptionService, MockDecryptionService>();
             services.AddScoped<IArgon2Crypto, Argon2CryptoWasm>();
             services.AddScoped<ICryptoService, CryptoService>();
             services.AddScoped<IHashService, Sha256HashService>();
