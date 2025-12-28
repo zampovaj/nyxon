@@ -29,5 +29,11 @@ namespace Nyxon.Core.Models.Vaults
             Session = session;
             Snapshots = snapshots;
         }
+
+        public RatchetState(bool mock)
+        {
+            Session = new SessionState(true);
+            Snapshots = new List<Snapshot>() {new Snapshot(true)};
+        }
     }
 }

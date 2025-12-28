@@ -31,5 +31,14 @@ namespace Nyxon.Core.Models.Vaults
             RotateAfter = rotateAfter;
             RotateAtTime = rotateAtTime;
         }
+
+        public SessionState(bool mock)
+        {
+            CurrentSessionKey = new byte[32];
+            RotationIndex = 0;
+            MessageIndex = 0;
+            RotateAfter = 10;
+            RotateAtTime = TimeSpan.FromMinutes(30);
+        }
     }
 }

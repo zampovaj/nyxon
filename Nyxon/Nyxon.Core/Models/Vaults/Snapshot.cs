@@ -15,7 +15,7 @@ namespace Nyxon.Core.Models.Vaults
         public byte[] SessionKey { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public Snapshot() {}
+        public Snapshot() { }
 
         public Snapshot(int rotationIndex, byte[] sessionKey, DateTime createdAt)
         {
@@ -28,6 +28,13 @@ namespace Nyxon.Core.Models.Vaults
         {
             RotationIndex = rotationIndex;
             SessionKey = sessionKey;
+            CreatedAt = DateTime.UtcNow;
+        }
+
+        public Snapshot(bool mock)
+        {
+            RotationIndex = 0;
+            SessionKey = new byte[32];
             CreatedAt = DateTime.UtcNow;
         }
     }

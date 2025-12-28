@@ -37,13 +37,21 @@ namespace Nyxon.Core.Models.Vaults
         public RatchetState Sending { get; set; }
         public RatchetState Receiving { get; set; }
 
-        public ConversationBlob() {}
+        public ConversationBlob() { }
 
         public ConversationBlob(byte[] initialKey, RatchetState sending, RatchetState receiving)
         {
             InitialKey = initialKey;
             Sending = sending;
             Receiving = receiving;
+        }
+
+        // TODO: mock constructors - remove!
+        public ConversationBlob(byte[] initialKey)
+        {
+            InitialKey = initialKey;
+            Sending = new RatchetState(true);
+            Receiving = new RatchetState(true);
         }
     }
 }
