@@ -12,29 +12,29 @@ namespace Nyxon.Core.Models.Vaults
     public class Snapshot
     {
         public int RotationIndex { get; set; }
-        public byte[] SessionKey { get; set; }
+        public byte[] EncryptedSessionKey { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public Snapshot() { }
 
-        public Snapshot(int rotationIndex, byte[] sessionKey, DateTime createdAt)
+        public Snapshot(int rotationIndex, byte[] encryptedSessionKey, DateTime createdAt)
         {
             RotationIndex = rotationIndex;
-            SessionKey = sessionKey;
+            EncryptedSessionKey = encryptedSessionKey;
             CreatedAt = createdAt;
         }
 
-        public Snapshot(int rotationIndex, byte[] sessionKey)
+        public Snapshot(int rotationIndex, byte[] encryptedSessionKey)
         {
             RotationIndex = rotationIndex;
-            SessionKey = sessionKey;
+            EncryptedSessionKey = encryptedSessionKey;
             CreatedAt = DateTime.UtcNow;
         }
 
-        public Snapshot(bool mock)
+        public Snapshot(byte[] encrpytedKey)
         {
             RotationIndex = 0;
-            SessionKey = new byte[32];
+            EncryptedSessionKey = encrpytedKey;
             CreatedAt = DateTime.UtcNow;
         }
     }

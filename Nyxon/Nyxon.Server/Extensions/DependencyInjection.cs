@@ -187,6 +187,7 @@ namespace Nyxon.Server.Extensions
             services.AddScoped<IInviteCodeService, InviteCodeService>();
             services.AddScoped<IPasswordService, PasswordService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IHandshakeService, HandshakeService>();
 
 
             return services;

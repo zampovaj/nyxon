@@ -51,15 +51,17 @@ namespace Nyxon.Server.Controllers
         {
             try
             {
-                var userId = await _registrationService.RegisterUserAsync(request);
+                var success = await _registrationService.RegisterUserAsync(request);
+
+                if (!success) throw new Exception("Registration failed");
 
                 //session id check
-                var sessionId = await _sessionIdService.SaveSessionIdAsync(userId);
+                var sessionId = await _sessionIdService.SaveSessionIdAsync(request.Id);
 
                 //login
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, request.Id.ToString()),
                     new Claim(ClaimTypes.Name, request.Username),
                     new Claim("SessionId", sessionId),
                     new Claim("CanCreateInvites", true.ToString())
@@ -82,7 +84,7 @@ namespace Nyxon.Server.Controllers
                 {
                     IsAuthenticated = true,
                     Username = request.Username,
-                    UserId = userId.ToString()
+                    UserId = request.Id.ToString()
                 });
             }
             catch (ArgumentException argEx)

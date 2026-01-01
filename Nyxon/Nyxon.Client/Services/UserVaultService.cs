@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Nyxon.Core.Services;
 
 namespace Nyxon.Client.Services
 {
@@ -39,6 +40,10 @@ namespace Nyxon.Client.Services
             if (!state.User.Identity?.IsAuthenticated ?? true)
                 return false;
 
+            var userIdString = state.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
+                return false;
+
             if (!_vaultSessionService.HasVault)
             {
                 var sync = await SyncVaultAsync();
@@ -52,9 +57,14 @@ namespace Nyxon.Client.Services
                 passphraseKey = await _cryptoService.DerivePassphraseKeyAsync(passphrase, _vaultSessionService.PassphraseSalt);
 
                 if (passphraseKey == null) return false;
-
-                DecryptedVaultKey = _cryptoService.DecryptWithKey(_vaultSessionService.EncryptedVaultKey, passphraseKey);
-                DecryptedPrivateIdentityKey = _cryptoService.DecryptWithKey(_vaultSessionService.EncryptedPrivateIdentityKey, DecryptedVaultKey);
+                DecryptedVaultKey = _cryptoService.DecryptWithKey(
+                    _vaultSessionService.EncryptedVaultKey,
+                    passphraseKey,
+                    AadFactory.ForUserVaultKey(userId));
+                DecryptedPrivateIdentityKey = _cryptoService.DecryptWithKey(
+                    _vaultSessionService.EncryptedPrivateIdentityKey,
+                    DecryptedVaultKey,
+                    AadFactory.ForIdentityKey(userId));
 
                 if (DecryptedVaultKey == null || DecryptedPrivateIdentityKey == null)
                     return false;
@@ -96,19 +106,27 @@ namespace Nyxon.Client.Services
             return true;
         }
 
-        public async Task<byte[]> DecryptAsync(byte[] data)
+        public async Task<byte[]> DecryptAsync(byte[] data, byte[]? aad = null)
         {
             if (!IsUnlocked)
                 throw new UnauthorizedAccessException("Vault needs to be decrypted to decrypt ciphertext using vault key.");
 
-            return _cryptoService.DecryptWithKey(data, DecryptedVaultKey);
+            return _cryptoService.DecryptWithKey(data, DecryptedVaultKey, aad);
         }
-        public async Task<byte[]> EncryptAsync(byte[] data)
+        public async Task<byte[]> EncryptAsync(byte[] data, byte[]? aad = null)
         {
             if (!IsUnlocked)
                 throw new UnauthorizedAccessException("Vault needs to be decrypted to encrypt plaintext using vault key.");
 
-            return _cryptoService.EncryptWithKey(data, DecryptedVaultKey);
+            return _cryptoService.EncryptWithKey(data, DecryptedVaultKey, aad);
+        }
+
+        public async Task<byte[]> CalculateIdentityDhAsync(byte[] publicKey)
+        {
+            if (!IsUnlocked)
+                throw new UnauthorizedAccessException("Vault needs to be decrypted to derive shared secret.");
+
+            return _cryptoService.DeriveSharedSecret(DecryptedPrivateIdentityKey, publicKey);
         }
 
         public void Clear()

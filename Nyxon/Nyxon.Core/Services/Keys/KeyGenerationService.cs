@@ -70,14 +70,14 @@ namespace Nyxon.Core.Services.Keys
             return _ed25519.Verify(data, signature, publicKey);
         }
 
-        public byte[] EncryptWithKey(byte[] data, byte[] key)
+        public byte[] EncryptWithKey(byte[] data, byte[] key, byte[]? aad = null)
         {
-            return _aes.Encrypt(data, key);
+            return _aes.Encrypt(data, key, aad);
         }
 
-        public byte[] DecryptWithKey(byte[] data, byte[] key)
+        public byte[] DecryptWithKey(byte[] data, byte[] key, byte[]? aad = null)
         {
-            return _aes.Decrypt(data, key);
+            return _aes.Decrypt(data, key, aad);
         }
 
         public OneTimePrekey GenerateOPK()

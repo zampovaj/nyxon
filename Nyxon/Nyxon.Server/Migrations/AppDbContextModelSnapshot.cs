@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using Nyxon.Core.Models.Vaults;
 using Nyxon.Server.Data;
 
 #nullable disable
@@ -74,12 +75,21 @@ namespace Nyxon.Server.Migrations
                     b.Property<DateTime>("LastMessageAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("User1Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("User2Id")
+                        .HasColumnType("uuid");
+
                     b.Property<short>("Version")
                         .HasColumnType("smallint");
 
                     b.HasKey("Id");
 
                     b.HasIndex("LastMessageAt");
+
+                    b.HasIndex("User1Id", "User2Id")
+                        .IsUnique();
 
                     b.ToTable("Conversations");
                 });
@@ -108,6 +118,8 @@ namespace Nyxon.Server.Migrations
 
                     b.HasIndex("UserId");
 
+                    b.HasIndex("UserId", "ConversationId");
+
                     b.ToTable("ConversationUsers");
                 });
 
@@ -128,9 +140,9 @@ namespace Nyxon.Server.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<byte[]>("VaultBlob")
+                    b.Property<ConversationVaultData>("VaultData")
                         .IsRequired()
-                        .HasColumnType("bytea");
+                        .HasColumnType("jsonb");
 
                     b.Property<short>("Version")
                         .HasColumnType("smallint");
@@ -167,7 +179,14 @@ namespace Nyxon.Server.Migrations
                         .IsRequired()
                         .HasColumnType("bytea");
 
+                    b.Property<byte[]>("PublicIdentityKey")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
                     b.Property<Guid>("SpkId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TargetUserId")
                         .HasColumnType("uuid");
 
                     b.Property<short>("Version")
@@ -177,11 +196,15 @@ namespace Nyxon.Server.Migrations
 
                     b.HasIndex("ConversationId");
 
+                    b.HasIndex("ExpiresAt");
+
                     b.HasIndex("InitiatorId");
 
                     b.HasIndex("OpkId");
 
                     b.HasIndex("SpkId");
+
+                    b.HasIndex("TargetUserId", "CreatedAt");
 
                     b.ToTable("Handshakes");
                 });
@@ -457,12 +480,18 @@ namespace Nyxon.Server.Migrations
                     b.HasOne("Nyxon.Server.Models.OneTimePrekey", "Opk")
                         .WithMany()
                         .HasForeignKey("OpkId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Nyxon.Server.Models.SignedPrekey", "Spk")
                         .WithMany()
                         .HasForeignKey("SpkId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Nyxon.Server.Models.User", "TargetUser")
+                        .WithMany()
+                        .HasForeignKey("TargetUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Conversation");
@@ -472,6 +501,8 @@ namespace Nyxon.Server.Migrations
                     b.Navigation("Opk");
 
                     b.Navigation("Spk");
+
+                    b.Navigation("TargetUser");
                 });
 
             modelBuilder.Entity("Nyxon.Server.Models.MessageMetadata", b =>

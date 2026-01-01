@@ -15,7 +15,7 @@ namespace Nyxon.Core.Models.Vaults
 {
     public class SessionState
     {
-        public byte[] CurrentSessionKey { get; set; }
+        public byte[] EncryptedCurrentKey { get; set; }
         public int RotationIndex { get; set; }
         public int MessageIndex { get; set; }
         public int RotateAfter { get; set; }
@@ -23,18 +23,18 @@ namespace Nyxon.Core.Models.Vaults
 
         public SessionState() {}
 
-        public SessionState(byte[] currentSessionKey, int rotationIndex, int messageIndex, int rotateAfter, TimeSpan rotateAtTime)
+        public SessionState(byte[] encryptedCurrentKey, int rotationIndex, int messageIndex, int rotateAfter, TimeSpan rotateAtTime)
         {
-            CurrentSessionKey = currentSessionKey;
+            EncryptedCurrentKey = encryptedCurrentKey;
             RotationIndex = rotationIndex;
             MessageIndex = messageIndex;
             RotateAfter = rotateAfter;
             RotateAtTime = rotateAtTime;
         }
 
-        public SessionState(bool mock)
+        public SessionState(byte[] encryptedKey)
         {
-            CurrentSessionKey = new byte[32];
+            EncryptedCurrentKey = encryptedKey;
             RotationIndex = 0;
             MessageIndex = 0;
             RotateAfter = 10;

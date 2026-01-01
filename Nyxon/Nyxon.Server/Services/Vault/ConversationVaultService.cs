@@ -29,7 +29,7 @@ namespace Nyxon.Server.Services.Vault
                 UpdatedAt = vault.UpdatedAt,
                 RecvCounter = vault.RecvCounter,
                 SendCounter = vault.SendCounter,
-                VaultBlob = vault.VaultBlob
+                VaultData = vault.VaultData
             };
 
 
@@ -46,7 +46,7 @@ namespace Nyxon.Server.Services.Vault
                 (
                     userId: userId,
                     conversationId: vaultDto.ConversationId,
-                    vaultBlob: vaultDto.VaultBlob
+                    vaultData: vaultDto.VaultData
                 );
                 _context.ConversationVaults.Add(vault);
                 await _context.SaveChangesAsync();
@@ -57,7 +57,7 @@ namespace Nyxon.Server.Services.Vault
             {
                 vault.RecvCounter = vaultDto.RecvCounter;
                 vault.SendCounter = vaultDto.SendCounter;
-                vault.VaultBlob = vaultDto.VaultBlob;
+                vault.VaultData = vaultDto.VaultData;
                 vault.UpdatedAt = DateTime.UtcNow;
 
                 _context.ConversationVaults.Update(vault);

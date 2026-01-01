@@ -8,11 +8,16 @@ namespace Nyxon.Client.Services
     public class InboxService : IInboxService
     {
         private readonly IConversationRepository _repository;
+        private readonly IHandshakeService _handshakeService;
+
         public List<Conversation> Conversations { get; private set; } = new();
 
-        public InboxService(IConversationRepository repository)
+        public InboxService(IConversationRepository repository, IHandshakeService handshakeService)
         {
             _repository = repository;
+            _handshakeService = handshakeService;
+
+            _handshakeService.OnChange += HandshakeChanged;
         }
 
         public event Action OnChange;
@@ -21,17 +26,24 @@ namespace Nyxon.Client.Services
         {
             try
             {
-                var dtos = await _repository.FetchInboxAsync();
+                var inbox = await _repository.FetchInboxAsync();
 
-                if (dtos == null) return;
+                if (inbox == null) return;
 
-                Conversations = dtos.Select(d => new Conversation()
-                {
-                    ConversationId = d.Id,
-                    TargetUsername = d.Username,
-                    LastMessageAt = d.LastMessageAt,
-                    HasUnreadMessages = d.HasUnreadMessages
-                }).ToList();
+                Conversations = inbox.Conversations
+                    .Select(d => new Conversation()
+                    {
+                        ConversationId = d.Id,
+                        TargetUsername = d.Username,
+                        LastMessageAt = d.LastMessageAt,
+                        HasUnreadMessages = d.HasUnreadMessages,
+                        HandshakeId = inbox.Handshakes
+                            .Where(h => h.ConversationId == d.Id)
+                            .Select(h => (Guid?)h.Id)
+                            .FirstOrDefault()
+                    }).ToList();
+
+                await _handshakeService.LoadHandshakesAsync(inbox.Handshakes);
 
                 NotifyStateChanged();
             }
@@ -41,6 +53,14 @@ namespace Nyxon.Client.Services
             }
         }
 
+        public async Task<Guid?> GetConversationAsync(string username)
+        {
+            return Conversations
+                .Where(c => c.TargetUsername == username)
+                .Select(c => c.ConversationId)
+                .FirstOrDefault();
+        }
+
         public void Clear()
         {
             Conversations.Clear();
@@ -48,5 +68,14 @@ namespace Nyxon.Client.Services
         }
 
         private void NotifyStateChanged() => OnChange?.Invoke();
+        private void HandshakeChanged()
+        {
+            _ = OnHandshakesChangedAsync();
+        }
+        private async Task OnHandshakesChangedAsync()
+        {
+            await SyncInboxAsync();
+        }
+
     }
 }

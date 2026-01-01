@@ -28,16 +28,44 @@ namespace Nyxon.Client.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"API Error [{uri}]: {ex.Message}");
+                Console.WriteLine($"API Error [POST {uri}]: {ex.Message}");
                 throw; // throw again for viewmodel
             }
-        }
         
+        }
+        public async Task<TResponse?> DeleteAsync<TResponse>(string uri)
+        {
+            try
+            {
+                var response = await _http.DeleteAsync(uri);
+                response.EnsureSuccessStatusCode();
+
+                if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                    return default;
+
+                return await response.Content.ReadFromJsonAsync<TResponse>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"API Error [DELETE {uri}]: {ex.Message}");
+                throw; // rethrow for viewmodel
+            }
+        }
+
+
         public async Task<TResponse?> GetAsync<TResponse>(string uri)
         {
-            var response = await _http.GetAsync(uri);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<TResponse>();
+            try
+            {
+                var response = await _http.GetAsync(uri);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadFromJsonAsync<TResponse>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"API Error [GET {uri}]: {ex.Message}");
+                throw; // rethrow for viewmodel
+            }
         }
     }
 }

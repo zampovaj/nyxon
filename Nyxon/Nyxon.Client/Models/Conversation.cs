@@ -12,6 +12,9 @@ namespace Nyxon.Client.Models
         public string? LastMessagePreview { get; set; } = null;
         public DateTime LastMessageAt { get; set; }
         public bool HasUnreadMessages { get; set; }
+        public Guid? HandshakeId { get; set; }
+        public bool HasHandshake => HandshakeId != null;
+        public bool IsProcessing { get; set; } = false;
         public string Initials => TargetUsername.Length > 0 ? TargetUsername[0].ToString().ToUpper() : "?";
     }
 }

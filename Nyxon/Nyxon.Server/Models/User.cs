@@ -69,5 +69,17 @@ namespace Nyxon.Server.Models
             Admin = admin;
             CanCreateInvites = canCreateInvites;
         }
+        public User(Guid id, string username, byte[] passwordHash, byte[] passwordSalt, byte[] publicKey, bool admin, bool canCreateInvites)
+        {
+            Id = id;
+            Username = username;
+            PasswordHash = passwordHash;
+            PasswordSalt = passwordSalt;
+            PublicKey = publicKey;
+            CreatedAt = DateTime.UtcNow;
+            Version = AppVersion.Current;
+            Admin = admin;
+            CanCreateInvites = canCreateInvites;
+        }
     }
 }

@@ -14,11 +14,35 @@ namespace Nyxon.Client.Repositories
             _apiService = apiService;
         }
 
-        public async Task<List<ConversationSummaryDto>?> FetchInboxAsync()
+        public async Task<PrekeyBundleResponse?> GetPrekeyBundle()
         {
             try
             {
-                return await _apiService.GetAsync<List<ConversationSummaryDto>>("api/conversation/inbox");
+                return await _apiService.GetAsync<PrekeyBundleResponse>("api/prekeys");
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<ConversationVaultDto?> FetchVaultAsync(Guid conversationId)
+        {
+            try
+            {
+                return await _apiService.GetAsync<ConversationVaultDto>($"api/conversation/vaults/{conversationId}");
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<InboxDto?> FetchInboxAsync()
+        {
+            try
+            {
+                return await _apiService.GetAsync<InboxDto>($"api/conversation/inbox");
             }
             catch
             {

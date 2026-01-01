@@ -29,6 +29,7 @@ vault_blob : bytes // encrypted with user_vaults.vault_key →
             session_key : key
             created_at : datetime*/
 
+using System.ComponentModel.DataAnnotations.Schema;
 using Nyxon.Core.Version;
 
 namespace Nyxon.Server.Models
@@ -45,11 +46,13 @@ namespace Nyxon.Server.Models
         public short Version { get; set; }
         public int RecvCounter { get; set; }
         public int SendCounter { get; set; }
-        public byte[] VaultBlob { get; set; }
 
-        protected ConversationVault() {}
+        [Column(TypeName = "jsonb")]
+        public ConversationVaultData VaultData { get; set; }
 
-        public ConversationVault(Guid conversationId, Guid userId, DateTime updatedAt, short version, int recvCounter, int sendCounter, byte[] vaultBlob)
+        protected ConversationVault() { }
+
+        public ConversationVault(Guid conversationId, Guid userId, DateTime updatedAt, short version, int recvCounter, int sendCounter, ConversationVaultData vaultData)
         {
             ConversationId = conversationId;
             UserId = userId;
@@ -57,13 +60,13 @@ namespace Nyxon.Server.Models
             Version = version;
             RecvCounter = recvCounter;
             SendCounter = sendCounter;
-            VaultBlob = vaultBlob;
+            VaultData = vaultData;
         }
 
         /// <summary>
         /// Creates a brand new conversation vault
         /// </summary>
-        public ConversationVault(Guid conversationId, Guid userId, byte[] vaultBlob)
+        public ConversationVault(Guid conversationId, Guid userId, ConversationVaultData vaultData)
         {
             ConversationId = conversationId;
             UserId = userId;
@@ -71,8 +74,7 @@ namespace Nyxon.Server.Models
             Version = AppVersion.Current;
             RecvCounter = 0;
             SendCounter = 0;
-            VaultBlob = vaultBlob;
+            VaultData = vaultData;
         }
-
     }
 }

@@ -10,6 +10,9 @@ namespace Nyxon.Server.Models
         public short Version { get; set; }
         public DateTime LastMessageAt { get; set; }
 
+        public Guid User1Id { get; set; }
+        public Guid User2Id { get; set; }
+
         public virtual ICollection<ConversationUser> ConversationUsers { get; set; } = new List<ConversationUser>();
 
         protected Conversation() { }
@@ -25,13 +28,15 @@ namespace Nyxon.Server.Models
             }
         }
 
-        public Conversation(bool initialize = true)
+        public Conversation(Guid id, Guid user1Id, Guid user2Id)
         {
-            Id = Guid.NewGuid();
+            Id = id;
             CreatedAt = DateTime.UtcNow;
             Version = AppVersion.Current;
             LastMessageAt = DateTime.UtcNow;
             ConversationUsers = new List<ConversationUser>();
+            User1Id = user1Id;
+            User2Id = user2Id;
         }
     }
 }

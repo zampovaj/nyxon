@@ -30,11 +30,13 @@ namespace Nyxon.Client
             services.AddScoped<IArgon2Crypto, Argon2CryptoWasm>();
             services.AddScoped<ICryptoService, CryptoService>();
             services.AddScoped<IHashService, Sha256HashService>();
+            services.AddScoped<IX3DHCrypto, X3DHCrypto>();
 
             // repositories
             services.AddScoped<IVaultRepository, VaultRepository>();
             services.AddScoped<IConversationRepository, ConversationRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IHandshakeRepository, HandshakeRepository>();
 
             // services
             services.AddScoped<IApiService, ApiService>();
@@ -46,6 +48,9 @@ namespace Nyxon.Client
             services.AddScoped<IUserListService, UserListService>();
             services.AddScoped<IUserListService, UserListService>();
             services.AddScoped<ISyncService, SyncService>();
+            services.AddScoped<IConversationService, ConversationService>();
+            services.AddScoped<IActiveConversationService, ActiveConversationService>();
+            services.AddScoped<IHandshakeService, HandshakeService>();
 
             //auth
             services.AddAuthorizationCore();

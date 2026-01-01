@@ -16,22 +16,25 @@ namespace Nyxon.Server.Controllers
     public class ConversationController : ControllerBase
     {
         private readonly IConversationService _conversationService;
+        private readonly IHandshakeService _handshakeService;
 
-        public ConversationController(IConversationService conversationService)
+        public ConversationController(IConversationService conversationService, IHandshakeService handshakeService)
         {
             _conversationService = conversationService;
+            _handshakeService = handshakeService;
         }
 
         [HttpPost]
         public async Task<ActionResult<CreateConversationResponse>> CreateConversation([FromBody] CreateConversationRequest request)
         {
+
             var initiatorIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (initiatorIdString == null || !Guid.TryParse(initiatorIdString, out var initiatorId))
                 return Unauthorized();
 
             try
             {
-                var conversation = await _conversationService.CreateConversationAsync(initiatorId, request.Username);
+                var conversation = await _conversationService.CreateConversationAsync(initiatorId, request);
                 return Ok(conversation);
             }
             catch (Exception ex)
@@ -41,7 +44,7 @@ namespace Nyxon.Server.Controllers
         }
 
         [HttpGet("inbox")]
-        public async Task<ActionResult<List<ConversationSummaryDto>>> GetInbox()
+        public async Task<ActionResult<List<InboxDto>>> GetInbox()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
@@ -49,8 +52,10 @@ namespace Nyxon.Server.Controllers
 
             try
             {
-                var inbox = await _conversationService.GetInboxAsync(userId);
-                return Ok(inbox);
+                var conversations = await _conversationService.GetInboxAsync(userId);
+                var handshakes = await _handshakeService.GetPendingHandshakesAsync(userId);
+
+                return Ok(new InboxDto(conversations, handshakes));
             }
             catch (Exception ex)
             {

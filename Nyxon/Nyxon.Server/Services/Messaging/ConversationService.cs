@@ -1,6 +1,7 @@
 using Nyxon.Core.Version;
 using Nyxon.Server.Data;
 using Nyxon.Server.Interfaces;
+using Org.BouncyCastle.Ocsp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,38 +17,26 @@ namespace Nyxon.Server.Services.Messaging
         {
             _context = context;
         }
-        public async Task<CreateConversationResponse> CreateConversationAsync(Guid initiatorId, string targetUsername)
+        public async Task<CreateConversationResponse> CreateConversationAsync(Guid initiatorId, CreateConversationRequest request)
         {
+            if (request.TargetUserId == initiatorId)
+                throw new Exception("Cannot create conversation with yourself");
+
             var targetUser = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == targetUsername);
+                .FirstOrDefaultAsync(u => u.Id == request.TargetUserId);
 
             if (targetUser == null)
                 throw new Exception("User not found");
 
-            if (targetUser.Id == initiatorId)
-                throw new Exception("Cannot create conversation with yourself");
+            // sort ids
+            var user1Id = initiatorId.CompareTo(request.TargetUserId) < 0 ? initiatorId : request.TargetUserId;
+            var user2Id = initiatorId.CompareTo(request.TargetUserId) < 0 ? request.TargetUserId : initiatorId;
 
-            // check if conversation already exists
-            var conversationId = await GetConversationAsync(targetUser.Id, initiatorId);
-            if (conversationId != null)
-            {
-                return new CreateConversationResponse()
-                {
-                    ConversationId = (Guid)conversationId,
-                    AlreadyExisted = true
-                };
-            }
-
-            // if it doesnt, create one
+            // create conversation
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var conversation = new Conversation
-                {
-                    Id = Guid.NewGuid(),
-                    CreatedAt = DateTime.UtcNow,
-                    Version = AppVersion.Current
-                };
+                var conversation = new Conversation(request.ConversationId, user1Id, user2Id);
 
                 _context.Conversations.Add(conversation);
                 await _context.SaveChangesAsync();
@@ -59,11 +48,51 @@ namespace Nyxon.Server.Services.Messaging
                 _context.ConversationUsers.Add(user2);
                 await _context.SaveChangesAsync();
 
+                // user vault
+                var vault = new ConversationVault
+                (
+                    userId: initiatorId,
+                    conversationId: conversation.Id,
+                    vaultData: request.VaultData
+                );
+                _context.ConversationVaults.Add(vault);
+                await _context.SaveChangesAsync();
+
+                // handshake
+                var handshake = new Handshake(
+                    conversationId: conversation.Id,
+                    initiatorId: initiatorId,
+                    targetUserId: targetUser.Id, 
+                    spkId: request.SpkPublicId,
+                    opkId: request.OpkPublicId ?? null,
+                    publicEphemeralKey: request.PublicEphemeralKey,
+                    publicIdentityKey: targetUser.PublicKey
+                );
+                _context.Handshakes.Add(handshake);
+                await _context.SaveChangesAsync();
+
                 await transaction.CommitAsync();
                 return new CreateConversationResponse()
                 {
                     ConversationId = conversation.Id,
                     AlreadyExisted = false
+                };
+            }
+            catch (DbUpdateException)
+            {
+                // postgres blocked the request because for these users a conversation already exists
+                await transaction.RollbackAsync();
+
+                // find it using index and return it
+                var existingId = await _context.Conversations
+                    .Where(c => c.User1Id == user1Id && c.User2Id == user2Id)
+                    .Select(c => c.Id)
+                    .FirstAsync();
+
+                return new CreateConversationResponse
+                {
+                    ConversationId = existingId,
+                    AlreadyExisted = true
                 };
             }
             catch
@@ -77,6 +106,7 @@ namespace Nyxon.Server.Services.Messaging
         {
             return await _context.ConversationUsers
                 .AsNoTracking()
+                .Where(cu => cu.UserId == userId)
                 .OrderByDescending(cu => cu.Conversation.LastMessageAt) // using index
                 .Select(cu => new ConversationSummaryDto
                 {
@@ -93,19 +123,6 @@ namespace Nyxon.Server.Services.Messaging
                         .FirstOrDefault() ?? "Unknown"
                 })
                 .ToListAsync();
-        }
-
-        private async Task<Guid?> GetConversationAsync(Guid targetId, Guid initiatiorId)
-        {
-            var conversation = await _context.Conversations
-                .Where(c => c.ConversationUsers.Any(u => u.UserId == initiatiorId) &&
-                            c.ConversationUsers.Any(u => u.UserId == targetId) &&
-                            c.ConversationUsers.Count() == 2)
-                .FirstOrDefaultAsync();
-
-            if (conversation == null) return null;
-
-            return conversation.Id;
         }
     }
 }

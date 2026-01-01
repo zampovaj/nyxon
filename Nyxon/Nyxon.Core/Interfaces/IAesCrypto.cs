@@ -13,7 +13,7 @@ namespace Nyxon.Core.Interfaces.Crypto
         /// <param name="plaintext"></param>
         /// <param name="key"></param>
         /// <returns>Byte array formatted as: [ Nonce (12 bytes) ] [ Encrypted Data (N bytes) ] [ Auth Tag (16 bytes) ]</returns>
-        byte[] Encrypt(byte[] plaintext, byte[] key);
+        byte[] Encrypt(byte[] plaintext, byte[] key, byte[]? aad = null);
 
         /// <summary>
         /// Decrypts input byte array
@@ -21,6 +21,6 @@ namespace Nyxon.Core.Interfaces.Crypto
         /// <param name="ciphertextWithNonceAndTag">Byte array formatted as: [ Nonce (12 bytes) ] [ Encrypted Data (N bytes) ] [ Auth Tag (16 bytes) ]</returns>
         /// <param name="key"></param>
         /// <returns>Plaintext byte array</returns>
-        byte[] Decrypt(byte[] ciphertextWithNonceAndTag, byte[] key);
+        byte[] Decrypt(byte[] ciphertextWithNonceAndTag, byte[] key, byte[]? aad = null);
     }
 }

@@ -20,7 +20,7 @@ namespace Nyxon.Core.Models.Vaults
     public class RatchetState
     {
         public SessionState Session { get; set; }
-        public List<Snapshot> Snapshots { get; set; }
+        public List<Snapshot> Snapshots { get; set; } = new();
 
         public RatchetState() {}
 
@@ -30,10 +30,10 @@ namespace Nyxon.Core.Models.Vaults
             Snapshots = snapshots;
         }
 
-        public RatchetState(bool mock)
+        public RatchetState(byte[] encryptedKey)
         {
-            Session = new SessionState(true);
-            Snapshots = new List<Snapshot>() {new Snapshot(true)};
+            Session = new SessionState(encryptedKey);
+            Snapshots = new List<Snapshot>() {new Snapshot(encryptedKey)};
         }
     }
 }

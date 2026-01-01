@@ -4,7 +4,9 @@ namespace Nyxon.Core.DTOs
 {
     public class RegisterRequest
     {
-
+        [Required]
+        [NotNull]
+        public Guid Id { get; set; }
         [Required]
         [MinLength(5)]
         [MaxLength(20)]

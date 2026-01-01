@@ -3,6 +3,7 @@
 @inject ISnackbar Snackbar
 @inject LayoutService LayoutState
 @inject IInboxService InboxService
+@inject IConversationService ConversationService
 
 <aside class="sidebar">
     <div class="sidebar-top">
@@ -31,8 +32,16 @@
                         @conv.TargetUsername
                     </MudAvatar>
                     <div class="side-nav-info">
-                        <span class="chat-name">@conv.TargetUsername</span>
-                        <span class="chat-preview" style=@(conv.HasUnreadMessages ? "text-style: bold" : "")>@conv.LastMessageAt.ToShortTimeString()</span>
+                        <span class="chat-name">
+                            @conv.TargetUsername
+                            @if (conv.HasHandshake)
+                            {
+                                <b>NEW!</b>
+                            }
+                        </span>
+                        <span class="chat-preview @(conv.HasUnreadMessages ? "bold" : "")">
+                            @conv.LastMessageAt.ToShortTimeString()
+                        </span>
                     </div>
                 </div>
             }
@@ -66,7 +75,6 @@
     {
         if (!LayoutState.IsVaultUnlocked) return;
         LayoutState.SetHeaderTitle(conversation.TargetUsername);
-        // TODO: navigate to actual chat/{userID} or chat/{username}
-        Nav.NavigateTo($"/chat");
+        Nav.NavigateTo($"/chat/{conversation.ConversationId}");
     }
 }

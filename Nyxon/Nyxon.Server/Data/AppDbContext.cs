@@ -65,6 +65,12 @@ namespace Nyxon.Server.Data
                 .HasForeignKey(cu => cu.ConversationId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<ConversationUser>()
+                .HasIndex(cu => cu.UserId);
+
+            modelBuilder.Entity<ConversationUser>()
+                .HasIndex(cu => new { cu.UserId, cu.ConversationId });
+
             // --- 4. ConversationVault (Composite Key & Relationships) ---
             modelBuilder.Entity<ConversationVault>()
                 .HasKey(cv => new { cv.ConversationId, cv.UserId });
@@ -81,43 +87,54 @@ namespace Nyxon.Server.Data
                 .HasForeignKey(cv => cv.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<ConversationVault>()
+                .Property(v => v.VaultData)
+                .HasColumnType("jsonb");
+
+            modelBuilder.Entity<Conversation>()
+                .HasIndex(c => new { c.User1Id, c.User2Id })
+                .IsUnique();
+
+            modelBuilder.Entity<Conversation>()
+                .HasIndex(c => c.LastMessageAt);
+
             // handshakes
             modelBuilder.Entity<Handshake>(entity =>
             {
                 entity.HasKey(h => h.Id);
 
-                // 1. Initiator Relationship
-                // If the User is deleted, the Handshake is meaningless -> Cascade
+                // delete handshake if user is deleted
                 entity.HasOne(h => h.Initiator)
                     .WithMany()
                     .HasForeignKey(h => h.InitiatorId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                // 2. Conversation Relationship
-                // If the Conversation is deleted, the Handshake is gone -> Cascade
+                entity.HasOne(h => h.TargetUser)
+                    .WithMany()
+                    .HasForeignKey(h => h.TargetUserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // delete handshake if conversatoin is deleted
                 entity.HasOne(h => h.Conversation)
                     .WithMany()
                     .HasForeignKey(h => h.ConversationId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                // 3. Signed Prekey (SPK)
-                // If SPK is deleted (rotated out), we keep the handshake record but null the reference? 
-                // actually SPKs are rarely deleted immediately. Let's use Restrict to be safe, 
-                // or SetNull if you plan to aggressively prune keys.
-                // Recommendation: Restrict (force explicit cleanup) or NoAction.
+                // 3. restrict spk deletion
                 entity.HasOne(h => h.Spk)
                     .WithMany()
                     .HasForeignKey(h => h.SpkId)
-                    .OnDelete(DeleteBehavior.Restrict); // Don't delete an SPK if it's involved in a pending handshake
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                // 4. One-Time Prekey (OPK) - CRITICAL
-                // OPKs are deleted *immediately* upon use.
-                // We MUST use SetNull here. If we used Restrict, we couldn't delete the OPK.
-                // If we used Cascade, deleting the OPK would delete the whole Handshake (bad).
+                // restrict opk deletion
                 entity.HasOne(h => h.Opk)
                     .WithMany()
                     .HasForeignKey(h => h.OpkId)
-                    .OnDelete(DeleteBehavior.SetNull);
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(h => new { h.TargetUserId, h.CreatedAt }); // for sorting
+
+                entity.HasIndex(h => h.ExpiresAt);
             });
 
             // --- 5. MessageMetadata Relationships ---

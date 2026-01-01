@@ -7,7 +7,7 @@ namespace Nyxon.Server.Interfaces
 {
     public interface IConversationService
     {
-        public Task<CreateConversationResponse> CreateConversationAsync(Guid initiatorId, string targetUsername);
-        public Task<List<ConversationSummaryDto>> GetInboxAsync(Guid userId);
+        Task<CreateConversationResponse> CreateConversationAsync(Guid initiatorId, CreateConversationRequest request);
+        Task<List<ConversationSummaryDto>> GetInboxAsync(Guid userId);
     }
 }

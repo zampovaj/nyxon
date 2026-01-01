@@ -1,0 +1,36 @@
+@page "/chat/{Username}"
+
+@inject NavigationManager Nav
+@inject IConversationService ConversationService
+@inject IInboxService InboxService
+
+@code
+{
+    [Parameter]
+    public string Username { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrEmpty(Username) || string.IsNullOrWhiteSpace(Username)) {
+            Nav.NavigateTo("/");
+            return;
+        }
+
+        var conversationId = await InboxService.GetConversationAsync(Username);
+        
+        if (conversationId != null) {
+            Nav.NavigateTo($"/chat/{conversationId}");
+            return;
+        }
+
+        conversationId = await ConversationService.CreateConversationAsync(Username);
+
+        if(conversationId == null) {
+            Nav.NavigateTo("/");
+            return;
+        }
+
+        Nav.NavigateTo($"/chat/{conversationId}");
+        return;
+    }
+}

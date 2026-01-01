@@ -4,6 +4,6 @@ namespace Nyxon.Server.Interfaces
 {
     public interface IRegistrationService
     {
-        Task<Guid> RegisterUserAsync(RegisterRequest request);
+        Task<bool> RegisterUserAsync(RegisterRequest request);
     }
 }

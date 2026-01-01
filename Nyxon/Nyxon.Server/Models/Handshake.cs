@@ -22,6 +22,9 @@ namespace Nyxon.Server.Models
         public Guid InitiatorId { get; set; }
         public virtual User Initiator { get; set; }
 
+        public Guid TargetUserId { get; set; }
+        public virtual User TargetUser { get; set; }
+
         public Guid ConversationId { get; set; }
         public virtual Conversation Conversation { get; set; }
 
@@ -36,17 +39,20 @@ namespace Nyxon.Server.Models
         public virtual OneTimePrekey? Opk { get; set; }
 
         public byte[] PublicEphemeralKey { get; set; }
+        public byte[] PublicIdentityKey { get; set; }
 
         protected Handshake() { }
 
-        public Handshake(Guid conversationId, Guid initiatorId, Guid spkId, Guid? opkId, byte[] publicEphemeralKey)
+        public Handshake(Guid conversationId, Guid initiatorId, Guid targetUserId, Guid spkId, Guid? opkId, byte[] publicEphemeralKey, byte[] publicIdentityKey)
         {
             Id = Guid.NewGuid();
             ConversationId = conversationId;
             InitiatorId = initiatorId;
+            TargetUserId = targetUserId;
             SpkId = spkId;
             OpkId = opkId;
             PublicEphemeralKey = publicEphemeralKey;
+            PublicIdentityKey = publicIdentityKey;
 
             Version = AppVersion.Current;
             CreatedAt = DateTime.UtcNow;

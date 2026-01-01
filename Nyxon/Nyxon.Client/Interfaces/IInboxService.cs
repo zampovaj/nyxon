@@ -11,5 +11,6 @@ namespace Nyxon.Client.Interfaces
         event Action OnChange;
         Task SyncInboxAsync();
         void Clear();
+        Task<Guid?> GetConversationAsync(string username); 
     }
 }

@@ -23,8 +23,8 @@ namespace Nyxon.Core.Interfaces
 
         byte[] GenerateRandomBytes(int length);
         byte[] GenerateRandomSalt(int length);
-        byte[] EncryptWithKey(byte[] data, byte[] key);
-        byte[] DecryptWithKey(byte[] data, byte[] key);
+        byte[] EncryptWithKey(byte[] data, byte[] key, byte[]? aad = null);
+        byte[] DecryptWithKey(byte[] data, byte[] key, byte[]? aad = null);
         byte[] DeriveSharedX25519Secret(byte[] privateKey, byte[] publicKey);
     }
 

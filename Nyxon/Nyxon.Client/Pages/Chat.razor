@@ -1,10 +1,11 @@
-@page "/chat"
+@page "/chat/{ConversationId:guid}"
 @using Microsoft.AspNetCore.Authorization
 @using Nyxon.Client.Services
 @inject LayoutService LayoutState
+@inject IConversationService ConversationService
 @inject NavigationManager Nav
 
-@attribute [Authorize] 
+@attribute [Authorize]
 
 <div class=chat-view>
     <div class="messages-area">
@@ -26,7 +27,7 @@
                 <span class="msg-time-header">10:43 AM</span>
             </div>
             <div class="bubble">Exactly.
-Consistent headers.</div>
+                Consistent headers.</div>
         </div>
 
         <div class="msg-wrapper sent consecutive">
@@ -50,13 +51,31 @@ Consistent headers.</div>
 
 @code {
     private string username = "Alice";
-    
+    [Parameter]
+    public Guid ConversationId { get; set; }
+
     protected override void OnInitialized()
     {
         // Set the UI title when this page loads
         // This fixes the issue where refreshing the page clears the header
         if (!LayoutState.IsVaultUnlocked) Nav.NavigateTo("/", false);
         LayoutState.SetHeaderTitle(username);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            if (ConversationId != Guid.Empty)
+            {
+                await ConversationService.OpenConversationAsync(ConversationId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Couldn't load conversation: {ex.Message}");
+            Nav.NavigateTo("/");
+        }
     }
 }
 

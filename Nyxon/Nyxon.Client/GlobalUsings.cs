@@ -18,6 +18,7 @@ global using MudBlazor;
 global using Nyxon.Client.Services;
 global using Nyxon.Client.Services.Hub;
 global using Nyxon.Client.Services.Crypto;
+global using Nyxon.Client.Services.Messaging;
 global using Nyxon.Client.Models;
 global using Nyxon.Client.ViewModels;
 global using Nyxon.Client.Interfaces;

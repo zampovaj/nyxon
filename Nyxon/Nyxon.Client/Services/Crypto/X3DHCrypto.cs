@@ -15,10 +15,12 @@ namespace Nyxon.Client.Services.Crypto
         private static readonly byte[] Info = Encoding.UTF8.GetBytes("Nyxon::X3DH::v1");
 
         private readonly ICryptoService _cryptoService;
+        private readonly IUserVaultService _userVaultService;
 
-        public X3DHCrypto(ICryptoService cryptoService)
+        public X3DHCrypto(ICryptoService cryptoService, IUserVaultService userVaultService)
         {
             _cryptoService = cryptoService;
+            _userVaultService = userVaultService;
         }
 
         // DH1 = DH(IK_A.priv, SPK_B.pub)
@@ -26,8 +28,7 @@ namespace Nyxon.Client.Services.Crypto
         // DH3 = DH(EK_A.priv, SPK_B.pub)
         // DH4 = DH(EK_A.priv, OPK_B.pub)  // if OPK exists
 
-        public X3DHResult CalculateInitiatorSecret(
-            byte[] IK_A_priv,
+        public async Task<X3DHResult> CalculateInitiatorSecretAsync(
             byte[] IK_B_pub,
             byte[] SPK_B_pub,
             byte[] OPK_B_pub)
@@ -40,7 +41,7 @@ namespace Nyxon.Client.Services.Crypto
 
             try
             {
-                DH1 = _cryptoService.DeriveSharedSecret(IK_A_priv, SPK_B_pub);
+                DH1 = await _userVaultService.CalculateIdentityDhAsync(SPK_B_pub);
                 DH2 = _cryptoService.DeriveSharedSecret(EphemeralKeyPair.PrivateKey, IK_B_pub);
                 DH3 = _cryptoService.DeriveSharedSecret(EphemeralKeyPair.PrivateKey, SPK_B_pub);
                 DH4 = _cryptoService.DeriveSharedSecret(EphemeralKeyPair.PrivateKey, OPK_B_pub);
@@ -62,8 +63,7 @@ namespace Nyxon.Client.Services.Crypto
             }
         }
 
-        public X3DHResult CalculateInitiatorSecret(
-            byte[] IK_A_priv,
+        public async Task<X3DHResult> CalculateInitiatorSecretAsync(
             byte[] IK_B_pub,
             byte[] SPK_B_pub)
         {
@@ -75,7 +75,7 @@ namespace Nyxon.Client.Services.Crypto
 
             try
             {
-                DH1 = _cryptoService.DeriveSharedSecret(IK_A_priv, SPK_B_pub);
+                DH1 = await _userVaultService.CalculateIdentityDhAsync(SPK_B_pub);
                 DH2 = _cryptoService.DeriveSharedSecret(EphemeralKeyPair.PrivateKey, IK_B_pub);
                 DH3 = _cryptoService.DeriveSharedSecret(EphemeralKeyPair.PrivateKey, SPK_B_pub);
 
@@ -100,8 +100,7 @@ namespace Nyxon.Client.Services.Crypto
         // DH3 = DH(SPK_B.priv, EK_A.pub)
         // DH4 = DH(OPK_B.priv, EK_A.pub)  // if OPK was used
 
-        public byte[] CalculateReceiverSecret(
-            byte[] IK_B_priv,
+        public async Task<byte[]> CalculateReceiverSecretAsync(
             byte[] SPK_B_priv,
             byte[] OPK_B_priv,
             byte[] IK_A_pub,
@@ -112,7 +111,7 @@ namespace Nyxon.Client.Services.Crypto
             try
             {
                 DH1 = _cryptoService.DeriveSharedSecret(SPK_B_priv, IK_A_pub);
-                DH2 = _cryptoService.DeriveSharedSecret(IK_B_priv, EK_A_pub);
+                DH2 = await _userVaultService.CalculateIdentityDhAsync(EK_A_pub);
                 DH3 = _cryptoService.DeriveSharedSecret(SPK_B_priv, EK_A_pub);
                 DH4 = _cryptoService.DeriveSharedSecret(OPK_B_priv, EK_A_pub);
 
@@ -129,8 +128,7 @@ namespace Nyxon.Client.Services.Crypto
             }
         }
 
-        public byte[] CalculateReceiverSecret(
-            byte[] IK_B_priv,
+        public async Task<byte[]> CalculateReceiverSecretAsync(
             byte[] SPK_B_priv,
             byte[] IK_A_pub,
             byte[] EK_A_pub)
@@ -140,7 +138,7 @@ namespace Nyxon.Client.Services.Crypto
             try
             {
                 DH1 = _cryptoService.DeriveSharedSecret(SPK_B_priv, IK_A_pub);
-                DH2 = _cryptoService.DeriveSharedSecret(IK_B_priv, EK_A_pub);
+                DH2 = await _userVaultService.CalculateIdentityDhAsync(EK_A_pub);
                 DH3 = _cryptoService.DeriveSharedSecret(SPK_B_priv, EK_A_pub);
 
                 var result = DeriveRootKey(DH1, DH2, DH3);

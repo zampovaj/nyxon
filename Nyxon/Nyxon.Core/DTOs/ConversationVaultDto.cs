@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Nyxon.Core.Models.Vaults;
 
 namespace Nyxon.Core.DTOs
 {
@@ -22,6 +23,6 @@ namespace Nyxon.Core.DTOs
         public int SendCounter { get; set; }
         [Required]
         [NotNull]
-        public byte[] VaultBlob { get; set; }
+        public ConversationVaultData VaultData { get; set; }
     }
 }

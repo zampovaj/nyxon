@@ -7,6 +7,8 @@ namespace Nyxon.Client.Interfaces
 {
     public interface IConversationRepository
     {
-        Task<List<ConversationSummaryDto>?> FetchInboxAsync();
+        Task<InboxDto?> FetchInboxAsync();
+        Task<PrekeyBundleResponse?> GetPrekeyBundle();
+        Task<ConversationVaultDto?> FetchVaultAsync(Guid conversationId);
     }
 }

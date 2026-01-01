@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Nyxon.Client.Interfaces;
+using Nyxon.Core.Services;
 
 namespace Nyxon.Client.Services
 {
@@ -60,6 +61,7 @@ namespace Nyxon.Client.Services
             if (isAuthenticated)
                 await LogoutAsync();
 
+            var userId = Guid.NewGuid();
             var passwordSalt = _cryptoService.GeneratePasswordSalt();
             var passphraseSalt = _cryptoService.GeneratePassphraseSalt();
             var passphraseKey = await _cryptoService.DerivePassphraseKeyAsync(passphrase, passphraseSalt);
@@ -67,12 +69,21 @@ namespace Nyxon.Client.Services
             var identityKey = _cryptoService.GenerateIdentityKey();
             var prekeyBundle = _cryptoService.GeneratePrekeyBundle(identityKey.PrivateKey, vaultKey, 100);
 
-            var encryptedVaultKey = _cryptoService.EncryptWithKey(vaultKey, passphraseKey);
-            var encryptedPrivateIdentityKey = _cryptoService.EncryptWithKey(identityKey.PrivateKey, vaultKey);
+            var encryptedVaultKey = _cryptoService.EncryptWithKey(
+                vaultKey,
+                passphraseKey,
+                AadFactory.ForUserVaultKey(userId)
+            );
+            var encryptedPrivateIdentityKey = _cryptoService.EncryptWithKey(
+                identityKey.PrivateKey,
+                vaultKey,
+                AadFactory.ForIdentityKey(userId)
+            );
 
 
             var request = new RegisterRequest()
             {
+                Id = userId,
                 Username = username,
                 PasswordHash = _hashService.HashPassword(password),
                 InviteCode = inviteCode,

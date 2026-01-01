@@ -15,7 +15,7 @@ namespace Nyxon.Core.Crypto
 
         private readonly SecureRandom _secureRandom = new SecureRandom();
 
-        public byte[] Encrypt(byte[] plaintext, byte[] key)
+        public byte[] Encrypt(byte[] plaintext, byte[] key, byte[]? aad = null)
         {
             ValidateInput(plaintext, nameof(plaintext));
             ValidateKey(key, nameof(key));
@@ -24,7 +24,7 @@ namespace Nyxon.Core.Crypto
             _secureRandom.NextBytes(nonce);
 
             var cipher = new GcmBlockCipher(new AesEngine());
-            var parameters = new AeadParameters(new KeyParameter(key), TagSize * 8, nonce);
+            var parameters = new AeadParameters(new KeyParameter(key), TagSize * 8, nonce, aad);
             cipher.Init(true, parameters); // true = encryption
 
             //prepare output
@@ -42,7 +42,7 @@ namespace Nyxon.Core.Crypto
             return result;
         }
 
-        public byte[] Decrypt(byte[] ciphertextWithNonceAndTag, byte[] key)
+        public byte[] Decrypt(byte[] ciphertextWithNonceAndTag, byte[] key, byte[]? aad = null)
         {
             if (ciphertextWithNonceAndTag == null || ciphertextWithNonceAndTag.Length < NonceSize + TagSize)
                 throw new ArgumentException("Ciphertext is too short.", nameof(ciphertextWithNonceAndTag));
@@ -53,7 +53,7 @@ namespace Nyxon.Core.Crypto
             Array.Copy(ciphertextWithNonceAndTag, 0, nonce, 0, NonceSize);
 
             var cipher = new GcmBlockCipher(new AesEngine());
-            var parameters = new AeadParameters(new KeyParameter(key), TagSize * 8, nonce);
+            var parameters = new AeadParameters(new KeyParameter(key), TagSize * 8, nonce, aad);
             cipher.Init(false, parameters); // false = decryption
 
             // input for decryption is everyhting after nonce
@@ -75,7 +75,6 @@ namespace Nyxon.Core.Crypto
             }
 
             return plaintext;
-
         }
 
         //validation

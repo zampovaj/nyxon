@@ -113,6 +113,10 @@ body {
     background-color: var(--bg-surface);
 }
 
+.bold {
+    font-weight: bold;
+}
+
 /*LAYOUT SHELL*/
 .layout-shell {
     height: 100%;

@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 namespace Nyxon.Core.Interfaces.Crypto
 {
     public interface IEd25519Crypto
-    {/// <summary>
-     /// Generates a new Ed25519 signing key pair.
-     /// Public Key: 32 bytes.
-     /// Private Key: 64 bytes (includes the seed and public key).
-     /// </summary>
+    {
+        /// <summary>
+        /// Generates a new Ed25519 signing key pair.
+        /// Public Key: 32 bytes.
+        /// Private Key: 32 bytes (doesn't include public key like other libs).
+        /// </summary>
         (byte[] PublicKey, byte[] PrivateKey) GenerateKeyPair();
 
         /// <summary>

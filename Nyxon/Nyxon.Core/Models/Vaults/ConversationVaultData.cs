@@ -9,7 +9,7 @@ using System.Threading.Tasks;
     sending :
         session :
             current_session_key : key
-            rotatoin_index : int
+            rotation_index : int
             message_index : int
             rotate_after : int
             rotate_at_time : time
@@ -17,10 +17,10 @@ using System.Threading.Tasks;
             rotation_index : int / number of rotations done
             session_key : key
             created_at : datetime
-    receiving:
+    receiving :
         session :
             current_session_key : key
-            rotatoin_index : int
+            rotation_index : int
             message_index : int
             rotate_after : int
             rotate_at_time : time
@@ -31,27 +31,27 @@ using System.Threading.Tasks;
 
 namespace Nyxon.Core.Models.Vaults
 {
-    public class ConversationBlob
+    public class ConversationVaultData
     {
-        public byte[] InitialKey { get; set; }
+        public byte[] EncryptedRootKey { get; set; }
         public RatchetState Sending { get; set; }
         public RatchetState Receiving { get; set; }
 
-        public ConversationBlob() { }
+        public ConversationVaultData() { }
 
-        public ConversationBlob(byte[] initialKey, RatchetState sending, RatchetState receiving)
+        public ConversationVaultData(byte[] encryptedRootKey, RatchetState sending, RatchetState receiving)
         {
-            InitialKey = initialKey;
+            EncryptedRootKey = encryptedRootKey;
             Sending = sending;
             Receiving = receiving;
         }
 
-        // TODO: mock constructors - remove!
-        public ConversationBlob(byte[] initialKey)
+        // TODO: check the constructor if its actually okay for production this was just mock for dev
+        public ConversationVaultData(byte[] encryptedRootKey, byte[] encryptedSendingKey, byte[] encryptedReceivingKey)
         {
-            InitialKey = initialKey;
-            Sending = new RatchetState(true);
-            Receiving = new RatchetState(true);
+            EncryptedRootKey = encryptedRootKey;
+            Sending = new RatchetState(encryptedSendingKey);
+            Receiving = new RatchetState(encryptedReceivingKey);
         }
     }
 }

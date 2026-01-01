@@ -30,7 +30,7 @@ namespace Nyxon.Server.Services.Auth
             _inviteCodeService = inviteCodeService;
             _logger = logger;
         }
-        public async Task<Guid> RegisterUserAsync(RegisterRequest request)
+        public async Task<bool> RegisterUserAsync(RegisterRequest request)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -61,6 +61,7 @@ namespace Nyxon.Server.Services.Auth
 
                 // create user
                 var newUser = new User(
+                    id: request.Id,
                     username: request.Username,
                     passwordHash: passwordHash,
                     passwordSalt: request.PasswordSalt,
@@ -116,7 +117,7 @@ namespace Nyxon.Server.Services.Auth
 
                 _logger.LogInformation("Registration completed successfully for user {Username} (ID: {UserId})", request.Username, newUser.Id);
 
-                return newUser.Id;
+                return true;
             }
 
             catch (Exception ex)
