@@ -17,7 +17,6 @@ namespace Nyxon.Client.ViewModels
         private readonly IAuthenticationService _authService;
         private readonly NavigationManager _nav;
         private readonly AuthenticationStateProvider _authStateProvider;
-        private readonly IUserVaultService _userVaultService;
 
         [Required]
         private string username = "";
@@ -69,13 +68,11 @@ namespace Nyxon.Client.ViewModels
         public LoginViewModel
             (IAuthenticationService authService,
             NavigationManager nav,
-            AuthenticationStateProvider authStateProvider,
-            IUserVaultService userVaultService)
+            AuthenticationStateProvider authStateProvider)
         {
             _authService = authService;
             _nav = nav;
             _authStateProvider = authStateProvider;
-            _userVaultService = userVaultService;
         }
 
         //validation

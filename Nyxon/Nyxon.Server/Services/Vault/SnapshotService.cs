@@ -40,7 +40,7 @@ namespace Nyxon.Server.Services.Vault
             await _context.SaveChangesAsync();
         }
 
-        public async Task<SnapshotsDto> GetSnapshotsAsync(Guid userId, Guid conversationId, List<Message> messages)
+        public async Task<SnapshotsDto> GetSnapshotsAsync(Guid userId, Guid conversationId, List<MessageResponse> messages)
         {
             SnapshotsDto result = new SnapshotsDto();
 

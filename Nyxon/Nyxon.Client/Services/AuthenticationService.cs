@@ -15,19 +15,16 @@ namespace Nyxon.Client.Services
         private readonly IApiService _apiService;
         private readonly IHashService _hashService;
         private readonly ICryptoService _cryptoService;
-        private readonly IUserVaultService _userVaultService;
 
         public AuthenticationService(AuthenticationStateProvider authStateProvider,
             IApiService apiService,
             IHashService hashService,
-            ICryptoService cryptoService,
-            IUserVaultService userVaultService)
+            ICryptoService cryptoService)
         {
             _authStateProvider = authStateProvider;
             _apiService = apiService;
             _hashService = hashService;
             _cryptoService = cryptoService;
-            _userVaultService = userVaultService;
         }
 
         public async Task<bool> LoginAsync(string username, byte[] password)
@@ -119,7 +116,7 @@ namespace Nyxon.Client.Services
         public async Task LogoutAsync()
         {
             await _apiService.PostAsync<object, object>("api/auth/logout", null);
-            _userVaultService.Clear();
+            //_userVaultService.Clear();
             ((HostAuthenticationStateProvider)_authStateProvider).NotifyStateChanged();
         }
     }

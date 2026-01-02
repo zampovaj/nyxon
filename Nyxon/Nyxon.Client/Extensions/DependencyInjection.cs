@@ -47,7 +47,8 @@ namespace Nyxon.Client
             services.AddScoped<IInboxService, InboxService>();
             services.AddScoped<IUserListService, UserListService>();
             services.AddScoped<IUserListService, UserListService>();
-            services.AddScoped<ISyncService, SyncService>();
+            services.AddScoped<ClientOrchestratorService>();
+            services.AddScoped<UserContext>();
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IActiveConversationService, ActiveConversationService>();
             services.AddScoped<IHandshakeService, HandshakeService>();

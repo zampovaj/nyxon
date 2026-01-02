@@ -8,7 +8,7 @@
 @inject LayoutService LayoutState
 @inject IAuthenticationService AuthService
 @inject AuthenticationStateProvider AuthStateProvider
-@inject ISyncService SyncService
+@inject ClientOrchestratorService Orchestrator
 
 <MudThemeProvider Theme="NyxonTheme.Default" IsDarkMode="true" />
 <MudDialogProvider />
@@ -84,14 +84,14 @@
     {
         LayoutState.OnChange += StateHasChanged;
         Nav.LocationChanged += OnLocationChanged;
-        await SyncService.SyncAsync();
+        await Orchestrator.Initialize();
     }
 
     public void Dispose()
     {
         LayoutState.OnChange -= StateHasChanged;
         Nav.LocationChanged -= OnLocationChanged;
-        SyncService.Clear();
+        Orchestrator.Dispose();
     }
 
     private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)

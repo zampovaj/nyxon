@@ -11,5 +11,6 @@ namespace Nyxon.Client.Interfaces
         Task UseAsync(Guid handshakeId);
         Task LoadHandshakesAsync(List<HandshakeDto> dtos);
         event Action OnChange;
+        public void Clear();
     }
 }

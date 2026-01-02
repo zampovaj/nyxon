@@ -19,12 +19,12 @@ namespace Nyxon.Client.Services.Messaging
     // [X] create vault
     // [X] encrypt vault
     // [X] create requestdto
-    // [ ] send request to server
-    // [ ] if response alreadyexisted == true
-    // [ ]   discard everything
-    // [ ]   resync
-    // [ ] else
-    // [ ]   load the created vault and conversation to active conversation state
+    // [X] send request to server
+    // [X] if response alreadyexisted == true
+    // [X]   discard everything
+    // [X]   resync
+    // [X] else
+    // [X]   load the created vault and conversation to active conversation state
     // [ ] proceed to send the message normally
 
     public class ConversationService : IConversationService
@@ -39,7 +39,7 @@ namespace Nyxon.Client.Services.Messaging
         private readonly ICryptoService _cryptoService;
         private readonly IUserVaultService _userVaultService;
         private readonly IApiService _apiService;
-        private readonly AuthenticationStateProvider _authStateProvider;
+        private readonly UserContext _userContext;
         private readonly IActiveConversationService _activeConversation;
         private readonly IInboxService _inboxService;
         private readonly IHandshakeService _handshakeService;
@@ -49,7 +49,7 @@ namespace Nyxon.Client.Services.Messaging
             ICryptoService cryptoService,
             IUserVaultService userVaultService,
             IApiService apiService,
-            AuthenticationStateProvider authStateProvider,
+            UserContext userContext,
             IActiveConversationService activeConversation,
             IInboxService inboxService,
             IHandshakeService handshakeService)
@@ -59,7 +59,7 @@ namespace Nyxon.Client.Services.Messaging
             _cryptoService = cryptoService;
             _userVaultService = userVaultService;
             _apiService = apiService;
-            _authStateProvider = authStateProvider;
+            _userContext = userContext;
             _activeConversation = activeConversation;
             _inboxService = inboxService;
             _handshakeService = handshakeService;
@@ -67,17 +67,14 @@ namespace Nyxon.Client.Services.Messaging
 
         public async Task<Guid?> CreateConversationAsync(string username)
         {
+            if (!_userContext.IsAuthenticated)
+                throw new UnauthorizedAccessException("Can't creation conversation unless unauthenticated");
+
+            var userId = (Guid)_userContext.UserId;
+
             X3DHResult? x3dhResult = null;
             byte[]? chainKey1 = null;
             byte[]? chainKey2 = null;
-
-            var state = await _authStateProvider.GetAuthenticationStateAsync();
-            if (!state.User.Identity?.IsAuthenticated ?? true)
-                return null;
-
-            var userIdString = state.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
-                return null;
 
             if (!_userVaultService.IsUnlocked)
                 throw new UnauthorizedAccessException("Vault must be unlocked to initiate a conversation");
@@ -179,13 +176,10 @@ namespace Nyxon.Client.Services.Messaging
         {
             try
             {
-                var state = await _authStateProvider.GetAuthenticationStateAsync();
-                if (!state.User.Identity?.IsAuthenticated ?? true)
-                    return;
+                if (!_userContext.IsAuthenticated)
+                    throw new UnauthorizedAccessException("Can't creation conversation unless unauthenticated");
 
-                var userIdString = state.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
-                    return;
+                var userId = (Guid)_userContext.UserId;
 
                 if (!_userVaultService.IsUnlocked)
                     throw new UnauthorizedAccessException("Vault must be unlocked to initiate a conversation");

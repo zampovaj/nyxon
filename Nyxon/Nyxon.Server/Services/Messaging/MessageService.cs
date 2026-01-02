@@ -66,19 +66,20 @@ namespace Nyxon.Server.Services.Messaging
         public async Task<List<MessageResponse>> GetRecentMessagesAsync(Guid conversationId)
         {
             var messages = await _messageCacheService.GetRecentMessagesAsync(conversationId);
-            return messages.Select(m => new MessageResponse
-            {
-                Id = m.Id,
-                SequenceNumber = m.SequenceNumber,
-                SenderId = m.SenderId,
-                SenderUsername = m.SenderUsername,
-                SessionIndex = m.SessionIndex,
-                MessageIndex = m.MessageIndex,
-                CreatedAt = m.CreatedAt,
-                EncryptedPayload = m.EncryptedPayload
-            })
-            .OrderBy(m => m.SequenceNumber)
-            .ToList();
+            return messages
+                .Select(m => new MessageResponse
+                {
+                    Id = m.Id,
+                    SequenceNumber = m.SequenceNumber,
+                    SenderId = m.SenderId,
+                    SenderUsername = m.SenderUsername,
+                    SessionIndex = m.SessionIndex,
+                    MessageIndex = m.MessageIndex,
+                    CreatedAt = m.CreatedAt,
+                    EncryptedPayload = m.EncryptedPayload
+                })
+                .OrderBy(m => m.SequenceNumber)
+                .ToList();
         }
         public async Task<MessageResponse?> GetMessageAsync(Guid conversationId, int sequenceNumber)
         {

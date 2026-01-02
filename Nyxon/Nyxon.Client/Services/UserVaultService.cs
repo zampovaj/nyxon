@@ -11,7 +11,7 @@ namespace Nyxon.Client.Services
 {
     public class UserVaultService : IUserVaultService
     {
-        private readonly AuthenticationStateProvider _authStateProvider;
+        private readonly UserContext _userContext;
         private readonly EncryptedUserVaultSessionService _vaultSessionService;
         private readonly IVaultRepository _vaultRepository;
         private readonly ICryptoService _cryptoService;
@@ -22,12 +22,12 @@ namespace Nyxon.Client.Services
 
         public event Action? StateChanged;
 
-        public UserVaultService(AuthenticationStateProvider authStateProvider,
+        public UserVaultService(UserContext userContext,
             EncryptedUserVaultSessionService vaultSessionService,
             IVaultRepository vaultRepository,
             ICryptoService cryptoService)
         {
-            _authStateProvider = authStateProvider;
+            _userContext = userContext;
             _vaultSessionService = vaultSessionService;
             _vaultRepository = vaultRepository;
             _cryptoService = cryptoService;
@@ -36,13 +36,10 @@ namespace Nyxon.Client.Services
         public async Task<bool> UnlockVaultAsync(byte[] passphrase)
         {
             // safety net for unauthenticated user
-            var state = await _authStateProvider.GetAuthenticationStateAsync();
-            if (!state.User.Identity?.IsAuthenticated ?? true)
+            if (!_userContext.IsAuthenticated)
                 return false;
-
-            var userIdString = state.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
-                return false;
+            
+            var userId = (Guid)_userContext.UserId;
 
             if (!_vaultSessionService.HasVault)
             {

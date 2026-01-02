@@ -21,7 +21,7 @@ namespace Nyxon.Client.Services
         public async Task UseAsync(Guid handshakeId)
         {
             Handshakes.RemoveAll(h => h.Id == handshakeId && !h.IsProcessing);
-            
+
 
             var response = await _repository.DeleteHandshakeAsync(handshakeId);
 
@@ -41,5 +41,11 @@ namespace Nyxon.Client.Services
             )).ToList();
         }
         private void NotifyStateChanged() => OnChange?.Invoke();
+
+        public void Clear()
+        {
+            Handshakes?.Clear();
+            NotifyStateChanged();
+        }
     }
 }

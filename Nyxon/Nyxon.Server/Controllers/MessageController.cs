@@ -16,11 +16,15 @@ namespace Nyxon.Server.Controllers
     {
         private readonly IMessageService _messageService;
         private readonly IHubContext<ChatHub> _hubContext;
+        private readonly ISnapshotService _snapshotService;
 
-        public MessageController(IMessageService messageService, IHubContext<ChatHub> hubContext)
+        public MessageController(IMessageService messageService,
+            IHubContext<ChatHub> hubContext,
+            ISnapshotService snapshotService)
         {
             _messageService = messageService;
             _hubContext = hubContext;
+            _snapshotService = snapshotService;
         }
 
         [HttpPost("send")]
@@ -52,19 +56,24 @@ namespace Nyxon.Server.Controllers
             }
         }
         [HttpGet("{conversationId}/recent")]
-        public async Task<ActionResult<List<MessageResponse>>> GetRecentMessages([FromRoute] Guid conversationId)
+        public async Task<ActionResult<MessagesBundle>> GetRecentMessages([FromRoute] Guid conversationId)
         {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
+                return Unauthorized();
+
             try
             {
                 var messages = await _messageService.GetRecentMessagesAsync(conversationId);
-                return Ok(messages);
+                var snapshots = await _snapshotService.GetSnapshotsAsync(userId, conversationId, messages);
+                return Ok(new MessagesBundle(messages, snapshots));
             }
             catch (Exception ex)
             {
                 return BadRequest(new { error = ex.Message });
             }
         }
-        
+
         [HttpGet("{conversationId}/message/{sequenceNumber}")]
         public async Task<ActionResult<MessageResponse>> GetMessage([FromRoute] Guid conversationId, [FromRoute] int sequenceNumber)
         {
@@ -73,10 +82,10 @@ namespace Nyxon.Server.Controllers
                 var message = await _messageService.GetMessageAsync(conversationId, sequenceNumber);
                 if (message == null)
                     throw new Exception("Message not found");
-                
+
                 return Ok(message);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
