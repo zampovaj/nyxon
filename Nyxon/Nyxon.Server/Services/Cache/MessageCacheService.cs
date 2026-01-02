@@ -26,10 +26,10 @@ namespace Nyxon.Server.Services.Cache
             // using db -> send commands, one by one
             // using transaction -> queue them into one call, execute at once
             var tran = _db.CreateTransaction();
-            
+
             // _ discard variable
             // trand returns task - i dont need that task cause i will await them all at once using tran
-            
+
             // set direct key -> expires after 30 days
             _ = tran.StringSetAsync(messageKey, json, TimeSpan.FromDays(30));
 
@@ -43,7 +43,7 @@ namespace Nyxon.Server.Services.Cache
             await tran.ExecuteAsync();
         }
 
-        
+
         public async Task<Message?> GetMessageAsync(Guid conversationId, int sequenceNumber)
         {
             var key = KeyFactory.MessageKey(conversationId, sequenceNumber);
@@ -57,7 +57,7 @@ namespace Nyxon.Server.Services.Cache
         public async Task<List<Message>> GetRecentMessagesAsync(Guid conversationId, int count = 50)
         {
             var key = KeyFactory.MessageRecentKey(conversationId);
-            
+
             // get range 0 to count-1
             var values = await _db.ListRangeAsync(key, 0, count - 1);
 
@@ -73,6 +73,19 @@ namespace Nyxon.Server.Services.Cache
             }
 
             return results;
+        }
+
+        public async Task DeleteMessageAsync(string kvKey)
+        {
+            await _db.KeyDeleteAsync(kvKey);
+        }
+
+        public async Task DeleteBatchAsync(List<string> kvKeys)
+        {
+            foreach (var kvKey in kvKeys)
+            {
+                await _db.KeyDeleteAsync(kvKey);
+            }
         }
     }
 }

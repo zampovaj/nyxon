@@ -9,6 +9,7 @@ namespace Nyxon.Core.DTOs
     {
         public Guid Id { get; set; }
         public int SequenceNumber { get; set; }
+        public Guid SenderId { get; set; }
         public string SenderUsername { get; set; }
         public int SessionIndex { get; set; }
         public int MessageIndex { get; set; }

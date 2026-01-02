@@ -34,7 +34,7 @@ namespace Nyxon.Server.Controllers
             try
             {
                 // save to postgres and valkey
-                var messageId = await _messageService.SendMessageAsync(senderId, senderUsername, request);
+                var messageId = await _messageService.SendMessageAsync(senderId, request);
 
                 // signalr
                 await _hubContext.Clients.Group(request.ConversationId.ToString())

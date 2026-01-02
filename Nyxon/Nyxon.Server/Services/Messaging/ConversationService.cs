@@ -12,10 +12,12 @@ namespace Nyxon.Server.Services.Messaging
     public class ConversationService : IConversationService
     {
         private readonly AppDbContext _context;
+        private readonly IMessageCacheService _messageCacheService;
 
-        public ConversationService(AppDbContext context)
+        public ConversationService(AppDbContext context, IMessageCacheService messageCacheService)
         {
             _context = context;
+            _messageCacheService = messageCacheService;
         }
         public async Task<CreateConversationResponse> CreateConversationAsync(Guid initiatorId, CreateConversationRequest request)
         {
@@ -36,11 +38,13 @@ namespace Nyxon.Server.Services.Messaging
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                //conversation
                 var conversation = new Conversation(request.ConversationId, user1Id, user2Id);
 
                 _context.Conversations.Add(conversation);
                 await _context.SaveChangesAsync();
 
+                //conversation users
                 var user1 = new ConversationUser(conversation.Id, initiatorId);
                 var user2 = new ConversationUser(conversation.Id, targetUser.Id);
 
@@ -48,7 +52,7 @@ namespace Nyxon.Server.Services.Messaging
                 _context.ConversationUsers.Add(user2);
                 await _context.SaveChangesAsync();
 
-                // user vault
+                // conversation vault
                 var vault = new ConversationVault
                 (
                     userId: initiatorId,
@@ -58,11 +62,37 @@ namespace Nyxon.Server.Services.Messaging
                 _context.ConversationVaults.Add(vault);
                 await _context.SaveChangesAsync();
 
+                // snapshots
+
+                var sendingSnapshot = request.VaultData.Sending.Snapshots.FirstOrDefault();
+                var sending = new RatchetSnapshot(
+                    userId: user1Id,
+                    conversationId: conversation.Id,
+                    type: RatchetType.Sending,
+                    rotationIndex: sendingSnapshot.RotationIndex,
+                    encryptedSessionKey: sendingSnapshot.EncryptedSessionKey,
+                    createdAt: sendingSnapshot.CreatedAt
+                );
+                _context.RatchetSnapshots.Add(sending);
+
+                var receivingSnapshot = request.VaultData.Receiving.Snapshots.FirstOrDefault();
+                var receiving = new RatchetSnapshot(
+                    userId: user1Id,
+                    conversationId: conversation.Id,
+                    type: RatchetType.Receiving,
+                    rotationIndex: receivingSnapshot.RotationIndex,
+                    encryptedSessionKey: receivingSnapshot.EncryptedSessionKey,
+                    createdAt: receivingSnapshot.CreatedAt
+                );
+                _context.RatchetSnapshots.Add(receiving);
+
+                await _context.SaveChangesAsync();
+
                 // handshake
                 var handshake = new Handshake(
                     conversationId: conversation.Id,
                     initiatorId: initiatorId,
-                    targetUserId: targetUser.Id, 
+                    targetUserId: targetUser.Id,
                     spkId: request.SpkPublicId,
                     opkId: request.OpkPublicId ?? null,
                     publicEphemeralKey: request.PublicEphemeralKey,
@@ -79,6 +109,7 @@ namespace Nyxon.Server.Services.Messaging
                 };
             }
             catch (DbUpdateException)
+
             {
                 // postgres blocked the request because for these users a conversation already exists
                 await transaction.RollbackAsync();
@@ -123,6 +154,26 @@ namespace Nyxon.Server.Services.Messaging
                         .FirstOrDefault() ?? "Unknown"
                 })
                 .ToListAsync();
+        }
+
+        public async Task DeleteConversationAsync(Guid conversationId)
+        {
+            var conversation = await _context.Conversations
+                .Where(c => c.Id == conversationId)
+                .FirstOrDefaultAsync();
+
+            if (conversation == null)
+                throw new Exception("Conversatoin does not exist");
+
+            var messageKeys = await _context.MessageMetadata
+                .Where(m => m.ConversationId == conversationId)
+                .Select(m => m.KvKey)
+                .ToListAsync();
+
+            _context.Remove(conversation);
+            await _context.SaveChangesAsync();
+
+            await _messageCacheService.DeleteBatchAsync(messageKeys);
         }
     }
 }

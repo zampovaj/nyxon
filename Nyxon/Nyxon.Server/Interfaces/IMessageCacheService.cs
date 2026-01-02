@@ -17,5 +17,7 @@ namespace Nyxon.Server.Interfaces
 
         // fetch last n messages for conversation
         Task<List<Message>> GetRecentMessagesAsync(Guid conversationId, int count = 50);
+        Task DeleteMessageAsync(string kvKey);
+        Task DeleteBatchAsync(List<string> kvKeys);
     }
 }

@@ -55,9 +55,17 @@ namespace Nyxon.Server.Services.Messaging
 
         public async Task ClearHandshakesAsync()
         {
-            await _context.Handshakes
+            var ids = await _context.Handshakes
                 .Where(h => h.ExpiresAt <= DateTime.UtcNow)
-                .ExecuteDeleteAsync();
+                .Select(h => h.ConversationId)
+                .ToListAsync();
+
+            foreach (var id in ids)
+            {
+                await _context.Conversations
+                    .Where(c => c.Id == id)
+                    .ExecuteDeleteAsync();
+            }
         }
     }
 }

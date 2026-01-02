@@ -20,16 +20,21 @@ namespace Nyxon.Server.Services.Messaging
             _context = context;
             _messageCacheService = messageCacheService;
         }
-        public async Task<Guid> SendMessageAsync(Guid senderId, string senderUsername, SendMessageRequest request)
+        public async Task<Guid> SendMessageAsync(Guid senderId, SendMessageRequest request)
         {
             var messageId = Guid.NewGuid();
             var now = DateTime.UtcNow;
+
+            var sender = await _context.Users
+                .Where(u => u.Id == senderId)
+                .FirstOrDefaultAsync();
 
             // save to valkey
             var valkeyMessage = new Nyxon.Server.Models.Valkey.Message(
                 id: messageId,
                 sequenceNumber: request.MessageSequence,
-                senderUsername: senderUsername,
+                senderId: senderId,
+                senderUsername: sender.Username,
                 sessionIndex: request.SessionIndex,
                 messageIndex: request.MessageIndex,
                 createdAt: now,
@@ -65,6 +70,7 @@ namespace Nyxon.Server.Services.Messaging
             {
                 Id = m.Id,
                 SequenceNumber = m.SequenceNumber,
+                SenderId = m.SenderId,
                 SenderUsername = m.SenderUsername,
                 SessionIndex = m.SessionIndex,
                 MessageIndex = m.MessageIndex,
@@ -84,12 +90,27 @@ namespace Nyxon.Server.Services.Messaging
             {
                 Id = message.Id,
                 SequenceNumber = message.SequenceNumber,
-                SenderUsername = message.SenderUsername,
+                SenderId = message.SenderId,
                 SessionIndex = message.SessionIndex,
                 MessageIndex = message.MessageIndex,
                 CreatedAt = message.CreatedAt,
                 EncryptedPayload = message.EncryptedPayload
             };
+        }
+
+        public async Task DeleteMessageAsync(Guid messageId)
+        {
+            var message = await _context.MessageMetadata
+                .Where(m => m.Id == messageId)
+                .FirstOrDefaultAsync();
+
+            if (message == null)
+                throw new Exception("Message does not exist");
+
+            await _messageCacheService.DeleteMessageAsync(message.KvKey);
+
+            _context.Remove(message);
+            await _context.SaveChangesAsync();
         }
     }
 }

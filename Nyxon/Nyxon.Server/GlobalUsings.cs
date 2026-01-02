@@ -38,3 +38,4 @@ global using Nyxon.Core.Extensions;
 global using Nyxon.Core.Services.Keys;
 global using Nyxon.Core.Services.Hash;
 global using Nyxon.Core.Models.Vaults;
+global using RatchetType = Nyxon.Core.DTOs.CreateSnapshotDto.RatchetType;

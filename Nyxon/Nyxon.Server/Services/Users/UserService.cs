@@ -24,5 +24,73 @@ namespace Nyxon.Server.Services.Users
                 })
                 .ToListAsync();
         }
+
+        public async Task DeleteAccountAsync(Guid userId)
+        {
+            var user = await _context.Users
+                .Where(u => u.Id == userId)
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+                throw new Exception("User not found");
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // user vault
+                var userVault = await _context.UserVaults
+                    .Where(v => v.UserId == userId)
+                    .FirstOrDefaultAsync();
+                _context.UserVaults.Remove(userVault);
+                await _context.SaveChangesAsync();
+
+                // conversation vaults
+                var convVaults = await _context.ConversationVaults
+                    .Where(v => v.UserId == userId)
+                    .ToListAsync();
+                _context.ConversationVaults.RemoveRange(convVaults);
+                await _context.SaveChangesAsync();
+
+                // handshakes
+                var handshakes = await _context.Handshakes
+                    .Where(h => h.TargetUserId == userId)
+                    .ToListAsync();
+                _context.Handshakes.RemoveRange(handshakes);
+                await _context.SaveChangesAsync();
+
+                // opk
+                var opks = await _context.OneTimePrekeys
+                    .Where(o => o.UserId == userId)
+                    .ToListAsync();
+                _context.OneTimePrekeys.RemoveRange(opks);
+                await _context.SaveChangesAsync();
+
+                // spk
+                var spk = await _context.SignedPrekeys
+                    .Where(s => s.UserId == userId)
+                    .FirstOrDefaultAsync();
+                _context.SignedPrekeys.Remove(spk);
+                await _context.SaveChangesAsync();
+
+                // snapshots
+                var snapshots = await _context.RatchetSnapshots
+                    .Where(s => s.UserId == userId)
+                    .ToListAsync();
+                _context.RatchetSnapshots.RemoveRange(snapshots);
+                await _context.SaveChangesAsync();
+
+                // null out user
+                user.Username = "Deleted user";
+                user.PasswordHash = new byte[32];
+                user.PasswordSalt = new byte[16];
+
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
     }
 }

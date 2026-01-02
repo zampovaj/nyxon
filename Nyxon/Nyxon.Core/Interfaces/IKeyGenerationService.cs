@@ -27,5 +27,4 @@ namespace Nyxon.Core.Interfaces
         byte[] DecryptWithKey(byte[] data, byte[] key, byte[]? aad = null);
         byte[] DeriveSharedX25519Secret(byte[] privateKey, byte[] publicKey);
     }
-
 }

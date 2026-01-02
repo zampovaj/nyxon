@@ -9,5 +9,6 @@ namespace Nyxon.Server.Interfaces
     {
         Task<CreateConversationResponse> CreateConversationAsync(Guid initiatorId, CreateConversationRequest request);
         Task<List<ConversationSummaryDto>> GetInboxAsync(Guid userId);
+        Task DeleteConversationAsync(Guid conversationId);
     }
 }

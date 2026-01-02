@@ -10,7 +10,7 @@ namespace Nyxon.Client.Services.Messaging
         private readonly IConversationRepository _conversationRepository;
 
         public Guid? ConversationId { get; private set; }
-        public ConversationVaultData? EncryptedVault { get; private set; }
+        public RuntimeConvVaultData? EncryptedVault { get; private set; }
         public int SendingCounter { get; private set; }
         public int ReceivingCounter { get; private set; }
         public DateTime? UpdatedAt { get; private set; }
@@ -28,7 +28,7 @@ namespace Nyxon.Client.Services.Messaging
                 throw new InvalidOperationException("Conversation vault cant be null");
 
             ConversationId = conversationId;
-            EncryptedVault = encryptedVault;
+            EncryptedVault = new RuntimeConvVaultData(encryptedVault);
             SendingCounter = 0;
             ReceivingCounter = 0;
         }
@@ -39,7 +39,7 @@ namespace Nyxon.Client.Services.Messaging
             if (conversationVault == null)
                 throw new InvalidOperationException("Failed to fetch conversatoin vault");
 
-            EncryptedVault = conversationVault.VaultData;
+            EncryptedVault = new RuntimeConvVaultData(conversationVault.VaultData);
             ConversationId = conversationId;
             SendingCounter = conversationVault.SendCounter;
             ReceivingCounter = conversationVault.RecvCounter;

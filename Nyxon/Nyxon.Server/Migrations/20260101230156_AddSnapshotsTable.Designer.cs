@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Nyxon.Core.Models.Vaults;
@@ -12,9 +13,11 @@ using Nyxon.Server.Data;
 namespace Nyxon.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260101230156_AddSnapshotsTable")]
+    partial class AddSnapshotsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -115,6 +118,8 @@ namespace Nyxon.Server.Migrations
                         .HasColumnType("smallint");
 
                     b.HasKey("ConversationId", "UserId");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("UserId", "ConversationId");
 
@@ -259,9 +264,6 @@ namespace Nyxon.Server.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ConversationId");
-
-                    b.HasIndex("KvKey")
-                        .IsUnique();
 
                     b.HasIndex("SenderId");
 

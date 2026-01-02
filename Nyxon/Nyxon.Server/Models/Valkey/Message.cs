@@ -19,17 +19,19 @@ namespace Nyxon.Server.Models.Valkey
         public Guid Id { get; set; }
         public int SequenceNumber { get; set; }
         public string SenderUsername { get; set; }
+        public Guid SenderId { get; set; }
         public int SessionIndex { get; set; }
         public int MessageIndex { get; set; }
         public DateTime CreatedAt { get; set; }
         public byte[] EncryptedPayload { get; set; }
-        
-        public Message() {}
 
-        public Message(Guid id, int sequenceNumber, string senderUsername, int sessionIndex, int messageIndex, DateTime createdAt, byte[] encryptedPayload)
+        public Message() { }
+
+        public Message(Guid id, int sequenceNumber, Guid senderId, string senderUsername, int sessionIndex, int messageIndex, DateTime createdAt, byte[] encryptedPayload)
         {
             Id = id;
             SequenceNumber = sequenceNumber;
+            SenderId = senderId;
             SenderUsername = senderUsername;
             SessionIndex = sessionIndex;
             MessageIndex = messageIndex;
@@ -37,10 +39,11 @@ namespace Nyxon.Server.Models.Valkey
             EncryptedPayload = encryptedPayload;
         }
 
-        public Message(int sequenceNumber, string senderUsername, int sessionIndex, int messageIndex, byte[] encryptedPayload)
+        public Message(int sequenceNumber, Guid senderId, string senderUsername, int sessionIndex, int messageIndex, byte[] encryptedPayload)
         {
             Id = Guid.NewGuid();
             SequenceNumber = sequenceNumber;
+            SenderId = senderId;
             SenderUsername = senderUsername;
             SessionIndex = sessionIndex;
             MessageIndex = messageIndex;

@@ -19,84 +19,106 @@ namespace Nyxon.Server.Data
         public DbSet<Nyxon.Server.Models.OneTimePrekey> OneTimePrekeys { get; set; }
         public DbSet<InviteCode> InviteCodes { get; set; }
         public DbSet<Handshake> Handshakes { get; set; }
+        public DbSet<RatchetSnapshot> RatchetSnapshots { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // --- 1. User & UserVault (1:1) ---
-            // Combined Key definition + Relationship + Cascade Delete
+            // user vault
             modelBuilder.Entity<UserVault>()
-                .HasKey(uv => uv.UserId); // Explicitly set UserId as PK
+                .HasKey(uv => uv.UserId); // set user as pk
 
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.UserVault)
-                .WithOne(uv => uv.User)
-                .HasForeignKey<UserVault>(uv => uv.UserId)
-                .OnDelete(DeleteBehavior.Cascade); // Important: Delete Vault when User is deleted
+            // user
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasOne(u => u.UserVault)
+                    .WithOne(uv => uv.User)
+                    .HasForeignKey<UserVault>(uv => uv.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            // --- 2. User & SignedPrekeys (1:N) ---
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.SignedPrekeys)
-                .WithOne(spk => spk.User)
-                .HasForeignKey(spk => spk.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                entity.HasMany(u => u.SignedPrekeys)
+                    .WithOne(spk => spk.User)
+                    .HasForeignKey(spk => spk.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            // --- 3. User & OneTimePrekeys (1:N) ---
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.OneTimePrekeys)
-                .WithOne(opk => opk.User)
-                .HasForeignKey(opk => opk.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                entity.HasMany(u => u.OneTimePrekeys)
+                    .WithOne(opk => opk.User)
+                    .HasForeignKey(opk => opk.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            // --- 3. ConversationUser (M:N Junction) ---
-            modelBuilder.Entity<ConversationUser>()
-                .HasKey(cu => new { cu.ConversationId, cu.UserId });
+            });
 
-            modelBuilder.Entity<ConversationUser>()
-                .HasOne(cu => cu.User)
-                .WithMany(u => u.ConversationUsers)
-                .HasForeignKey(cu => cu.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // conversation user
+            modelBuilder.Entity<ConversationUser>(entity =>
+            {
+                entity.HasKey(cu => new { cu.ConversationId, cu.UserId });
 
-            modelBuilder.Entity<ConversationUser>()
-                .HasOne(cu => cu.Conversation)
-                .WithMany(c => c.ConversationUsers)
-                .HasForeignKey(cu => cu.ConversationId)
-                .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(cu => cu.User)
+                    .WithMany(u => u.ConversationUsers)
+                    .HasForeignKey(cu => cu.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<ConversationUser>()
-                .HasIndex(cu => cu.UserId);
+                entity.HasOne(cu => cu.Conversation)
+                    .WithMany(c => c.ConversationUsers)
+                    .HasForeignKey(cu => cu.ConversationId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<ConversationUser>()
-                .HasIndex(cu => new { cu.UserId, cu.ConversationId });
+                entity.HasIndex(cu => new { cu.UserId, cu.ConversationId });
+            });
 
-            // --- 4. ConversationVault (Composite Key & Relationships) ---
-            modelBuilder.Entity<ConversationVault>()
-                .HasKey(cv => new { cv.ConversationId, cv.UserId });
+            // conversation vault
+            modelBuilder.Entity<ConversationVault>(entity =>
+            {
+                entity.HasKey(cv => new { cv.ConversationId, cv.UserId });
 
-            modelBuilder.Entity<ConversationVault>()
-                .HasOne(cv => cv.Conversation)
-                .WithMany()
-                .HasForeignKey(cv => cv.ConversationId)
-                .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(cv => cv.Conversation)
+                    .WithMany()
+                    .HasForeignKey(cv => cv.ConversationId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<ConversationVault>()
-                .HasOne(cv => cv.User)
-                .WithMany(u => u.ConversationVaults)
-                .HasForeignKey(cv => cv.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(cv => cv.User)
+                    .WithMany(u => u.ConversationVaults)
+                    .HasForeignKey(cv => cv.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<ConversationVault>()
-                .Property(v => v.VaultData)
-                .HasColumnType("jsonb");
+                entity.Property(v => v.VaultData)
+                    .HasColumnType("jsonb");
+            });
 
-            modelBuilder.Entity<Conversation>()
-                .HasIndex(c => new { c.User1Id, c.User2Id })
-                .IsUnique();
+            // conversations
+            modelBuilder.Entity<Conversation>(entity =>
+            {
+                entity.HasIndex(c => new { c.User1Id, c.User2Id })
+                    .IsUnique();
 
-            modelBuilder.Entity<Conversation>()
-                .HasIndex(c => c.LastMessageAt);
+                entity.HasIndex(c => c.LastMessageAt);
+            });
+
+            // snapshots
+            modelBuilder.Entity<RatchetSnapshot>(entity =>
+            {
+                entity.HasKey(s => s.Id);
+
+                entity.HasOne(s => s.User)
+                     .WithMany()
+                     .HasForeignKey(s => s.UserId)
+                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(s => s.Conversation)
+                     .WithMany()
+                     .HasForeignKey(s => s.ConversationId)
+                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(s => new { s.UserId, s.ConversationId, s.Type, s.RotationIndex })
+                    .IncludeProperties(s => s.EncryptedSessionKey);
+
+                entity.Property(s => s.Type)
+                    .HasConversion<string>();
+
+                entity.Property(s => s.RotationIndex)
+                    .IsRequired();
+            });
 
             // handshakes
             modelBuilder.Entity<Handshake>(entity =>
@@ -137,31 +159,36 @@ namespace Nyxon.Server.Data
                 entity.HasIndex(h => h.ExpiresAt);
             });
 
-            // --- 5. MessageMetadata Relationships ---
-            modelBuilder.Entity<MessageMetadata>()
-                .HasOne(m => m.Sender)
-                .WithMany()
-                .HasForeignKey(m => m.SenderId)
-                .OnDelete(DeleteBehavior.Restrict);
+            // message metadata
+            modelBuilder.Entity<MessageMetadata>(entity =>
+            {
+                entity.HasOne(m => m.Sender)
+                    .WithMany()
+                    .HasForeignKey(m => m.SenderId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<MessageMetadata>()
-                .HasOne(m => m.Conversation)
-                .WithMany()
-                .HasForeignKey(m => m.ConversationId)
-                .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(m => m.Conversation)
+                    .WithMany()
+                    .HasForeignKey(m => m.ConversationId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            // --- 6. Attachment Relationships ---
-            modelBuilder.Entity<Attachment>()
-                .HasOne(a => a.Message)
-                .WithMany(m => m.Attachments)
-                .HasForeignKey(a => a.MessageId)
-                .OnDelete(DeleteBehavior.Cascade);
+                entity.HasIndex(m => m.KvKey).IsUnique();
+            });
 
-            modelBuilder.Entity<Attachment>()
-                .HasOne(a => a.Owner)
-                .WithMany()
-                .HasForeignKey(a => a.OwnerId)
-                .OnDelete(DeleteBehavior.Restrict);
+            // attachments
+            modelBuilder.Entity<Attachment>(entity =>
+            {
+                entity.HasOne(a => a.Message)
+                    .WithMany(m => m.Attachments)
+                    .HasForeignKey(a => a.MessageId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(a => a.Owner)
+                    .WithMany()
+                    .HasForeignKey(a => a.OwnerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+            });
         }
     }
 }
