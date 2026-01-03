@@ -9,13 +9,17 @@ namespace Nyxon.Client.Services
     {
         private readonly IConversationRepository _repository;
         private readonly IHandshakeService _handshakeService;
+        private readonly UserContext _userContext;
 
         public List<Conversation> Conversations { get; private set; } = new();
 
-        public InboxService(IConversationRepository repository, IHandshakeService handshakeService)
+        public InboxService(IConversationRepository repository,
+        IHandshakeService handshakeService,
+        UserContext userContext)
         {
             _repository = repository;
             _handshakeService = handshakeService;
+            _userContext = userContext;
 
             _handshakeService.OnChange += HandshakeChanged;
         }
@@ -24,6 +28,9 @@ namespace Nyxon.Client.Services
 
         public async Task SyncInboxAsync()
         {
+            if (!_userContext.IsAuthenticated)
+                return;
+
             try
             {
                 var inbox = await _repository.FetchInboxAsync();

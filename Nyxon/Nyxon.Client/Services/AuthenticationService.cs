@@ -15,20 +15,27 @@ namespace Nyxon.Client.Services
         private readonly IApiService _apiService;
         private readonly IHashService _hashService;
         private readonly ICryptoService _cryptoService;
+        private readonly CsrfTokenStore _csrfTokenStore;
 
         public AuthenticationService(AuthenticationStateProvider authStateProvider,
             IApiService apiService,
             IHashService hashService,
-            ICryptoService cryptoService)
+            ICryptoService cryptoService,
+            CsrfTokenStore csrfTokenStore)
         {
             _authStateProvider = authStateProvider;
             _apiService = apiService;
             _hashService = hashService;
             _cryptoService = cryptoService;
+            _csrfTokenStore = csrfTokenStore;
         }
 
         public async Task<bool> LoginAsync(string username, byte[] password)
         {
+            Console.WriteLine("Login started");
+            _csrfTokenStore.Check();
+            _csrfTokenStore.Clear();
+
             var state = await _authStateProvider.GetAuthenticationStateAsync();
             var isAuthenticated = state.User.Identity?.IsAuthenticated ?? false;
             if (isAuthenticated)
@@ -44,6 +51,7 @@ namespace Nyxon.Client.Services
             {
                 // loginresponse -> id, token
                 var response = await _apiService.PostAsync<LoginResponse, LoginRequest>("api/auth/login", request);
+                Console.WriteLine("Login finished");
                 return response != null;
             }
             catch (Exception)
@@ -53,6 +61,9 @@ namespace Nyxon.Client.Services
         }
         public async Task<bool> RegisterAsync(string username, byte[] password, string inviteCode, byte[] passphrase)
         {
+            _csrfTokenStore.Check();
+            _csrfTokenStore.Clear();
+
             var state = await _authStateProvider.GetAuthenticationStateAsync();
             var isAuthenticated = state.User.Identity?.IsAuthenticated ?? false;
             if (isAuthenticated)

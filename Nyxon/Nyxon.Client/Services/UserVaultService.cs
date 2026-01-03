@@ -89,7 +89,7 @@ namespace Nyxon.Client.Services
 
         public async Task<bool> SyncVaultAsync()
         {
-            if (!_vaultSessionService.HasVault)
+            if (!_vaultSessionService.HasVault && _userContext.IsAuthenticated)
             {
                 var userVault = await _vaultRepository.FetchUserVaultAsync();
                 if (userVault == null)
@@ -139,11 +139,11 @@ namespace Nyxon.Client.Services
         }
 
         //TODO: remove this shit!!!
-        /*public void CheckDecryptedKeys()
+        public void CheckDecryptedKeys()
         {
             Console.WriteLine("DecryptedVaultKey: " + (DecryptedVaultKey == null ? "null" : Convert.ToBase64String(DecryptedVaultKey)));
             Console.WriteLine("DecryptedPrivateIdentityKey: " + (DecryptedPrivateIdentityKey == null ? "null" : Convert.ToBase64String(DecryptedPrivateIdentityKey)));
-        }*/
+        }
 
         private void Notify() => StateChanged?.Invoke();
     }

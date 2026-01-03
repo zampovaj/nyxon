@@ -22,6 +22,5 @@ namespace Nyxon.Client.Models
 
         // keep in case we need to repeat decryption
         public byte[]? RawPayload { get; set; }
-
     }
 }

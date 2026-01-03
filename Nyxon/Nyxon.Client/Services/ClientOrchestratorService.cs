@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
+using System.Security.Principal;
 
 namespace Nyxon.Client.Services
 {
@@ -14,6 +15,7 @@ namespace Nyxon.Client.Services
         private readonly IUserListService _userListService;
         private readonly IHandshakeService _handshakeService;
         private readonly IInboxService _inboxService;
+        private readonly CsrfTokenStore _csrfTokenStore;
 
         private bool _isInitialized;
 
@@ -22,7 +24,8 @@ namespace Nyxon.Client.Services
             IUserVaultService userVaultService,
             IUserListService userListService,
             IHandshakeService handshakeService,
-            IInboxService inboxService)
+            IInboxService inboxService,
+            CsrfTokenStore csrfTokenStore)
         {
             _userContext = userContext;
             _authStateProvider = authStateProvider;
@@ -30,6 +33,7 @@ namespace Nyxon.Client.Services
             _userListService = userListService;
             _handshakeService = handshakeService;
             _inboxService = inboxService;
+            _csrfTokenStore = csrfTokenStore;
         }
 
         public async Task Initialize()
@@ -62,6 +66,9 @@ namespace Nyxon.Client.Services
                     {
                         _userContext.SetUser(userId, username);
 
+                        _csrfTokenStore.Clear();
+                        _csrfTokenStore.Check();
+
                         await _userVaultService.SyncVaultAsync();
                         await _inboxService.SyncInboxAsync();
                         await _userListService.SyncListAsync();
@@ -74,6 +81,10 @@ namespace Nyxon.Client.Services
                     _userListService.Clear();
                     _handshakeService.Clear();
                     _inboxService.Clear();
+                    _csrfTokenStore.Clear();
+
+                    Console.WriteLine("Everything clear");
+                    Console.WriteLine("Token: " + (_csrfTokenStore.Token ?? "null"));
                 }
             }
             catch (Exception ex)

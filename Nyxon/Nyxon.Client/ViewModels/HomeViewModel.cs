@@ -37,6 +37,9 @@ namespace Nyxon.Client.ViewModels
             {
                 PassphraseBytes = Encoding.UTF8.GetBytes(InputString);
                 var success = await _userVaultService.UnlockVaultAsync(PassphraseBytes);
+                
+                // remove this shit!!!
+                _userVaultService.CheckDecryptedKeys();
 
                 if (!success) ErrorMessage = "Invalid passphrase";
 

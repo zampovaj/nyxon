@@ -13,9 +13,18 @@ namespace Nyxon.Client
             //mudblazor
             services.AddMudServices();
 
+            //csrf
+            services.AddSingleton<CsrfTokenStore>();
+
             // http
             // register the handler first
             services.AddTransient<AntiforgeryHandler>();
+
+            services.AddHttpClient<IApiService, ApiService>(client =>
+            {
+                client.BaseAddress = new Uri(environment.BaseAddress);
+            })
+            .AddHttpMessageHandler<AntiforgeryHandler>();
 
             // configure the client with the handler
             services.AddHttpClient("Nyxon.ServerAPI", client =>
@@ -39,7 +48,6 @@ namespace Nyxon.Client
             services.AddScoped<IHandshakeRepository, HandshakeRepository>();
 
             // services
-            services.AddScoped<IApiService, ApiService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<LayoutService>();
             services.AddScoped<IUserVaultService, UserVaultService>();

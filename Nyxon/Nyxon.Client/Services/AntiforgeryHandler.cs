@@ -1,25 +1,49 @@
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Components.WebAssembly.Http;
 
 namespace Nyxon.Client.Services
 {
     public class AntiforgeryHandler : DelegatingHandler
     {
-        private string? _requestToken;
+        private readonly CsrfTokenStore _csrfTokenStore;
+
+        public AntiforgeryHandler(CsrfTokenStore csrfTokenStore)
+        {
+            _csrfTokenStore = csrfTokenStore;
+        }
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            if (_requestToken == null)
+            await _csrfTokenStore.Lock.WaitAsync(cancellationToken);
+            Console.WriteLine("Antiforgery check running");
+            try
             {
-                //cretae temp client to prevent infinite loops
-                var tokenClient = new HttpClient
+                if (_csrfTokenStore.Token == null)
                 {
-                    BaseAddress = request
-                        .RequestUri != null ?
-                            new Uri(request.RequestUri.GetLeftPart(UriPartial.Authority))
-                            : null
-                };
+                    var timestamp = DateTime.UtcNow.Ticks;
+                    var csrfRequest = new HttpRequestMessage(
+                        HttpMethod.Get,
+                        $"api/auth/csrf?t={timestamp}" // Keep the cache buster!
+                    );
 
-                var response = await tokenClient.GetFromJsonAsync<CsrfTokenResponse>("api/auth/csrf", cancellationToken);
-                _requestToken = response?.Token;
+                    // 2. 🔥 CRITICAL: Tell Browser to send Cookies (Credentials)
+                    csrfRequest.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+
+                    //cretae temp client to prevent infinite loops
+                    var tokenClient = new HttpClient
+                    {
+                        BaseAddress = request
+                            .RequestUri != null ?
+                                new Uri(request.RequestUri.GetLeftPart(UriPartial.Authority))
+                                : null
+                    };
+
+                    var response = await tokenClient.GetFromJsonAsync<CsrfTokenResponse>("api/auth/csrf", cancellationToken);
+                    _csrfTokenStore.Token = response?.Token;
+                }
+            }
+            finally
+            {
+                _csrfTokenStore.Lock.Release();
             }
 
             // if the rewuest changes data add header
@@ -27,12 +51,14 @@ namespace Nyxon.Client.Services
                 || request.Method == HttpMethod.Put
                 || request.Method == HttpMethod.Delete)
             {
-                if (!string.IsNullOrEmpty(_requestToken))
+                if (!string.IsNullOrEmpty(_csrfTokenStore.Token))
                 {
-                    request.Headers.Add("X-CSRF-TOKEN", _requestToken);
+                    request.Headers.Add("X-CSRF-TOKEN", _csrfTokenStore.Token);
                 }
             }
-            
+            Console.WriteLine("Antiforgery check finished");
+            _csrfTokenStore.Check();
+
             // otherwise return normally
             return await base.SendAsync(request, cancellationToken);
         }

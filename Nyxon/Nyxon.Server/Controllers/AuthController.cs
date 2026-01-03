@@ -165,6 +165,7 @@ namespace Nyxon.Server.Controllers
         }
 
         [HttpGet("csrf")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult?> GetCsrfToken()
         {
             var tokens = _antiforgery.GetAndStoreTokens(HttpContext);
