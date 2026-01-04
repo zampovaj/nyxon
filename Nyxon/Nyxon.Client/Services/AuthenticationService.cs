@@ -33,7 +33,7 @@ namespace Nyxon.Client.Services
         public async Task<bool> LoginAsync(string username, byte[] password)
         {
             Console.WriteLine("Login started");
-            _csrfTokenStore.Check();
+            //_csrfTokenStore.Check();
             _csrfTokenStore.Clear();
 
             var state = await _authStateProvider.GetAuthenticationStateAsync();
@@ -61,7 +61,7 @@ namespace Nyxon.Client.Services
         }
         public async Task<bool> RegisterAsync(string username, byte[] password, string inviteCode, byte[] passphrase)
         {
-            _csrfTokenStore.Check();
+            //_csrfTokenStore.Check();
             _csrfTokenStore.Clear();
 
             var state = await _authStateProvider.GetAuthenticationStateAsync();

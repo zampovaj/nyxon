@@ -67,7 +67,7 @@ namespace Nyxon.Client.Services
                         _userContext.SetUser(userId, username);
 
                         _csrfTokenStore.Clear();
-                        _csrfTokenStore.Check();
+                        //_csrfTokenStore.Check();
 
                         await _userVaultService.SyncVaultAsync();
                         await _inboxService.SyncInboxAsync();

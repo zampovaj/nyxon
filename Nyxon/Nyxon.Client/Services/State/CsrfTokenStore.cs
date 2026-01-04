@@ -11,7 +11,7 @@ namespace Nyxon.Client.Services.State
         public void Clear()
         {
             Token = null;
-            Console.WriteLine("Clearing token");
+            //Console.WriteLine("Clearing token");
         }
 
         public void Check()

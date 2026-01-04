@@ -17,7 +17,6 @@ namespace Nyxon.Client.Interfaces
         Task<byte[]> CalculateIdentityDhAsync(byte[] publicKey);
         void Clear();
         void CheckEncryptedVault();
-        //TODO: remove this shit!!!
-        void CheckDecryptedKeys();
+        //void CheckDecryptedKeys();
     }
 }
