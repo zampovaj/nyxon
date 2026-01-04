@@ -37,20 +37,26 @@ namespace Nyxon.Client.ViewModels
             {
                 PassphraseBytes = Encoding.UTF8.GetBytes(InputString);
                 var success = await _userVaultService.UnlockVaultAsync(PassphraseBytes);
-                
+
                 // _userVaultService.CheckDecryptedKeys();
 
                 if (!success) ErrorMessage = "Invalid passphrase";
-
-                InputString = string.Empty;
+                else
+                {
+                    Console.WriteLine("Unlocked succesfully");
+                    ErrorMessage = "";
+                }
                 Notify();
             }
             catch (Exception ex)
             {
                 ErrorMessage = ex.Message;
-                InputString = "";
-                CryptographicOperations.ZeroMemory(PassphraseBytes);
                 Notify();
+            }
+            finally
+            {
+                InputString = string.Empty;
+                CryptographicOperations.ZeroMemory(PassphraseBytes);
             }
         }
         private bool IsInputSafe(string input)
@@ -78,6 +84,8 @@ namespace Nyxon.Client.ViewModels
         {
             if (e.Key != "Enter")
                 return;
+
+            ErrorMessage = "";
 
             if (!IsInputSafe(InputString))
             {

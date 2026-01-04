@@ -20,9 +20,9 @@
             <div class="dash-shortcuts">
                 @if (_vm.IsUnlocked)
                 {
-                    <div class="shortcut-chip">type ? for help</div>
-                    <div class="shortcut-chip">:command</div>
-                    <div class="shortcut-chip">@@username message</div>
+                    <div class="shortcut-chip">type <b>?</b> for help</div>
+                    <div class="shortcut-chip"><b>:command</b></div>
+                    <div class="shortcut-chip"><b>@@username</b> message</div>
                 }
                 else
                 {
@@ -32,7 +32,7 @@
 
             @if (!string.IsNullOrWhiteSpace(_vm.ErrorMessage))
             {
-                <div class="error">
+                <div style="margin-top: 10px;" class="error">
                     @_vm.ErrorMessage
                 </div>
             }
