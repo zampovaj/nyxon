@@ -78,7 +78,7 @@ namespace Nyxon.Server.Controllers
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
-                
+
                 //success
                 return Ok(new UserSessionDto
                 {

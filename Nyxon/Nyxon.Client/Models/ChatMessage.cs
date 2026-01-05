@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,6 +12,8 @@ namespace Nyxon.Client.Models
         public Guid ConversationId { get; set; }
 
         public string SenderUsername { get; set; } = string.Empty;
+
+        public int SequenceNumber { get; set; }
 
         // default dots till decryption is done
         public string Content { get; set; } = "••••••";

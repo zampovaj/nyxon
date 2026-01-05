@@ -8,7 +8,6 @@ using System.Threading.Tasks;
     sender_username : string
     session_index : int
     message_index : int
-    message_index : int
     created_at : datetime
     encrypted_payload : bytes}*/
 
