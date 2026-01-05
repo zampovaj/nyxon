@@ -20,5 +20,7 @@ namespace Nyxon.Client.Interfaces.Crypto
         byte[] DeriveSharedSecret(byte[] privateKey, byte[] publicKey);
         (byte[] ChainKey1, byte[] ChainKey2) SplitRootKey(byte[] rootKey, string label1, string label2);
         Task<bool> VerifySignatureAsync(byte[] data, byte[] signature, byte[] publicKey);
+        byte[] AdvanceRatchet(byte[] key, int RotationIndex, Guid ConversationId);
+        byte[] DeriveMessageKey(byte[] key, int SequenceNumber, Guid ConversationId);
     }
 }

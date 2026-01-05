@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Nyxon.Client.Interfaces.Crypto;
 using System.Security.Cryptography;
+using System.Runtime.Intrinsics.Arm;
 
 namespace Nyxon.Client.Services.Crypto
 {
@@ -105,6 +106,30 @@ namespace Nyxon.Client.Services.Crypto
         public async Task<bool> VerifySignatureAsync(byte[] data, byte[] signature, byte[] publicKey)
         {
             return _keyGenerationService.VerifyWithIdentityKey(data, signature, publicKey);
+        }
+
+        public byte[] AdvanceRatchet(byte[] key, int RotationIndex, Guid ConversationId)
+        {
+            byte[] salt = Encoding.UTF8.GetBytes($"{ConversationId}:{RotationIndex}");
+            byte[] info = Encoding.UTF8.GetBytes($"ratchet:{ConversationId}:{RotationIndex}:v1");
+            return HKDF.DeriveKey(
+                HashAlgorithmName.SHA256,
+                key,
+                32,
+                salt,
+                info
+            );
+        }
+        public byte[] DeriveMessageKey(byte[] key, int SequenceNumber, Guid ConversationId)
+        {
+            byte[] info = Encoding.UTF8.GetBytes($"msg:{ConversationId}:{SequenceNumber}:v1");
+            return HKDF.DeriveKey(
+                HashAlgorithmName.SHA256,
+                key,
+                32,
+                null,
+                info
+            );
         }
     }
 }

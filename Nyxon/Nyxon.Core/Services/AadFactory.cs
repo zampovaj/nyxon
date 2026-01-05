@@ -12,8 +12,7 @@ namespace Nyxon.Core.Services
         private const string SessionReceivePrefix = "nyxon::session::recv::v1";
         private const string SessionSendPrefix = "nyxon::session::send::v1";
         private const string UserVaultPrefix = "nyxon::user_vault::v1";
-        private const string RootKeyPrefix = "nyxon::root_key::v1";
-        
+        private const string RootKeyPrefix = "nyxon::root_key::v1";        
 
         public static byte[] ForIdentityKey(Guid userId)
         {
