@@ -74,7 +74,9 @@ namespace Nyxon.Server.Services.Messaging
                     .FirstOrDefaultAsync();
 
                 if (convVault == null)
-                    throw new InvalidOperationException("Conversatoin vault fetch failed.");
+                    throw new InvalidOperationException("Conversation vault fetch failed.");
+
+                ++convVault.SendCounter;
 
                 if (request.EncryptedCurrentSessionKey == null)
                 {
@@ -85,8 +87,6 @@ namespace Nyxon.Server.Services.Messaging
                     ++convVault.VaultData.Sending.Session.RotationIndex;
                     convVault.VaultData.Sending.Session.MessageIndex = 0;
                     convVault.VaultData.Sending.Session.EncryptedCurrentSessionKey = request.EncryptedCurrentSessionKey;
-
-                    await _context.SaveChangesAsync();
 
                     // snapshot
                     if (request.Snapshot != null)
@@ -101,9 +101,9 @@ namespace Nyxon.Server.Services.Messaging
                             createdAt: request.Snapshot.CreatedAt
                         );
                         _context.RatchetSnapshots.Add(snapshot);
-                        await _context.SaveChangesAsync();
                     }
                 }
+                await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
 
