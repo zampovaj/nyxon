@@ -28,11 +28,10 @@ namespace Nyxon.Server.Controllers
         }
 
         [HttpPost("send")]
-        public async Task<IActionResult> SendMessage([FromBody] SendMessageRequest request)
+        public async Task<ActionResult<Guid?>> SendMessage([FromBody] SendMessageRequest request)
         {
             var senderIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var senderUsername = User.FindFirst(ClaimTypes.Name)?.Value;
-            if (senderIdString == null || !Guid.TryParse(senderIdString, out var senderId) || senderUsername == null)
+            if (senderIdString == null || !Guid.TryParse(senderIdString, out var senderId))
                 return Unauthorized();
 
             try
@@ -41,20 +40,22 @@ namespace Nyxon.Server.Controllers
                 var messageId = await _messageService.SendMessageAsync(senderId, request);
 
                 // signalr
-                await _hubContext.Clients.Group(request.ConversationId.ToString())
-                    .SendAsync("ReceiveMEssageNotification", new
+                /*await _hubContext.Clients.Group(request.ConversationId.ToString())
+                    .SendAsync("ReceiveMessageNotification", new
                     {
                         ConversationId = request.ConversationId,
                         MessageId = messageId
-                    });
+                    });*/
 
                 return Ok(new { MessageId = messageId });
             }
-            catch (Exception ex)
+
+        catch (Exception ex)
             {
                 return BadRequest(new { error = ex.Message });
             }
         }
+
         [HttpGet("{conversationId}/recent")]
         public async Task<ActionResult<MessagesBundle>> GetRecentMessages([FromRoute] Guid conversationId)
         {

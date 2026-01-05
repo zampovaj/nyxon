@@ -24,9 +24,9 @@ namespace Nyxon.Server.Models
 
         protected RatchetSnapshot() { }
 
-        public RatchetSnapshot(Guid userId, Guid conversationId, RatchetType type, int rotationIndex, byte[] encryptedSessionKey, DateTime createdAt)
+        public RatchetSnapshot(Guid id, Guid userId, Guid conversationId, RatchetType type, int rotationIndex, byte[] encryptedSessionKey, DateTime createdAt)
         {
-            Id = Guid.NewGuid();
+            Id = id;
             UserId = userId;
             ConversationId = conversationId;
             Type = type;

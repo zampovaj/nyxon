@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
+using Nyxon.Core.Models.Vaults;
 
 namespace Nyxon.Core.DTOs
 {
@@ -14,16 +10,22 @@ namespace Nyxon.Core.DTOs
         public Guid ConversationId { get; set; }
         [Required]
         [NotNull]
-        [Range(0,int.MaxValue)]
+        [Range(0, int.MaxValue)]
         public int SessionIndex { get; set; }
         [Required]
         [NotNull]
-        [Range(0,int.MaxValue)]
+        [Range(0, int.MaxValue)]
         public int MessageIndex { get; set; }
         [Required]
         [NotNull]
-        [Range(0,int.MaxValue)]
+        [Range(0, int.MaxValue)]
         public int MessageSequence { get; set; }
         public byte[] EncryptedPayload { get; set; } = Array.Empty<byte>();
+
+        // ratchet
+        public byte[]? EncryptedCurrentSessionKey { get; set; }
+
+        // snapshot
+        public Snapshot? Snapshot { get; set; }
     }
 }

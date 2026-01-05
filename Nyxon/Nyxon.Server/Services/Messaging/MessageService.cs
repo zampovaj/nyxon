@@ -7,6 +7,7 @@ using Nyxon.Core.Version;
 using Nyxon.Server.Data;
 using Nyxon.Server.Interfaces;
 using Nyxon.Server.Services.Cache;
+using Org.BouncyCastle.Ocsp;
 
 namespace Nyxon.Server.Services.Messaging
 {
@@ -22,46 +23,101 @@ namespace Nyxon.Server.Services.Messaging
         }
         public async Task<Guid> SendMessageAsync(Guid senderId, SendMessageRequest request)
         {
-            var messageId = Guid.NewGuid();
-            var now = DateTime.UtcNow;
-
             var sender = await _context.Users
                 .Where(u => u.Id == senderId)
                 .FirstOrDefaultAsync();
 
-            // save to valkey
-            var valkeyMessage = new Nyxon.Server.Models.Valkey.Message(
-                id: messageId,
-                sequenceNumber: request.MessageSequence,
-                senderId: senderId,
-                senderUsername: sender.Username,
-                sessionIndex: request.SessionIndex,
-                messageIndex: request.MessageIndex,
-                createdAt: now,
-                encryptedPayload: request.EncryptedPayload
-            );
-
-            await _messageCacheService.SaveMessageAsync(request.ConversationId, valkeyMessage);
             var kvKey = KeyFactory.MessageKey(request.ConversationId, request.MessageSequence);
 
-            // store in db
-            var messageMetadata = new MessageMetadata
-            (
-                id: messageId,
-                conversationId: request.ConversationId,
-                kvKey: kvKey,
-                senderId: senderId,
-                rotationIndex: request.SessionIndex,
-                messageIndex: request.MessageIndex,
-                createdAt: now,
-                version: AppVersion.Current,
-                attachments: null
-            );
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var messageId = Guid.NewGuid();
+                var now = DateTime.UtcNow;
 
-            _context.MessageMetadata.Add(messageMetadata);
-            await _context.SaveChangesAsync();
+                // save to valkey
+                var valkeyMessage = new Nyxon.Server.Models.Valkey.Message(
+                    id: messageId,
+                    sequenceNumber: request.MessageSequence,
+                    senderId: senderId,
+                    senderUsername: sender.Username,
+                    sessionIndex: request.SessionIndex,
+                    messageIndex: request.MessageIndex,
+                    createdAt: now,
+                    encryptedPayload: request.EncryptedPayload
+                );
 
-            return messageId;
+                await _messageCacheService.SaveMessageAsync(request.ConversationId, valkeyMessage);
+
+                // store in postgres
+
+                // message
+                var messageMetadata = new MessageMetadata
+                (
+                    id: messageId,
+                    conversationId: request.ConversationId,
+                    kvKey: kvKey,
+                    senderId: senderId,
+                    rotationIndex: request.SessionIndex,
+                    messageIndex: request.MessageIndex,
+                    createdAt: now,
+                    version: AppVersion.Current,
+                    attachments: null
+                );
+                _context.MessageMetadata.Add(messageMetadata);
+                await _context.SaveChangesAsync();
+
+                // ratchet
+                var convVault = await _context.ConversationVaults
+                    .Where(v => v.UserId == senderId
+                        && v.ConversationId == request.ConversationId)
+                    .FirstOrDefaultAsync();
+
+                if (convVault == null)
+                    throw new InvalidOperationException("Conversatoin vault fetch failed.");
+
+                if (request.EncryptedCurrentSessionKey == null)
+                {
+                    ++convVault.VaultData.Sending.Session.MessageIndex;
+                }
+                else
+                {
+                    ++convVault.VaultData.Sending.Session.RotationIndex;
+                    convVault.VaultData.Sending.Session.MessageIndex = 0;
+                    convVault.VaultData.Sending.Session.EncryptedCurrentSessionKey = request.EncryptedCurrentSessionKey;
+
+                    await _context.SaveChangesAsync();
+
+                    // snapshot
+                    if (request.Snapshot != null)
+                    {
+                        var snapshot = new RatchetSnapshot(
+                            id: request.Snapshot.Id,
+                            userId: senderId,
+                            conversationId: request.ConversationId,
+                            type: RatchetType.Sending,
+                            rotationIndex: request.SessionIndex,
+                            encryptedSessionKey: request.EncryptedCurrentSessionKey,
+                            createdAt: request.Snapshot.CreatedAt
+                        );
+                        _context.RatchetSnapshots.Add(snapshot);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                await transaction.CommitAsync();
+
+                return messageId;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+
+                // delete valkey message
+                await _messageCacheService.DeleteMessageAsync(kvKey);
+
+                throw;
+            }
         }
         public async Task<List<MessageResponse>> GetRecentMessagesAsync(Guid conversationId)
         {

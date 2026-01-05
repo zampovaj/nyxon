@@ -11,6 +11,7 @@ namespace Nyxon.Core.Models.Vaults
 {
     public class Snapshot
     {
+        public Guid Id { get; set; }
         public int RotationIndex { get; set; }
         public byte[] EncryptedSessionKey { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -19,6 +20,15 @@ namespace Nyxon.Core.Models.Vaults
 
         public Snapshot(int rotationIndex, byte[] encryptedSessionKey, DateTime createdAt)
         {
+            Id = Guid.NewGuid();
+            RotationIndex = rotationIndex;
+            EncryptedSessionKey = encryptedSessionKey;
+            CreatedAt = createdAt;
+        }
+
+        public Snapshot(Guid id, int rotationIndex, byte[] encryptedSessionKey, DateTime createdAt)
+        {
+            Id = id;
             RotationIndex = rotationIndex;
             EncryptedSessionKey = encryptedSessionKey;
             CreatedAt = createdAt;
@@ -26,15 +36,25 @@ namespace Nyxon.Core.Models.Vaults
 
         public Snapshot(int rotationIndex, byte[] encryptedSessionKey)
         {
+            Id = Guid.NewGuid();
             RotationIndex = rotationIndex;
             EncryptedSessionKey = encryptedSessionKey;
             CreatedAt = DateTime.UtcNow;
         }
 
-        public Snapshot(byte[] encrpytedKey)
+        public Snapshot(Guid id, int rotationIndex, byte[] encryptedSessionKey)
         {
+            Id = id;
+            RotationIndex = rotationIndex;
+            EncryptedSessionKey = encryptedSessionKey;
+            CreatedAt = DateTime.UtcNow;
+        }
+
+        public Snapshot(byte[] encryptedKey)
+        {
+            Id = Guid.NewGuid();
             RotationIndex = 0;
-            EncryptedSessionKey = encrpytedKey;
+            EncryptedSessionKey = encryptedKey;
             CreatedAt = DateTime.UtcNow;
         }
     }
