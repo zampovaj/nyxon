@@ -14,11 +14,11 @@ namespace Nyxon.Client.Repositories
             _apiService = apiService;
         }
 
-        public async Task<PrekeyBundleResponse?> GetPrekeyBundle()
+        public async Task<PrekeyBundleResponse?> GetPrekeyBundle(string username)
         {
             try
             {
-                return await _apiService.GetAsync<PrekeyBundleResponse>("api/prekeys");
+                return await _apiService.GetAsync<PrekeyBundleResponse>($"api/prekeys/{username}");
             }
             catch
             {
@@ -30,7 +30,7 @@ namespace Nyxon.Client.Repositories
         {
             try
             {
-                return await _apiService.GetAsync<ConversationVaultDto>($"api/conversation/vaults/{conversationId}");
+                return await _apiService.GetAsync<ConversationVaultDto>($"api/conversation/vault/{conversationId}");
             }
             catch
             {

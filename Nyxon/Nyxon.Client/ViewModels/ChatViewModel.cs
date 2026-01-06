@@ -1,7 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
+using Microsoft.AspNetCore.Components.Web;
+using System.Security.Cryptography;
 
 namespace Nyxon.Client.ViewModels
 {
@@ -15,6 +14,7 @@ namespace Nyxon.Client.ViewModels
         public string InputString { get; set; } = "";
         public string? ErrorMessage { get; private set; } = "";
         public event Action? StateChanged;
+        public bool IsBusy { get; private set; } = false;
 
         public ChatViewModel(IConversationService conversationService,
             IActiveConversationService activeConversationService)
@@ -27,6 +27,7 @@ namespace Nyxon.Client.ViewModels
         {
             try
             {
+                IsBusy = true;
                 var username = await _conversationService.OpenConversationAsync(conversationId);
                 await ActiveConversation.InitializeAsync(conversationId, username);
             }
@@ -36,12 +37,18 @@ namespace Nyxon.Client.ViewModels
             }
             finally
             {
+                IsBusy = false;
                 Notify();
             }
         }
 
         public async Task SendMessageAsync()
         {
+            if (IsBusy) return;
+            IsBusy = true;
+
+            ErrorMessage = "";
+
             if (!IsInputSafe(InputString))
             {
                 Notify();
@@ -62,6 +69,7 @@ namespace Nyxon.Client.ViewModels
             }
             finally
             {
+                IsBusy = false;
                 Notify();
             }
         }
@@ -88,6 +96,13 @@ namespace Nyxon.Client.ViewModels
             }
 
             return true;
+        }
+        public async Task HandleEnterKey(KeyboardEventArgs e)
+        {
+            if (e.Key != "Enter")
+                return;
+
+            await SendMessageAsync();
         }
 
         private void Notify() => StateChanged?.Invoke();

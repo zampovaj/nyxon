@@ -18,12 +18,12 @@ namespace Nyxon.Server.Controllers
             _prekeyService = prekeyService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<PrekeyBundleResponse>> GetPrekeyBundle([FromBody] PrekeyBundleRequest request)
+        [HttpGet("{username}")]
+        public async Task<ActionResult<PrekeyBundleResponse>> GetPrekeyBundle([FromRoute] string username)
         {
             try
             {
-                var response = await _prekeyService.GetPrekeyBundle(request.Username);
+                var response = await _prekeyService.GetPrekeyBundle(username);
 
                 if (response == null)
                     throw new("Prekey bundle generation failed");

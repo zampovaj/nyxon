@@ -66,8 +66,9 @@
 
     </div>
     <div class="input-area">
-        <input type="text" class="input-std msg-input" placeholder="Message Alice...">
-        <button class="send-btn">></button>
+        <input type="text" class="input-std msg-input" placeholder="Type your message..."
+        @bind="_vm.InputString" @bind:event="oninput" @onkeydown="_vm.HandleEnterKey">
+        <button class="send-btn" @onclick="_vm.SendMessageAsync">></button>
     </div>
 </div>
 

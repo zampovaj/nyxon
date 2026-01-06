@@ -11,26 +11,47 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (string.IsNullOrEmpty(Username) || string.IsNullOrWhiteSpace(Username)) {
-            Nav.NavigateTo("/");
+        int stage = 0;
+        Console.WriteLine("Redirect opened");
+        try
+        {
+            if (string.IsNullOrEmpty(Username) || string.IsNullOrWhiteSpace(Username))
+            {
+                Console.WriteLine("Username empty");
+                Nav.NavigateTo("/", false);
+                return;
+            }
+            stage++;
+
+            var conversationId = await InboxService.GetConversationAsync(Username);
+            stage++;
+
+            if (conversationId != null)
+            {
+                Nav.NavigateTo($"/chat/{conversationId}", false);
+                return;
+            }
+            stage++;
+
+            conversationId = await ConversationService.CreateConversationAsync(Username);
+            stage++;
+
+            if (conversationId == null)
+            {
+                Nav.NavigateTo("/", false);
+                return;
+            }
+            stage++;
+
+            Nav.NavigateTo($"/chat/{conversationId}", false);
             return;
         }
-
-        var conversationId = await InboxService.GetConversationAsync(Username);
-        
-        if (conversationId != null) {
-            Nav.NavigateTo($"/chat/{conversationId}");
-            return;
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
         }
-
-        conversationId = await ConversationService.CreateConversationAsync(Username);
-
-        if(conversationId == null) {
-            Nav.NavigateTo("/");
-            return;
+        finally {
+            Console.WriteLine($"Stage: {stage}");
         }
-
-        Nav.NavigateTo($"/chat/{conversationId}");
-        return;
     }
 }

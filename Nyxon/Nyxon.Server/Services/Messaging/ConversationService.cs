@@ -34,6 +34,22 @@ namespace Nyxon.Server.Services.Messaging
             var user1Id = initiatorId.CompareTo(request.TargetUserId) < 0 ? initiatorId : request.TargetUserId;
             var user2Id = initiatorId.CompareTo(request.TargetUserId) < 0 ? request.TargetUserId : initiatorId;
 
+
+            // check for exisitng conversation and return it
+            var existingId = await _context.Conversations
+                .Where(c => c.User1Id == user1Id && c.User2Id == user2Id)
+                .Select(c => (Guid?)c.Id)
+                .FirstOrDefaultAsync();
+
+            if (existingId != null)
+            {
+                return new CreateConversationResponse
+                {
+                    ConversationId = (Guid)existingId,
+                    AlreadyExisted = true
+                };
+            }
+
             // create conversation
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -108,24 +124,6 @@ namespace Nyxon.Server.Services.Messaging
                 {
                     ConversationId = conversation.Id,
                     AlreadyExisted = false
-                };
-            }
-            catch (DbUpdateException)
-
-            {
-                // postgres blocked the request because for these users a conversation already exists
-                await transaction.RollbackAsync();
-
-                // find it using index and return it
-                var existingId = await _context.Conversations
-                    .Where(c => c.User1Id == user1Id && c.User2Id == user2Id)
-                    .Select(c => c.Id)
-                    .FirstAsync();
-
-                return new CreateConversationResponse
-                {
-                    ConversationId = existingId,
-                    AlreadyExisted = true
                 };
             }
             catch

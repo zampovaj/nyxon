@@ -64,6 +64,7 @@ namespace Nyxon.Client.Services.Messaging
 
         public async Task<Guid?> CreateConversationAsync(string username)
         {
+            Console.WriteLine("Conversation service reached");
             if (!_userContext.IsAuthenticated)
                 throw new UnauthorizedAccessException("Can't creation conversation unless unauthenticated");
 
@@ -78,7 +79,7 @@ namespace Nyxon.Client.Services.Messaging
 
             try
             {
-                var prekeyBundle = await _conversationRepository.GetPrekeyBundle();
+                var prekeyBundle = await _conversationRepository.GetPrekeyBundle(username);
 
                 if (prekeyBundle == null)
                     throw new InvalidOperationException("Prekey bundle fetch failed");
@@ -161,6 +162,11 @@ namespace Nyxon.Client.Services.Messaging
 
                 return conversationId;
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
             finally
             {
                 if (x3dhResult?.SharedSecret != null) CryptographicOperations.ZeroMemory(x3dhResult.SharedSecret);
@@ -211,8 +217,9 @@ namespace Nyxon.Client.Services.Messaging
 
                 return conversation.TargetUsername;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw;
             }
         }

@@ -10,6 +10,7 @@ using Nyxon.Server.Services.Invites;
 using Nyxon.Core.Interfaces.Crypto;
 using Nyxon.Core.Crypto;
 using Nyxon.Server.Services;
+using Npgsql;
 
 namespace Nyxon.Server.Extensions
 {
@@ -147,7 +148,18 @@ namespace Nyxon.Server.Extensions
             });
 
             // db
-            services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connString));
+            // 1. Create the DataSourceBuilder using your existing connString
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(connString);
+
+            // 2. 🔥 ENABLE DYNAMIC JSON (Fixes the 8.0 breaking change)
+            dataSourceBuilder.EnableDynamicJson();
+
+            // 3. Build the DataSource
+            var dataSource = dataSourceBuilder.Build();
+
+            // 4. Register DbContext using the data source instead of just the string
+            services.AddDbContext<AppDbContext>(options => 
+                options.UseNpgsql(dataSource));
 
             // valkey
             var valkeyConfig = config.GetConnectionString("Valkey");
@@ -188,7 +200,7 @@ namespace Nyxon.Server.Extensions
             services.AddScoped<IPasswordService, PasswordService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IHandshakeService, HandshakeService>();
-
+            services.AddScoped<IPrekeyService, PrekeyService>();
 
             return services;
         }
