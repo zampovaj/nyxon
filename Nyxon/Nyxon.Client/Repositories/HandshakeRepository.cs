@@ -18,8 +18,8 @@ namespace Nyxon.Client.Repositories
         {
             try
             {
-                var response = await _apiService.DeleteAsync<bool>($"api/handshake/{handshakeId}");
-                return response;
+                await _apiService.DeleteAsync($"api/handshake/{handshakeId}");
+                return true;
             }
             catch (Exception ex)
             {

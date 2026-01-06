@@ -86,5 +86,23 @@ namespace Nyxon.Client.Services
             }
         }
 
+        public async Task DeleteAsync(string uri)
+        {
+            try
+            {
+                var response = await _http.DeleteAsync(uri);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    throw new HttpRequestException($"{response.StatusCode}: {error}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"API Error [DELETE {uri}]: {ex.Message}");
+                throw; // rethrow for viewmodel
+            }
+        }
     }
 }
