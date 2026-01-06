@@ -21,6 +21,6 @@ namespace Nyxon.Client.Interfaces
     public interface IConversationService
     {
         Task<Guid?> CreateConversationAsync(string username);
-        Task OpenConversationAsync(Guid conversationId);
+        Task<string> OpenConversationAsync(Guid conversationId);
     }
 }

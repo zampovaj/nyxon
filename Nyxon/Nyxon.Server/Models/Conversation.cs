@@ -13,11 +13,13 @@ namespace Nyxon.Server.Models
         public Guid User1Id { get; set; }
         public Guid User2Id { get; set; }
 
+        public int LastSequenceNumber { get; set; }
+
         public virtual ICollection<ConversationUser> ConversationUsers { get; set; } = new List<ConversationUser>();
 
         protected Conversation() { }
 
-        public Conversation(Guid id, DateTime createdAt, short version, ICollection<ConversationUser> conversationUsers)
+        public Conversation(Guid id, DateTime createdAt, short version, ICollection<ConversationUser> conversationUsers, int lastSequenceNumber)
         {
             Id = id;
             CreatedAt = createdAt;
@@ -26,6 +28,7 @@ namespace Nyxon.Server.Models
             {
                 ConversationUsers = conversationUsers;
             }
+            LastSequenceNumber = lastSequenceNumber;
         }
 
         public Conversation(Guid id, Guid user1Id, Guid user2Id)
@@ -37,6 +40,7 @@ namespace Nyxon.Server.Models
             ConversationUsers = new List<ConversationUser>();
             User1Id = user1Id;
             User2Id = user2Id;
+            LastSequenceNumber = 0;
         }
     }
 }

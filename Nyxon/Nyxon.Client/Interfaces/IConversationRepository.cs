@@ -10,5 +10,7 @@ namespace Nyxon.Client.Interfaces
         Task<InboxDto?> FetchInboxAsync();
         Task<PrekeyBundleResponse?> GetPrekeyBundle();
         Task<ConversationVaultDto?> FetchVaultAsync(Guid conversationId);
+        Task<SendMessageResponse?> SendMessageAsync(SendMessageRequest messageRequest);
+        Task<CreateConversationResponse?> CreateConversationAsync(CreateConversationRequest conversationRequest);
     }
 }

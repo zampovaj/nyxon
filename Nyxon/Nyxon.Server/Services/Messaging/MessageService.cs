@@ -21,24 +21,31 @@ namespace Nyxon.Server.Services.Messaging
             _context = context;
             _messageCacheService = messageCacheService;
         }
-        public async Task<Guid> SendMessageAsync(Guid senderId, SendMessageRequest request)
+        public async Task<SendMessageResponse> SendMessageAsync(Guid senderId, SendMessageRequest request)
         {
             var sender = await _context.Users
                 .Where(u => u.Id == senderId)
                 .FirstOrDefaultAsync();
 
-            var kvKey = KeyFactory.MessageKey(request.ConversationId, request.MessageSequence);
+            int lastSequence = await _context.Conversations
+                .Where(c => c.Id == request.ConversationId)
+                .Select(c => c.LastSequenceNumber)
+                .FirstOrDefaultAsync();
+
+            int messageSequence = lastSequence + 1;
+
+            var kvKey = KeyFactory.MessageKey(request.ConversationId, messageSequence);
+            var now = DateTime.UtcNow;
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 var messageId = Guid.NewGuid();
-                var now = DateTime.UtcNow;
 
                 // save to valkey
                 var valkeyMessage = new Nyxon.Server.Models.Valkey.Message(
                     id: messageId,
-                    sequenceNumber: request.MessageSequence,
+                    sequenceNumber: messageSequence,
                     senderId: senderId,
                     senderUsername: sender.Username,
                     sessionIndex: request.SessionIndex,
@@ -107,7 +114,12 @@ namespace Nyxon.Server.Services.Messaging
 
                 await transaction.CommitAsync();
 
-                return messageId;
+                return new SendMessageResponse()
+                {
+                    Id = messageId,
+                    MessageSequence = messageSequence,
+                    CreatedAt = now
+                };
             }
             catch
             {

@@ -93,6 +93,8 @@ namespace Nyxon.Server.Data
                     .IsUnique();
 
                 entity.HasIndex(c => c.LastMessageAt);
+
+                entity.HasIndex(c => new { c.Id, c.LastSequenceNumber });
             });
 
             // snapshots

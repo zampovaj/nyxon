@@ -38,7 +38,6 @@ namespace Nyxon.Client.Services.Messaging
         private readonly IX3DHCrypto _x3dh;
         private readonly ICryptoService _cryptoService;
         private readonly IUserVaultService _userVaultService;
-        private readonly IApiService _apiService;
         private readonly UserContext _userContext;
         private readonly IActiveConversationService _activeConversation;
         private readonly IInboxService _inboxService;
@@ -48,7 +47,6 @@ namespace Nyxon.Client.Services.Messaging
             IX3DHCrypto x3dh,
             ICryptoService cryptoService,
             IUserVaultService userVaultService,
-            IApiService apiService,
             UserContext userContext,
             IActiveConversationService activeConversation,
             IInboxService inboxService,
@@ -58,7 +56,6 @@ namespace Nyxon.Client.Services.Messaging
             _x3dh = x3dh;
             _cryptoService = cryptoService;
             _userVaultService = userVaultService;
-            _apiService = apiService;
             _userContext = userContext;
             _activeConversation = activeConversation;
             _inboxService = inboxService;
@@ -147,7 +144,7 @@ namespace Nyxon.Client.Services.Messaging
                 }
 
                 // contact server
-                var response = await _apiService.PostAsync<CreateConversationResponse, CreateConversationRequest>("api/conversation", request);
+                var response = await _conversationRepository.CreateConversationAsync(request);
 
                 if (response.AlreadyExisted)
                 {
@@ -172,12 +169,12 @@ namespace Nyxon.Client.Services.Messaging
             }
         }
 
-        public async Task OpenConversationAsync(Guid conversationId)
+        public async Task<string> OpenConversationAsync(Guid conversationId)
         {
             try
             {
                 if (!_userContext.IsAuthenticated)
-                    throw new UnauthorizedAccessException("Can't creation conversation unless unauthenticated");
+                    throw new UnauthorizedAccessException("Anuthenticated access prohibited");
 
                 var userId = (Guid)_userContext.UserId;
 
@@ -189,7 +186,7 @@ namespace Nyxon.Client.Services.Messaging
                     .FirstOrDefault();
 
                 if (conversation == null) throw new InvalidOperationException("Conversation doesn't exist");
-                if (conversation.IsProcessing) return;
+                if (conversation.IsProcessing) return null;
 
                 if (conversation.HasHandshake)
                 {
@@ -211,6 +208,8 @@ namespace Nyxon.Client.Services.Messaging
                 {
                     await _activeConversation.InitializeAsync(conversation.ConversationId);
                 }
+
+                return conversation.TargetUsername;
             }
             catch
             {

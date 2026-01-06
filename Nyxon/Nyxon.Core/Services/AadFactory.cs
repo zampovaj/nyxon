@@ -19,9 +19,9 @@ namespace Nyxon.Core.Services
             return GetBytes($"{IdentityPrefix}::{userId}");
         }
 
-        public static byte[] ForMessage(Guid conversationId, int messageSequence)
+        public static byte[] ForMessage(Guid conversationId, int rotationIndex, int messageIndex)
         {
-            return GetBytes($"{MessagePrefix}::{conversationId}::{messageSequence}");
+            return GetBytes($"{MessagePrefix}::{conversationId}::{rotationIndex}::{messageIndex}");
         }
 
         public static byte[] ForReceivingSessionKey(Guid conversationId, int rotationIndex)

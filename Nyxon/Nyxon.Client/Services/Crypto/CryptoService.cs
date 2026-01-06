@@ -108,10 +108,10 @@ namespace Nyxon.Client.Services.Crypto
             return _keyGenerationService.VerifyWithIdentityKey(data, signature, publicKey);
         }
 
-        public byte[] AdvanceRatchet(byte[] key, int RotationIndex, Guid ConversationId)
+        public byte[] AdvanceRatchet(byte[] key, int rotationIndex, Guid conversationId)
         {
-            byte[] salt = Encoding.UTF8.GetBytes($"{ConversationId}:{RotationIndex}");
-            byte[] info = Encoding.UTF8.GetBytes($"ratchet:{ConversationId}:{RotationIndex}:v1");
+            byte[] salt = Encoding.UTF8.GetBytes($"{conversationId}:{rotationIndex}");
+            byte[] info = Encoding.UTF8.GetBytes($"ratchet:{conversationId}:{rotationIndex}:v1");
             return HKDF.DeriveKey(
                 HashAlgorithmName.SHA256,
                 key,
@@ -120,9 +120,9 @@ namespace Nyxon.Client.Services.Crypto
                 info
             );
         }
-        public byte[] DeriveMessageKey(byte[] key, int SequenceNumber, Guid ConversationId)
+        public byte[] DeriveMessageKey(byte[] key, int rotationIndex, int messageIndex, Guid conversationId)
         {
-            byte[] info = Encoding.UTF8.GetBytes($"msg:{ConversationId}:{SequenceNumber}:v1");
+            byte[] info = Encoding.UTF8.GetBytes($"msg:{conversationId}:{rotationIndex}:{messageIndex}:v1");
             return HKDF.DeriveKey(
                 HashAlgorithmName.SHA256,
                 key,

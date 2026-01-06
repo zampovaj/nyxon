@@ -4,43 +4,65 @@
 @inject LayoutService LayoutState
 @inject IConversationService ConversationService
 @inject NavigationManager Nav
+@inject ChatViewModel _vm
+@implements IDisposable
 
 @attribute [Authorize]
 
 <div class=chat-view>
     <div class="messages-area">
-        <div class="msg-wrapper received">
-            <div class="msg-header-row">
-                <span class="msg-sender">@username</span>
-                <span class="msg-time-header">10:42 AM</span>
+        @if (!_vm.ActiveConversation.Messages.Any() || _vm.ActiveConversation.Messages == null)
+        {
+            <div class="inbox-empty-area">
+                <span class="inbox-empty-text">There are no messages in this conversation yet...</span>
             </div>
-            <div class="bubble">Header time for everyone?</div>
-        </div>
-
-        <div class="msg-wrapper received consecutive">
-            <div class="bubble">It feels more like a console log now.</div>
-        </div>
-
-        <div class="msg-wrapper sent">
-            <div class="msg-header-row">
-                <span class="msg-sender">Me</span>
-                <span class="msg-time-header">10:43 AM</span>
-            </div>
-            <div class="bubble">Exactly.
-                Consistent headers.</div>
-        </div>
-
-        <div class="msg-wrapper sent consecutive">
-            <div class="bubble">And the full flow is back.</div>
-        </div>
-
-        <div class="msg-wrapper received">
-            <div class="msg-header-row">
-                <span class="msg-sender">@username</span>
-                <span class="msg-time-header">10:44 AM</span>
-            </div>
-            <div class="bubble">Looks ready for production.</div>
-        </div>
+        }
+        else
+        {
+            string? lastSender = "";
+            foreach (var msg in _vm.ActiveConversation.Messages)
+            {
+                if (msg.IsMine)
+                {
+                    if (lastSender == msg.SenderUsername)
+                    {
+                        <div class="msg-wrapper sent consecutive">
+                            <div class="bubble">@msg.Content</div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="msg-wrapper sent">
+                            <div class="msg-header-row">
+                                <span class="msg-sender">@msg.SenderUsername</span>
+                                <span class="msg-time-header">@msg.SentAt</span>
+                            </div>
+                            <div class="bubble">@msg.Content</div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    if (lastSender == msg.SenderUsername)
+                    {
+                        <div class="msg-wrapper received consecutive">
+                            <div class="bubble">@msg.Content</div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="msg-wrapper received">
+                            <div class="msg-header-row">
+                                <span class="msg-sender">@msg.SenderUsername</span>
+                                <span class="msg-time-header">@msg.SentAt</span>
+                            </div>
+                            <div class="bubble">@msg.Content</div>
+                        </div>
+                    }
+                }
+                lastSender = msg.SenderUsername;
+            }
+        }
 
     </div>
     <div class="input-area">
@@ -50,16 +72,19 @@
 </div>
 
 @code {
-    private string username = "Alice";
     [Parameter]
     public Guid ConversationId { get; set; }
 
-    protected override void OnInitialized()
+    public void Dispose()
+    {
+        _vm.StateChanged -= StateHasChanged;
+        _vm.Dispose();
+    }
+    protected override async Task OnInitializedAsync()
     {
         // Set the UI title when this page loads
         // This fixes the issue where refreshing the page clears the header
         if (!LayoutState.IsVaultUnlocked) Nav.NavigateTo("/", false);
-        LayoutState.SetHeaderTitle(username);
     }
 
     protected override async Task OnParametersSetAsync()
@@ -68,7 +93,9 @@
         {
             if (ConversationId != Guid.Empty)
             {
-                await ConversationService.OpenConversationAsync(ConversationId);
+                _vm.StateChanged += StateHasChanged;
+                await _vm.InitializeAsync(ConversationId);
+                LayoutState.SetHeaderTitle(_vm.ActiveConversation.TargetUsername);
             }
         }
         catch (Exception ex)
@@ -78,65 +105,3 @@
         }
     }
 }
-
-
-
-
-
-<!--
-page "/chat"
-
-using Nyxon.Client.Services
-inject LayoutService LayoutState
-inject NavigationManager Nav
-
-<div class=chat-view>
-    <div class="messages-area">
-        <div class="msg-wrapper received">
-            <div class="msg-header-row">
-                <span class="msg-sender">username</span>
-                <span class="msg-time-header">10:42 AM</span>
-            </div>
-            <div class="bubble">Header time for everyone?</div>
-        </div>
-
-        <div class="msg-wrapper received consecutive">
-            <div class="bubble">It feels more like a console log now.</div>
-        </div>
-
-        <div class="msg-wrapper sent">
-            <div class="msg-header-row">
-                <span class="msg-sender">Me</span>
-                <span class="msg-time-header">10:43 AM</span>
-            </div>
-            <div class="bubble">Exactly. Consistent headers.</div>
-        </div>
-
-        <div class="msg-wrapper sent consecutive">
-            <div class="bubble">And the full flow is back.</div>
-        </div>
-
-        <div class="msg-wrapper received">
-            <div class="msg-header-row">
-                <span class="msg-sender">username</span>
-                <span class="msg-time-header">10:44 AM</span>
-            </div>
-            <div class="bubble">Looks ready for production.</div>
-        </div>
-
-    </div>
-    <div class="input-area">
-        <input type="text" class="input-std msg-input" placeholder="Message Alice...">
-        <button class="send-btn">></button>
-    </div>
-</div>
-
-code {
-    private string username = "Alice";
-    private bool IsLoggedIn => LayoutState.IsLoggedIn;
-    protected override void OnInitialized()
-    {
-        if (!IsLoggedIn) Nav.NavigateTo("/", false);
-    }
-
-}-->

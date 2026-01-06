@@ -49,5 +49,29 @@ namespace Nyxon.Client.Repositories
                 return null;
             }
         }
+        public async Task<CreateConversationResponse?> CreateConversationAsync(CreateConversationRequest conversationRequest)
+        {
+            try
+            {
+                return await _apiService.PostAsync<CreateConversationResponse, CreateConversationRequest>("api/conversation", conversationRequest);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<SendMessageResponse?> SendMessageAsync(SendMessageRequest messageRequest)
+        {
+            try
+            {
+                return await _apiService.PostAsync<SendMessageResponse, SendMessageRequest>("api/message/send", messageRequest);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
     }
 }

@@ -21,9 +21,9 @@ namespace Nyxon.Client.Models
 
         // ui flags
         public bool IsMine { get; set; }
-        public bool IsDecrypted { get; set; }
+        // public bool IsDecrypted { get; set; }
 
         // keep in case we need to repeat decryption
-        public byte[]? RawPayload { get; set; }
+        // public byte[]? RawPayload { get; set; }
     }
 }
