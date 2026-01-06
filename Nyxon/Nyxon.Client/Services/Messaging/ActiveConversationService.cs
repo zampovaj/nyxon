@@ -117,7 +117,7 @@ namespace Nyxon.Client.Services.Messaging
                 if (!_userVaultService.IsUnlocked) return null;
                 if (EncryptedVault == null) return null;
 
-                var session = EncryptedVault.Sending.Session;
+                var session = EncryptedVault.Sending.Session.Clone();
                 session.MessageIndex++;
 
                 SendMessageRequest? requestDto = null;
@@ -135,7 +135,7 @@ namespace Nyxon.Client.Services.Messaging
                     session.EncryptedCurrentSessionKey = requestDto.EncryptedCurrentSessionKey;
 
                     // snapshot
-                    if (session.RotationIndex >= SnapshotFrequency)
+                    if (session.RotationIndex % SnapshotFrequency == 0)
                     {
                         requestDto.Snapshot = await CreateSnapshotAsync(session);
                     }

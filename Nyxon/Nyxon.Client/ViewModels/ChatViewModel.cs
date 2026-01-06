@@ -10,7 +10,7 @@ namespace Nyxon.Client.ViewModels
         private readonly IConversationService _conversationService;
         private readonly IActiveConversationService _activeConversationService;
 
-        public ActiveConversation ActiveConversation { get; private set; }
+        public ActiveConversation ActiveConversation { get; private set; } = new ActiveConversation();
 
         public string InputString { get; set; } = "";
         public string? ErrorMessage { get; private set; } = "";
