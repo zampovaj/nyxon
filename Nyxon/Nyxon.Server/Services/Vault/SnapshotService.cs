@@ -28,6 +28,7 @@ namespace Nyxon.Server.Services.Vault
                 throw new Exception("User or conversation does not exist");
 
             var snapshot = new RatchetSnapshot(
+                id: Guid.NewGuid(),
                 userId: userId,
                 conversationId: snapshotDto.ConversationId,
                 type: snapshotDto.Type,
