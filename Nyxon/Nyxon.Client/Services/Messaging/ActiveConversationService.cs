@@ -127,6 +127,7 @@ namespace Nyxon.Client.Services.Messaging
                 // rotate
                 if (session.MessageIndex >= session.RotateAfter)
                 {
+                    Console.WriteLine("Rotating...");
                     session.RotationIndex++;
                     session.MessageIndex = 0;
 
@@ -135,14 +136,19 @@ namespace Nyxon.Client.Services.Messaging
                     session.EncryptedCurrentSessionKey = requestDto.EncryptedCurrentSessionKey;
 
                     // snapshot
-                    if (session.RotationIndex % SnapshotFrequency == 0)
+                    if (session.RotationIndex % SnapshotFrequency == 0 && session.RotationIndex != 0)
                     {
+                        Console.WriteLine("Creating snapshot...");
                         requestDto.Snapshot = await CreateSnapshotAsync(session);
+                        Console.WriteLine("Snapshot finsihed");
                     }
+                    Console.WriteLine("Rotation finished");
                 }
                 else
                 {
+                    Console.WriteLine("Creating message key...");
                     requestDto = await CreateMessageOnlyAsync(session, messageBytes);
+                    Console.WriteLine("Message key finsihed");
                 }
 
                 if (requestDto == null)
@@ -164,9 +170,9 @@ namespace Nyxon.Client.Services.Messaging
                     SentAt = responseDto.CreatedAt
                 };
             }
-
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw;
             }
         }
@@ -179,7 +185,7 @@ namespace Nyxon.Client.Services.Messaging
 
             try
             {
-                decryptedSessionKey = await _userVaultService.DecryptAsync(session.EncryptedCurrentSessionKey, AadFactory.ForSendingSessionKey((Guid)ConversationId, session.RotationIndex));
+                decryptedSessionKey = await _userVaultService.DecryptAsync(session.EncryptedCurrentSessionKey, AadFactory.ForSendingSessionKey((Guid)ConversationId, session.RotationIndex - 1));
                 decryptedNewSessionKey = _cryptoService.AdvanceRatchet(decryptedSessionKey, session.RotationIndex, (Guid)ConversationId);
                 messageKey = _cryptoService.DeriveMessageKey(decryptedNewSessionKey, session.RotationIndex, session.MessageIndex, (Guid)ConversationId);
 
@@ -205,6 +211,7 @@ namespace Nyxon.Client.Services.Messaging
                 if (messageKey != null) CryptographicOperations.ZeroMemory(messageKey);
             }
         }
+
         private async Task<SendMessageRequest> CreateMessageOnlyAsync(SessionState session, byte[] message)
         {
             byte[]? decryptedSessionKey = null;
@@ -215,11 +222,13 @@ namespace Nyxon.Client.Services.Messaging
                 decryptedSessionKey = await _userVaultService.DecryptAsync(session.EncryptedCurrentSessionKey, AadFactory.ForSendingSessionKey((Guid)ConversationId, session.RotationIndex));
                 messageKey = _cryptoService.DeriveMessageKey(decryptedSessionKey, session.RotationIndex, session.MessageIndex, (Guid)ConversationId);
 
-                for (int i = 1; i < session.MessageIndex; i++)
+                for (int i = 1; i <= session.MessageIndex; i++)
                 {
-                    messageKey = _cryptoService.DeriveMessageKey(messageKey, session.RotationIndex, session.MessageIndex, (Guid)ConversationId);
+                    messageKey = _cryptoService.DeriveMessageKey(messageKey, session.RotationIndex, i, (Guid)ConversationId);
                 }
-                byte[] encryptedMessage = _cryptoService.EncryptWithKey(message, AadFactory.ForMessage((Guid)ConversationId, session.RotationIndex, session.MessageIndex));
+                Console.WriteLine($"Length: {messageKey.Length}");
+
+                byte[] encryptedMessage = _cryptoService.EncryptWithKey(message, messageKey, AadFactory.ForMessage((Guid)ConversationId, session.RotationIndex, session.MessageIndex));
 
                 return new SendMessageRequest(
                     conversationId: (Guid)ConversationId,
@@ -238,6 +247,7 @@ namespace Nyxon.Client.Services.Messaging
                 if (messageKey != null) CryptographicOperations.ZeroMemory(messageKey);
             }
         }
+
         private async Task<Snapshot> CreateSnapshotAsync(SessionState session)
         {
             return new Snapshot(session.RotationIndex, session.EncryptedCurrentSessionKey);

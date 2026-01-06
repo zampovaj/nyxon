@@ -47,7 +47,7 @@ namespace Nyxon.Server.Controllers
                         MessageId = messageId
                     });*/
 
-                return Ok(new { MessageId = messageId });
+                return Ok(messageId);
             }
 
         catch (Exception ex)

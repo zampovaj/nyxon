@@ -61,6 +61,7 @@ namespace Nyxon.Client.ViewModels
                     throw new Exception("Message failed");
 
                 await ActiveConversation.AddMyMessageAsync(message);
+                InputString = "";
             }
             catch (Exception ex)
             {

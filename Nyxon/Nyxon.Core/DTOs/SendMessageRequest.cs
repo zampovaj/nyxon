@@ -23,6 +23,9 @@ namespace Nyxon.Core.DTOs
         // snapshot
         public Snapshot? Snapshot { get; set; } = null;
 
+        // so that json shuts up
+        public SendMessageRequest() { }
+
         public SendMessageRequest(Guid conversationId, int sessionIndex, int messageIndex, byte[] encryptedPayload, byte[] encryptedCurrentSessionKey, Snapshot snapshot)
         {
             ConversationId = conversationId;
@@ -32,7 +35,7 @@ namespace Nyxon.Core.DTOs
             EncryptedCurrentSessionKey = encryptedCurrentSessionKey;
             Snapshot = snapshot;
         }
-        
+
         public SendMessageRequest(Guid conversationId, int sessionIndex, int messageIndex, byte[] encryptedPayload, byte[] encryptedCurrentSessionKey)
         {
             ConversationId = conversationId;
@@ -41,7 +44,7 @@ namespace Nyxon.Core.DTOs
             EncryptedPayload = encryptedPayload;
             EncryptedCurrentSessionKey = encryptedCurrentSessionKey;
         }
-        
+
         public SendMessageRequest(Guid conversationId, int sessionIndex, int messageIndex, byte[] encryptedPayload)
         {
             ConversationId = conversationId;
@@ -54,7 +57,7 @@ namespace Nyxon.Core.DTOs
         {
             Snapshot = snapshot;
         }
-        
+
         public void AddSnapshot(int rotationIndex, byte[] encryptedSessionKey, DateTime createdAt)
         {
             Snapshot = new Snapshot(rotationIndex, encryptedSessionKey, createdAt);

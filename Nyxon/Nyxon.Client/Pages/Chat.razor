@@ -1,5 +1,6 @@
 @page "/chat/{ConversationId:guid}"
 @using Microsoft.AspNetCore.Authorization
+@using MudBlazor.Extensions
 @using Nyxon.Client.Services
 @inject LayoutService LayoutState
 @inject IConversationService ConversationService
@@ -35,7 +36,7 @@
                         <div class="msg-wrapper sent">
                             <div class="msg-header-row">
                                 <span class="msg-sender">@msg.SenderUsername</span>
-                                <span class="msg-time-header">@msg.SentAt</span>
+                                <span class="msg-time-header">@msg.SentAt.ToShortTimeString() @msg.SentAt.ToShortDateString()</span>
                             </div>
                             <div class="bubble">@msg.Content</div>
                         </div>
@@ -54,7 +55,7 @@
                         <div class="msg-wrapper received">
                             <div class="msg-header-row">
                                 <span class="msg-sender">@msg.SenderUsername</span>
-                                <span class="msg-time-header">@msg.SentAt</span>
+                                <span class="msg-time-header">@msg.SentAt.ToShortTimeString() @msg.SentAt.ToShortDateString()</span>
                             </div>
                             <div class="bubble">@msg.Content</div>
                         </div>

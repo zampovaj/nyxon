@@ -29,14 +29,14 @@
             {
                 <div class="side-nav-item" @onclick='() => TryOpenChat(conv)'>
                     <MudAvatar class="avatar side-avatar">
-                        @conv.TargetUsername
+                        @conv.Initials
                     </MudAvatar>
                     <div class="side-nav-info">
                         <span class="chat-name">
                             @conv.TargetUsername
                             @if (conv.HasHandshake)
                             {
-                                <b>NEW!</b>
+                                <span style="margin-left: 4px;"><b>NEW!</b></span>
                             }
                         </span>
                         <span class="chat-preview @(conv.HasUnreadMessages ? "bold" : "")">

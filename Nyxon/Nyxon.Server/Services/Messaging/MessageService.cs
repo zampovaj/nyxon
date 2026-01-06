@@ -27,12 +27,11 @@ namespace Nyxon.Server.Services.Messaging
                 .Where(u => u.Id == senderId)
                 .FirstOrDefaultAsync();
 
-            int lastSequence = await _context.Conversations
+            var conversation = await _context.Conversations
                 .Where(c => c.Id == request.ConversationId)
-                .Select(c => c.LastSequenceNumber)
                 .FirstOrDefaultAsync();
 
-            int messageSequence = lastSequence + 1;
+            int messageSequence = conversation.LastSequenceNumber + 1;
 
             var kvKey = KeyFactory.MessageKey(request.ConversationId, messageSequence);
             var now = DateTime.UtcNow;
@@ -92,7 +91,7 @@ namespace Nyxon.Server.Services.Messaging
                 else
                 {
                     ++convVault.VaultData.Sending.Session.RotationIndex;
-                    convVault.VaultData.Sending.Session.MessageIndex = 0;
+                    convVault.VaultData.Sending.Session.MessageIndex = 1;
                     convVault.VaultData.Sending.Session.EncryptedCurrentSessionKey = request.EncryptedCurrentSessionKey;
 
                     // snapshot
@@ -110,6 +109,10 @@ namespace Nyxon.Server.Services.Messaging
                         _context.RatchetSnapshots.Add(snapshot);
                     }
                 }
+
+                // advance index in conversation
+                ++conversation.LastSequenceNumber;
+
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();

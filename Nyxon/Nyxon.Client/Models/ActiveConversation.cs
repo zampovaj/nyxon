@@ -37,7 +37,8 @@ namespace Nyxon.Client.Models
         private async Task InsertMessageAsync(ChatMessage message)
         {
             //compare for duplicates
-            if (!messageIds.Add(message.Id)) return;
+            if (!messageIds.Add(message.Id))
+                return;
 
             // Messages[^1] very clever thing from dotnet that gives you Messages[n-1]
             // works with other numbers too: [^2] -> [n-2],...
