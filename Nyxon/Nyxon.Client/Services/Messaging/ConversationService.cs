@@ -206,6 +206,10 @@ namespace Nyxon.Client.Services.Messaging
 
                     var vaultData = await CalculateX3dhAsync(conversation.ConversationId, userId, handshake);
 
+                    var success = await _conversationRepository.CreateConversationVaultAsync(conversationId, vaultData);
+                    if (!success)
+                        throw new Exception("Failed to create conversation vault");
+
                     await _handshakeService.UseAsync(handshake.Id);
 
                     await _activeConversation.InitializeNewAsync(conversation.ConversationId, vaultData);

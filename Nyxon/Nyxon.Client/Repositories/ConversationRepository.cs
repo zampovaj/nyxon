@@ -73,5 +73,20 @@ namespace Nyxon.Client.Repositories
             }
         }
 
+        public async Task<bool> CreateConversationVaultAsync(Guid conversationId, ConversationVaultData vaultData)
+        {
+            try
+            {
+                await _apiService.PostAsync<ConversationVaultData>($"/api/conversation/vault/{conversationId}", vaultData);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during saving conversation vault: {ex.Message}");
+                return false;
+            }
+        }
+
+
     }
 }

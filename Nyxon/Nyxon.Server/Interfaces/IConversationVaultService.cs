@@ -10,5 +10,6 @@ namespace Nyxon.Server.Interfaces
     {
         public Task<ConversationVaultDto?> GetConversationVaultAsync(Guid userId, Guid conversationId);
         public Task UpdateConversationVaultAsync(Guid userId, ConversationVaultDto vaultDto);
+        public Task CreateVaultAsync(Guid conversationId, Guid userId, ConversationVaultData vaultData);
     }
 }

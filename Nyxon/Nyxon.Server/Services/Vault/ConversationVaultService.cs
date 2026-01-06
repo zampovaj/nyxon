@@ -65,5 +65,58 @@ namespace Nyxon.Server.Services.Vault
             }
 
         }
+        public async Task CreateVaultAsync(Guid conversationId, Guid userId, ConversationVaultData vaultData)
+        {
+            var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // conversation vault
+                var vault = new ConversationVault
+                (
+                    userId: userId,
+                    conversationId: conversationId,
+                    vaultData: vaultData
+                );
+                _context.ConversationVaults.Add(vault);
+                await _context.SaveChangesAsync();
+
+                // snapshots
+
+                var sendingSnapshot = vaultData.Sending.Snapshots.FirstOrDefault();
+                var sending = new RatchetSnapshot(
+                    id: sendingSnapshot.Id,
+                    userId: userId,
+                    conversationId: conversationId,
+                    type: RatchetType.Sending,
+                    rotationIndex: sendingSnapshot.RotationIndex,
+                    encryptedSessionKey: sendingSnapshot.EncryptedSessionKey,
+                    createdAt: sendingSnapshot.CreatedAt
+                );
+                _context.RatchetSnapshots.Add(sending);
+
+                var receivingSnapshot = vaultData.Receiving.Snapshots.FirstOrDefault();
+                var receiving = new RatchetSnapshot(
+                    id: receivingSnapshot.Id,
+                    userId: userId,
+                    conversationId: conversationId,
+                    type: RatchetType.Receiving,
+                    rotationIndex: receivingSnapshot.RotationIndex,
+                    encryptedSessionKey: receivingSnapshot.EncryptedSessionKey,
+                    createdAt: receivingSnapshot.CreatedAt
+                );
+                _context.RatchetSnapshots.Add(receiving);
+
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
     }
 }

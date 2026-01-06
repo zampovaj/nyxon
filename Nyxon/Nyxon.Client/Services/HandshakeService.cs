@@ -22,9 +22,7 @@ namespace Nyxon.Client.Services
         {
             Handshakes.RemoveAll(h => h.Id == handshakeId && !h.IsProcessing);
 
-
             var response = await _repository.DeleteHandshakeAsync(handshakeId);
-
             if (!response) throw new Exception("Couldn't delete handshake from database");
 
             NotifyStateChanged();

@@ -38,15 +38,37 @@ namespace Nyxon.Server.Controllers
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
                 return Unauthorized();
-            
+
             if (request == null)
-                return BadRequest(new {error="Conversation vault can't be null"});
+                return BadRequest(new { error = "Conversation vault can't be null" });
 
             if (conversationId != request.ConversationId)
-                return BadRequest(new {error="Conversation id mismatch"});
+                return BadRequest(new { error = "Conversation id mismatch" });
 
             await _conversationVaultService.UpdateConversationVaultAsync(userId, request);
             return Ok();
+        }
+
+        [HttpPost("{conversationId}")]
+        public async Task<IActionResult> CreateVault(Guid conversationId, [FromBody] ConversationVaultData vaultData)
+        {
+            try
+            {
+                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
+                    return Unauthorized();
+
+                if (vaultData == null)
+                    return BadRequest(new { error = "Conversation vault can't be null" });
+
+                await _conversationVaultService.CreateVaultAsync(conversationId, userId, vaultData);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

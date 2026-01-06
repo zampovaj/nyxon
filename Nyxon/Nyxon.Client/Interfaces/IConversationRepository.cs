@@ -12,5 +12,6 @@ namespace Nyxon.Client.Interfaces
         Task<ConversationVaultDto?> FetchVaultAsync(Guid conversationId);
         Task<SendMessageResponse?> SendMessageAsync(SendMessageRequest messageRequest);
         Task<CreateConversationResponse?> CreateConversationAsync(CreateConversationRequest conversationRequest);
+        Task<bool> CreateConversationVaultAsync(Guid conversationId, ConversationVaultData vaultData);
     }
 }

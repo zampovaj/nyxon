@@ -31,7 +31,7 @@ namespace Nyxon.Client.Services
                 Console.WriteLine($"API Error [POST {uri}]: {ex.Message}");
                 throw; // throw again for viewmodel
             }
-        
+
         }
         public async Task<TResponse?> DeleteAsync<TResponse>(string uri)
         {
@@ -67,5 +67,24 @@ namespace Nyxon.Client.Services
                 throw; // rethrow for viewmodel
             }
         }
+        public async Task PostAsync<TRequest>(string uri, TRequest data)
+        {
+            try
+            {
+                var response = await _http.PostAsJsonAsync(uri, data);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    throw new HttpRequestException("{response.StatusCode}: {error}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"API Error [POST {uri}]: {ex.Message}");
+                throw; // throw again for viewmodel
+            }
+        }
+
     }
 }

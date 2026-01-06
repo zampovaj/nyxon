@@ -112,6 +112,7 @@ namespace Nyxon.Server.Services.Messaging
 
                 // advance index in conversation
                 ++conversation.LastSequenceNumber;
+                conversation.LastMessageAt = now;
 
                 await _context.SaveChangesAsync();
 

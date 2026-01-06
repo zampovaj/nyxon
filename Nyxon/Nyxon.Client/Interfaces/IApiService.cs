@@ -10,5 +10,6 @@ namespace Nyxon.Client.Interfaces
         Task<TResponse?> PostAsync<TResponse, TRequest>(string uri, TRequest request);
         Task<TResponse?> GetAsync<TResponse>(string uri);
         Task<TResponse?> DeleteAsync<TResponse>(string uri);
+        Task PostAsync<TRequest>(string url, TRequest data);
     }
 }
