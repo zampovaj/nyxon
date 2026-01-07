@@ -109,6 +109,8 @@ namespace Nyxon.Server.Services.Messaging
                         _context.RatchetSnapshots.Add(snapshot);
                     }
                 }
+                // update time
+                convVault.UpdatedAt = now;
 
                 // advance index in conversation
                 ++conversation.LastSequenceNumber;

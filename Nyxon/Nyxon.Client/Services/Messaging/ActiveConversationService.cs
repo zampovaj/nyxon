@@ -165,6 +165,8 @@ namespace Nyxon.Client.Services.Messaging
                     EncryptedVault.Sending.AddSnapshot(requestDto.Snapshot);
                 // increase counter
                 ++SendingCounter;
+                // update datetime
+                UpdatedAt = responseDto.CreatedAt;
 
                 // return info for ui
                 return new NewMessageObject()
