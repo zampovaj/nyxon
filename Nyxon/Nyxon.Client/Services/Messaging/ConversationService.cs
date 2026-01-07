@@ -25,7 +25,6 @@ namespace Nyxon.Client.Services.Messaging
     // [X]   resync
     // [X] else
     // [X]   load the created vault and conversation to active conversation state
-    // [ ] proceed to send the message normally
 
     public class ConversationService : IConversationService
     {
@@ -155,8 +154,6 @@ namespace Nyxon.Client.Services.Messaging
                 {
                     await _activeConversation.InitializeNewAsync(response.ConversationId, encryptedVaultData);
                 }
-
-                //TODO: send the message
 
                 await _inboxService.SyncInboxAsync();
 

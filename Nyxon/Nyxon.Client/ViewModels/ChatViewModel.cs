@@ -1,6 +1,4 @@
-using System.Text;
 using Microsoft.AspNetCore.Components.Web;
-using System.Security.Cryptography;
 
 namespace Nyxon.Client.ViewModels
 {

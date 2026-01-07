@@ -163,6 +163,8 @@ namespace Nyxon.Client.Services.Messaging
                 // save snapshot if exists
                 if (requestDto.Snapshot != null)
                     EncryptedVault.Sending.AddSnapshot(requestDto.Snapshot);
+                // increase counter
+                ++SendingCounter;
 
                 // return info for ui
                 return new NewMessageObject()
