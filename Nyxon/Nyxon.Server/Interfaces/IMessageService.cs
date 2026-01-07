@@ -8,9 +8,11 @@ namespace Nyxon.Server.Interfaces
 {
     public interface IMessageService
     {
-        public Task<SendMessageResponse> SendMessageAsync(Guid senderId, SendMessageRequest request);
-        public Task<List<MessageResponse>> GetRecentMessagesAsync(Guid conversationId);
-        public Task<MessageResponse?> GetMessageAsync(Guid conversationId, int sequenceNumber);
-        public Task DeleteMessageAsync(Guid messageId);
+        Task<SendMessageResponse> SendMessageAsync(Guid senderId, SendMessageRequest request);
+        Task<List<MessageResponse>> GetRecentMessagesAsync(Guid conversationId);
+        Task<MessageResponse?> GetMessageAsync(Guid conversationId, int sequenceNumber);
+        Task<MessageResponse?> GetMessageAsync(string kvKey);
+        Task DeleteMessageAsync(Guid messageId);
+        Task<ReadMessageStateUpdateResponse> ReadMessageUpdateAsync(Guid userId, ReadMessageStateUpdateRequest request);
     }
 }

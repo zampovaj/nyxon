@@ -54,6 +54,15 @@ namespace Nyxon.Server.Services.Cache
             return JsonSerializer.Deserialize<Message>(value.ToString());
         }
 
+        public async Task<Message?> GetMessageAsync(string kvKey)
+        {
+            var value = await _db.StringGetAsync(kvKey);
+
+            if (value.IsNullOrEmpty) return null;
+
+            return JsonSerializer.Deserialize<Message>(value.ToString());
+        }
+
         public async Task<List<Message>> GetRecentMessagesAsync(Guid conversationId, int count = 50)
         {
             var key = KeyFactory.MessageRecentKey(conversationId);

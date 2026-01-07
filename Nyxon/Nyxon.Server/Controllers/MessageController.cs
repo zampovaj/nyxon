@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using Nyxon.Core.DTOs;
 using Nyxon.Server.Hubs;
 using Nyxon.Server.Interfaces;
+using YamlDotNet.Core.Tokens;
 
 namespace Nyxon.Server.Controllers
 {
@@ -25,6 +26,21 @@ namespace Nyxon.Server.Controllers
             _messageService = messageService;
             _hubContext = hubContext;
             _snapshotService = snapshotService;
+        }
+
+        [HttpGet("{kvKey}}")]
+        public async Task<ActionResult<MessageResponse>> GetMessageAsync(string kvKey)
+        {
+            try
+            {
+                var message = await _messageService.GetMessageAsync(kvKey);
+
+                return Ok(message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpPost("send")]
@@ -50,7 +66,28 @@ namespace Nyxon.Server.Controllers
                 return Ok(messageId);
             }
 
-        catch (Exception ex)
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpPatch("receive")]
+        public async Task<ActionResult<ReadMessageStateUpdateResponse>> Receive([FromBody] ReadMessageStateUpdateRequest request)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
+                return Unauthorized();
+
+            try
+            {
+                // update state
+                var response = await _messageService.ReadMessageUpdateAsync(userId, request);
+
+                return Ok(response);
+            }
+
+            catch (Exception ex)
             {
                 return BadRequest(new { error = ex.Message });
             }

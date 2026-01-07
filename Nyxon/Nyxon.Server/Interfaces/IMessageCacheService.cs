@@ -14,6 +14,7 @@ namespace Nyxon.Server.Interfaces
 
         // fetch specific message data needed for decryption
         Task<Message?> GetMessageAsync(Guid conversationId, int sequenceNumber);
+        Task<Message?> GetMessageAsync(string kvKey);
 
         // fetch last n messages for conversation
         Task<List<Message>> GetRecentMessagesAsync(Guid conversationId, int count = 50);

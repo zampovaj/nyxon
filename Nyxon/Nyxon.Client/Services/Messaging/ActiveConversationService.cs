@@ -40,7 +40,61 @@ using System.Security.Cryptography;
 //              [X]  display message in ui
 //                  [X]  load into activeconversatoin.messages
 
+//  [ ]  receive message
+//      [ ]  receive signalr notification with new message kvkey
+//          [ ]  get message from server
+//              [ ]  decrypt message
+//                  [ ]  clone session state to method
+//                  [ ]  calculate jump size →
 
+//                     ```
+//                     function jump(var session, var msg)
+//                     	if (session.rotation > msg.rotation) return
+
+//                     	if (session.rotation == msg.rotation)
+//                     		if (session.msgindex < msg.index) return
+//                     		return msg.msgindex - session.msgindex
+
+//                     	else
+//                     		int sessioncount = session.rotation * freq + session.msgindex
+//                     		int msgcount = msg.rotatoin * freq + msg.msgindex
+//                     		return msgcount - sessioncount
+//                     ```
+
+//                      [ ]  if (jump == null) → decrpyt message with history logic - not impelmented yet
+//                  [ ]  decide if rotation will happen
+//                      [ ]  if yes → the new sesion key and keep in memory as local var
+//                          [ ]  decrypt session key
+//                          [ ]  advanceratchet(key) as many times as needed (need to accoutnf or big jumps)
+//                              [ ]  for each advancement:
+//                                  [ ]  decide if snapshot is needed
+//                                      [ ]  if yes → create and add to collection
+//                          [ ]  derive message key from new session key
+//                              [ ]  hkdf(key) as many times as needed
+//                          [ ]  encrypt new session key
+//                              [ ]  uservaultservice.encrypt(key, aad)
+//                      [ ]  else →
+//                          [ ]  derive message key from session key
+//                              [ ]  hkdf(key) as many times as needed
+//                  [ ]  decryptmessage with new key
+//                      [ ]  decrypt(msg, key, aad)
+//                  [ ]  update temporal state:
+//                      [ ]  recvcounter += jump
+//                      [ ]  rotationindex = msg.rotation
+//                      [ ]  msgindex = msg.msgindex
+//                      [ ]  if snapshots got created → save snasphots
+//                  [ ]  send to server → if fail, abort all
+//                      [ ]  if (encryptednewsessionkey ! = null) →
+//                          [ ]  receiving.session.encrpytedkey = request.newkey
+//                      [ ]  rotationindex = request.rotation (if rotationindex < request.rotation)
+//                      [ ]  recvcounter = request.recvcounter (if recvcounter < request.recvcounter
+//                      [ ]  msgindex = request.msgindex
+//                      [ ]  conversationuser.lastreadat = now
+//                      [ ]  if (snapshots ! = null) →
+//                          [ ]  save new snapshots
+//                  [ ]  update real state
+//              [ ]  display message in ui
+//                  [ ]  load into activeconversatoin.messages
 
 using System.Text;
 using Nyxon.Client.Repositories;

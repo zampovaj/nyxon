@@ -143,6 +143,79 @@ namespace Nyxon.Server.Services.Messaging
                 throw;
             }
         }
+
+        public async Task<ReadMessageStateUpdateResponse> ReadMessageUpdateAsync(Guid userId, ReadMessageStateUpdateRequest request)
+        {
+            var user = await _context.Users
+                .Where(u => u.Id == userId)
+                .FirstOrDefaultAsync();
+
+            var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var convVault = await _context.ConversationVaults
+                    .Where(v => v.UserId == userId
+                        && v.ConversationId == request.ConversationId)
+                    .FirstOrDefaultAsync();
+
+                if (convVault == null)
+                    throw new InvalidOperationException("Conversation vault fetch failed.");
+
+                // rotation happened
+                if (request.EncryptedNewSessionKey != null && request.EncryptedNewSessionKey.Any())
+                {
+                    convVault.VaultData.Receiving.Session.EncryptedCurrentSessionKey = request.EncryptedNewSessionKey;
+
+                    // snapshots
+                    if (request.Snapshots != null && request.Snapshots.Any())
+                    {
+                        await _context.RatchetSnapshots.AddRangeAsync(request.Snapshots.Select(
+                            s => new RatchetSnapshot(
+                                id: s.Id,
+                                userId: userId,
+                                conversationId: request.ConversationId,
+                                RatchetType.Receiving,
+                                rotationIndex: s.RotationIndex,
+                                encryptedSessionKey: s.EncryptedSessionKey,
+                                createdAt: s.CreatedAt
+                            )
+                        ));
+                    }
+                }
+
+                // vault
+                convVault.RecvCounter = request.RecvCounter;
+                convVault.VaultData.Receiving.Session.RotationIndex = request.SessionIndex;
+                convVault.VaultData.Receiving.Session.MessageIndex = request.MessageIndex;
+                await _context.SaveChangesAsync();
+
+
+                // conversation users
+                var conversationUser = await _context.ConversationUsers
+                    .Where(cu => cu.ConversationId == request.ConversationId &&
+                        cu.UserId == userId)
+                    .FirstOrDefaultAsync();
+
+                if (conversationUser == null)
+                    throw new InvalidOperationException("User and conversation database join not found");
+
+                var now = DateTime.UtcNow;
+                conversationUser.LastRead = now;
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return new ReadMessageStateUpdateResponse(now);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+
         public async Task<List<MessageResponse>> GetRecentMessagesAsync(Guid conversationId)
         {
             var messages = await _messageCacheService.GetRecentMessagesAsync(conversationId);
@@ -177,6 +250,31 @@ namespace Nyxon.Server.Services.Messaging
                 CreatedAt = message.CreatedAt,
                 EncryptedPayload = message.EncryptedPayload
             };
+        }
+
+        public async Task<MessageResponse?> GetMessageAsync(string kvKey)
+        {
+            try
+            {
+                var message = await _messageCacheService.GetMessageAsync(kvKey);
+                if (message == null)
+                    throw new KeyNotFoundException("Messages with this key ddoesn't exist");
+
+                return new MessageResponse
+                {
+                    Id = message.Id,
+                    SequenceNumber = message.SequenceNumber,
+                    SenderId = message.SenderId,
+                    SessionIndex = message.SessionIndex,
+                    MessageIndex = message.MessageIndex,
+                    CreatedAt = message.CreatedAt,
+                    EncryptedPayload = message.EncryptedPayload
+                };
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         public async Task DeleteMessageAsync(Guid messageId)
