@@ -13,6 +13,6 @@ namespace Nyxon.Server.Interfaces
         Task<MessageResponse?> GetMessageAsync(Guid conversationId, int sequenceNumber);
         Task<MessageResponse?> GetMessageAsync(string kvKey);
         Task DeleteMessageAsync(Guid messageId);
-        Task<ReadMessageStateUpdateResponse> ReadMessageUpdateAsync(Guid userId, ReadMessageStateUpdateRequest request);
+        Task<MessageReceivedStateUpdateResponse> ReadMessageUpdateAsync(Guid userId, MessageReceivedStateUpdateRequest request);
     }
 }

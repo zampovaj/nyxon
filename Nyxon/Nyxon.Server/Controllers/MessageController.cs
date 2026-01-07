@@ -73,7 +73,7 @@ namespace Nyxon.Server.Controllers
         }
 
         [HttpPatch("receive")]
-        public async Task<ActionResult<ReadMessageStateUpdateResponse>> Receive([FromBody] ReadMessageStateUpdateRequest request)
+        public async Task<ActionResult<MessageReceivedStateUpdateResponse>> Receive([FromBody] MessageReceivedStateUpdateRequest request)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdString == null || !Guid.TryParse(userIdString, out var userId))

@@ -7,7 +7,7 @@ using Nyxon.Core.Models.Vaults;
 
 namespace Nyxon.Core.DTOs
 {
-    public class ReadMessageStateUpdateRequest
+    public class MessageReceivedStateUpdateRequest
     {
         [Required]
         [NotNull]
@@ -29,9 +29,9 @@ namespace Nyxon.Core.DTOs
         // snapshots
         public List<Snapshot>? Snapshots = new();
 
-        public ReadMessageStateUpdateRequest() { }
+        public MessageReceivedStateUpdateRequest() { }
 
-        public ReadMessageStateUpdateRequest(Guid conversationId, int sessionIndex, int messageIndex, int recvCounter, byte[] encryptedCurrentSessionKey, List<Snapshot> snapshots)
+        public MessageReceivedStateUpdateRequest(Guid conversationId, int sessionIndex, int messageIndex, int recvCounter, byte[] encryptedCurrentSessionKey, List<Snapshot> snapshots)
         {
             ConversationId = conversationId;
             SessionIndex = sessionIndex;
@@ -41,7 +41,7 @@ namespace Nyxon.Core.DTOs
             Snapshots = snapshots;
         }
 
-        public ReadMessageStateUpdateRequest(Guid conversationId, int sessionIndex, int messageIndex, byte[] encryptedCurrentSessionKey)
+        public MessageReceivedStateUpdateRequest(Guid conversationId, int sessionIndex, int messageIndex, byte[] encryptedCurrentSessionKey)
         {
             ConversationId = conversationId;
             SessionIndex = sessionIndex;
@@ -49,7 +49,7 @@ namespace Nyxon.Core.DTOs
             EncryptedNewSessionKey = encryptedCurrentSessionKey;
         }
 
-        public ReadMessageStateUpdateRequest(Guid conversationId, int sessionIndex, int messageIndex)
+        public MessageReceivedStateUpdateRequest(Guid conversationId, int sessionIndex, int messageIndex)
         {
             ConversationId = conversationId;
             SessionIndex = sessionIndex;

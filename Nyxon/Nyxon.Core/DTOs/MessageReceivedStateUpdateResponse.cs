@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Nyxon.Core.DTOs
 {
-    public class ReadMessageStateUpdateResponse
+    public class MessageReceivedStateUpdateResponse
     {
         [Required]
         [NotNull]
         public DateTime UpdatedAt { get; set; }
 
-        public ReadMessageStateUpdateResponse(DateTime updatedAt)
+        public MessageReceivedStateUpdateResponse(DateTime updatedAt)
         {
             UpdatedAt = updatedAt;
         }

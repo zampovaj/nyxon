@@ -144,7 +144,7 @@ namespace Nyxon.Server.Services.Messaging
             }
         }
 
-        public async Task<ReadMessageStateUpdateResponse> ReadMessageUpdateAsync(Guid userId, ReadMessageStateUpdateRequest request)
+        public async Task<MessageReceivedStateUpdateResponse> ReadMessageUpdateAsync(Guid userId, MessageReceivedStateUpdateRequest request)
         {
             var user = await _context.Users
                 .Where(u => u.Id == userId)
@@ -206,7 +206,7 @@ namespace Nyxon.Server.Services.Messaging
 
                 await transaction.CommitAsync();
 
-                return new ReadMessageStateUpdateResponse(now);
+                return new MessageReceivedStateUpdateResponse(now);
             }
             catch
             {
