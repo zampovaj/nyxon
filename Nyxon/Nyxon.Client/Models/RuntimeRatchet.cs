@@ -31,5 +31,9 @@ namespace Nyxon.Client.Models
                 }
             }
         }
+        public void AddSnapshot(Snapshot snapshot)
+        {
+            _snapshotsHistory.Add(snapshot.RotationIndex, snapshot.EncryptedSessionKey);
+        }
     }
 }

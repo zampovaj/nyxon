@@ -160,6 +160,9 @@ namespace Nyxon.Client.Services.Messaging
 
                 // save session state
                 EncryptedVault.Sending.Session = session;
+                // save snapshot if exists
+                if (requestDto.Snapshot != null)
+                    EncryptedVault.Sending.AddSnapshot(requestDto.Snapshot);
 
                 // return info for ui
                 return new NewMessageObject()
