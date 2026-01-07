@@ -112,6 +112,12 @@ namespace Nyxon.Server.Services.Messaging
                 // update time
                 convVault.UpdatedAt = now;
 
+                // update last read
+                var convsersationUser = await _context.ConversationUsers
+                    .Where(c => c.UserId == senderId)
+                    .FirstOrDefaultAsync();
+                convsersationUser.LastRead = now;
+
                 // advance index in conversation
                 ++conversation.LastSequenceNumber;
                 conversation.LastMessageAt = now;
