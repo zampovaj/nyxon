@@ -71,15 +71,15 @@ using System.Security.Cryptography;
 //                      [X]  msgindex = msg.msgindex
 //                      [X]  if snapshots got created → save snasphots
 //                  [X]  send to server → if fail, abort all
-//                      [ ]  if (encryptednewsessionkey ! = null) →
-//                          [ ]  receiving.session.encrpytedkey = request.newkey
-//                      [ ]  rotationindex = request.rotation (if rotationindex < request.rotation)
-//                      [ ]  recvcounter = request.recvcounter (if recvcounter < request.recvcounter
-//                      [ ]  msgindex = request.msgindex
-//                      [ ]  conversationuser.lastreadat = now
-//                      [ ]  if (snapshots ! = null) →
-//                          [ ]  save new snapshots
-//                  [ ]  update real state
+//                      [X]  if (encryptednewsessionkey ! = null) →
+//                          [X]  receiving.session.encrpytedkey = request.newkey
+//                      [X]  rotationindex = request.rotation (if rotationindex < request.rotation)
+//                      [X]  recvcounter = request.recvcounter (if recvcounter < request.recvcounter
+//                      [X]  msgindex = request.msgindex
+//                      [X]  conversationuser.lastreadat = now
+//                      [X]  if (snapshots ! = null) →
+//                          [X]  save new snapshots
+//                  [X]  update real state
 //              [ ]  display message in ui
 //                  [ ]  load into activeconversatoin.messages
 
@@ -300,7 +300,7 @@ namespace Nyxon.Client.Services.Messaging
         {
             return new Snapshot(session.RotationIndex, session.EncryptedCurrentSessionKey);
         }
-        public async Task<NewMessageObject> ReceiveMessageAsync(string kvKey)
+        public async Task<ChatMessage> ReceiveMessageAsync(string kvKey)
         {
             try
             {
@@ -367,13 +367,15 @@ namespace Nyxon.Client.Services.Messaging
                 // update datetime
                 UpdatedAt = responseDto.UpdatedAt;
 
-                return new NewMessageObject()
-                {
-                    Id = message.Id,
-                    SequenceNumber = message.SequenceNumber,
-                    Content = content,
-                    SentAt = message.CreatedAt
-                };
+                return new ChatMessage(
+                    id: message.Id,
+                    conversationId: (Guid)ConversationId,
+                    senderUsername: message.SenderUsername,
+                    sequenceNumber: message.SequenceNumber,
+                    content: content,
+                    sentAt: message.CreatedAt,
+                    isMine: false
+                );
             }
             catch (Exception ex)
             {

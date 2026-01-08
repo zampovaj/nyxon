@@ -20,6 +20,14 @@ namespace Nyxon.Client.Models
             TargetUsername = targetUsername;
         }
 
+        public async Task AddNewMessageAsync(ChatMessage message)
+        {
+            if (message.ConversationId != ConversationId)
+                throw new InvalidOperationException("Message conversatoin id doesn't match this conversation");
+
+            await InsertMessageAsync(message);
+        }
+
         public async Task AddMyMessageAsync(NewMessageObject newMessage)
         {
             await InsertMessageAsync(new ChatMessage()

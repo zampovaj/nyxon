@@ -14,7 +14,7 @@ namespace Nyxon.Client.Interfaces
         // used after opening already established conversation
         Task InitializeAsync(Guid conversationId);
         Task<NewMessageObject> SendMessageAsync(string message);
-        Task<NewMessageObject> ReceiveMessageAsync(string kvKey);
+        Task<ChatMessage> ReceiveMessageAsync(string kvKey);
         Task<List<ChatMessage>> LoadHistoryAsync(int count = 50, int skip = 0);
         event Action<ChatMessage> MessageDecrypted;
         void Clear();

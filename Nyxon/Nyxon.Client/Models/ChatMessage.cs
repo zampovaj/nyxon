@@ -25,5 +25,18 @@ namespace Nyxon.Client.Models
 
         // keep in case we need to repeat decryption
         // public byte[]? RawPayload { get; set; }
+
+        public ChatMessage() { }
+
+        public ChatMessage(Guid id, Guid conversationId, string senderUsername, int sequenceNumber, string content, DateTime sentAt, bool isMine)
+        {
+            Id = id;
+            ConversationId = conversationId;
+            SenderUsername = senderUsername;
+            SequenceNumber = sequenceNumber;
+            Content = content;
+            SentAt = sentAt;
+            IsMine = isMine;
+        }
     }
 }

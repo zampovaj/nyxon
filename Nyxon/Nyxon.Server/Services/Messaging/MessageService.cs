@@ -247,7 +247,6 @@ namespace Nyxon.Server.Services.Messaging
             }
         }
 
-
         public async Task<List<MessageResponse>> GetRecentMessagesAsync(Guid conversationId)
         {
             var messages = await _messageCacheService.GetRecentMessagesAsync(conversationId);
