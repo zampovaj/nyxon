@@ -234,8 +234,14 @@ namespace Nyxon.Client.Services.Messaging
             try
             {
                 decryptedSessionKey = await _userVaultService.DecryptAsync(session.EncryptedCurrentSessionKey, AadFactory.ForSendingSessionKey((Guid)ConversationId, session.RotationIndex - 1));
+                Console.WriteLine($"Decrypted session key: {Convert.ToBase64String(decryptedSessionKey)}");
                 decryptedNewSessionKey = _cryptoService.AdvanceRatchet(decryptedSessionKey, session.RotationIndex, (Guid)ConversationId);
-                messageKey = _cryptoService.DeriveMessageKey(decryptedNewSessionKey, session.RotationIndex, session.MessageIndex, (Guid)ConversationId);
+                Console.WriteLine($"Decrypted new session key [{session.RotationIndex}]: {Convert.ToBase64String(decryptedNewSessionKey)}");
+
+                messageKey = _cryptoService.DeriveMessageKey(decryptedNewSessionKey, session.RotationIndex, 1, (Guid)ConversationId);
+                Console.WriteLine($"Decrypted message key [{session.MessageIndex}]: {Convert.ToBase64String(messageKey)}");
+
+                Console.WriteLine($"AAD: {Convert.ToBase64String(AadFactory.ForMessage((Guid)ConversationId, session.RotationIndex, session.MessageIndex))}");
 
                 byte[] encryptedMessage = _cryptoService.EncryptWithKey(message, messageKey, AadFactory.ForMessage((Guid)ConversationId, session.RotationIndex, session.MessageIndex));
                 byte[] encryptedNewSessionKey = await _userVaultService.EncryptAsync(decryptedNewSessionKey, AadFactory.ForSendingSessionKey((Guid)ConversationId, session.RotationIndex));
@@ -268,13 +274,18 @@ namespace Nyxon.Client.Services.Messaging
             try
             {
                 decryptedSessionKey = await _userVaultService.DecryptAsync(session.EncryptedCurrentSessionKey, AadFactory.ForSendingSessionKey((Guid)ConversationId, session.RotationIndex));
-                messageKey = _cryptoService.DeriveMessageKey(decryptedSessionKey, session.RotationIndex, session.MessageIndex, (Guid)ConversationId);
+                Console.WriteLine($"Decrypted session key [{session.RotationIndex}]: {Convert.ToBase64String(decryptedSessionKey)}");
+                messageKey = _cryptoService.DeriveMessageKey(decryptedSessionKey, session.RotationIndex, 1, (Guid)ConversationId);
+                Console.WriteLine($"Decrypted message key [1]: {Convert.ToBase64String(messageKey)}");
 
-                for (int i = 1; i <= session.MessageIndex; i++)
+                for (int i = 2; i <= session.MessageIndex; i++)
                 {
                     messageKey = _cryptoService.DeriveMessageKey(messageKey, session.RotationIndex, i, (Guid)ConversationId);
+                    Console.WriteLine($"Decrypted message key [{i}]: {Convert.ToBase64String(messageKey)}");
                 }
                 Console.WriteLine($"Length: {messageKey.Length}");
+
+                Console.WriteLine($"AAD: {Convert.ToBase64String(AadFactory.ForMessage((Guid)ConversationId, session.RotationIndex, session.MessageIndex))}");
 
                 byte[] encryptedMessage = _cryptoService.EncryptWithKey(message, messageKey, AadFactory.ForMessage((Guid)ConversationId, session.RotationIndex, session.MessageIndex));
 
@@ -329,6 +340,8 @@ namespace Nyxon.Client.Services.Messaging
                 // rotate ratchet
                 if (keyDerivationInstructions.RatchetRotations > 0)
                 {
+                    Console.WriteLine("Ratchet rotating...");
+                    session.MessageIndex = 0;
                     (requestDto, content) = await DecryptMessageWithRotationAsync(
                         session: session,
                         instructions: keyDerivationInstructions,
@@ -338,11 +351,13 @@ namespace Nyxon.Client.Services.Messaging
                     session.EncryptedCurrentSessionKey = requestDto.EncryptedNewSessionKey;
                     session.RotationIndex = requestDto.SessionIndex;
                     session.MessageIndex = requestDto.MessageIndex;
+                    Console.WriteLine("Ratchet rotation done");
                 }
 
                 // derive message key
                 else
                 {
+                    Console.WriteLine("Deriving message key...");
                     (requestDto, content) = await DecryptMessageOnlyAsync(
                         session: session,
                         instructions: keyDerivationInstructions,
@@ -350,6 +365,7 @@ namespace Nyxon.Client.Services.Messaging
                     );
                     // update temporal state
                     session.MessageIndex = requestDto.MessageIndex;
+                    Console.WriteLine("Message key derivation done");
                 }
 
                 // send request to server
@@ -392,11 +408,14 @@ namespace Nyxon.Client.Services.Messaging
             try
             {
                 decryptedSessionKey = await _userVaultService.DecryptAsync(session.EncryptedCurrentSessionKey, AadFactory.ForReceivingSessionKey((Guid)ConversationId, session.RotationIndex));
-                messageKey = _cryptoService.DeriveMessageKey(decryptedSessionKey, session.RotationIndex, session.MessageIndex, (Guid)ConversationId);
+                Console.WriteLine($"Decrypted session key [{session.RotationIndex}]: {Convert.ToBase64String(decryptedSessionKey)}");
+                messageKey = _cryptoService.DeriveMessageKey(decryptedSessionKey, session.RotationIndex, 1, (Guid)ConversationId);
+                Console.WriteLine($"Decrypted message key [1]: {Convert.ToBase64String(messageKey)}");
 
-                for (int i = 1; i <= instructions.MessageKeyRounds; i++)
+                for (int i = 2; i <= instructions.MessageKeyRounds; i++)
                 {
                     messageKey = _cryptoService.DeriveMessageKey(messageKey, session.RotationIndex, i, (Guid)ConversationId);
+                    Console.WriteLine($"Decrypted message key [{i}]: {Convert.ToBase64String(messageKey)}");
                 }
 
                 // update session
@@ -429,17 +448,28 @@ namespace Nyxon.Client.Services.Messaging
             byte[]? decryptedSessionKey = null;
             byte[]? messageKey = null;
             byte[]? decryptedMessage = null;
+            byte[]? decryptedNewSessionKey = null;
 
             try
             {
                 var snapshots = new List<Snapshot>();
                 // rotate ratchet
-                decryptedSessionKey = await _userVaultService.DecryptAsync(session.EncryptedCurrentSessionKey, AadFactory.ForSendingSessionKey((Guid)ConversationId, session.RotationIndex - 1));
+                Console.WriteLine("Decrypting session key");
+                Console.WriteLine($"Rotation index: {session.RotationIndex}");
+                decryptedSessionKey = await _userVaultService.DecryptAsync(session.EncryptedCurrentSessionKey, AadFactory.ForReceivingSessionKey((Guid)ConversationId, session.RotationIndex));
+                Console.WriteLine($"Decrypted session key [{session.RotationIndex}]: {Convert.ToBase64String(decryptedSessionKey)}");
 
-                for (int i = 1; i <= instructions.RatchetRotations; i++)
+                Console.WriteLine("Starting the rotation loop...");
+                Console.WriteLine($"Rotation index: {session.RotationIndex}");
+                ++session.RotationIndex;
+                decryptedNewSessionKey = _cryptoService.AdvanceRatchet(decryptedSessionKey, session.RotationIndex, (Guid)ConversationId);
+                Console.WriteLine($"Decrypted new session key [{session.RotationIndex}]: {Convert.ToBase64String(decryptedNewSessionKey)}");
+
+                while (session.RotationIndex <= instructions.RatchetRotations)
                 {
-                    decryptedSessionKey = _cryptoService.AdvanceRatchet(decryptedSessionKey, session.RotationIndex, (Guid)ConversationId);
                     ++session.RotationIndex;
+                    decryptedSessionKey = _cryptoService.AdvanceRatchet(decryptedSessionKey, session.RotationIndex, (Guid)ConversationId);
+                    Console.WriteLine($"Decrypted session key [{session.RotationIndex}]: {Convert.ToBase64String(decryptedSessionKey)}");
 
                     // snapshots
                     if (session.RotationIndex % SnapshotFrequency == 0 && session.RotationIndex != 0)
@@ -449,21 +479,28 @@ namespace Nyxon.Client.Services.Messaging
                         snapshots.Add(await CreateSnapshotAsync(session));
                     }
                 }
+                Console.WriteLine("Rotation loop finished");
+                Console.WriteLine($"Rotation index: {session.RotationIndex}");
 
                 // derive message key
-
+                session.MessageIndex = 1;
                 messageKey = _cryptoService.DeriveMessageKey(decryptedSessionKey, session.RotationIndex, session.MessageIndex, (Guid)ConversationId);
+                Console.WriteLine($"Decrypted message key [1]: {Convert.ToBase64String(messageKey)}");
 
-                for (int i = 1; i <= instructions.MessageKeyRounds; i++)
+                Console.WriteLine("Starting the message loop...");
+                Console.WriteLine($"Message index: {session.MessageIndex}");
+                while (session.MessageIndex < instructions.MessageKeyRounds)
                 {
-                    messageKey = _cryptoService.DeriveMessageKey(messageKey, session.RotationIndex, i, (Guid)ConversationId);
+                    ++session.MessageIndex;
+                    messageKey = _cryptoService.DeriveMessageKey(messageKey, session.RotationIndex, session.MessageIndex, (Guid)ConversationId);
+                    Console.WriteLine($"Decrypted message key [{session.MessageIndex}]: {Convert.ToBase64String(messageKey)}");
                 }
-
-                // update session msgindex
-                session.MessageIndex = instructions.MessageKeyRounds;
+                Console.WriteLine("Message loop finished");
+                Console.WriteLine($"Message index: {session.MessageIndex}");
 
                 // decrypt message
-                decryptedMessage = _cryptoService.DecryptWithKey(encryptedPayload, AadFactory.ForMessage((Guid)ConversationId, session.RotationIndex, session.MessageIndex));
+                Console.WriteLine($"AAD: {Convert.ToBase64String(AadFactory.ForMessage((Guid)ConversationId, session.RotationIndex, session.MessageIndex))}");
+                decryptedMessage = _cryptoService.DecryptWithKey(encryptedPayload, messageKey, AadFactory.ForMessage((Guid)ConversationId, session.RotationIndex, session.MessageIndex));
                 byte[] encryptedNewSessionKey = await _userVaultService.EncryptAsync(decryptedSessionKey, AadFactory.ForReceivingSessionKey((Guid)ConversationId, session.RotationIndex));
 
                 var requestDto = new MessageReceivedStateUpdateRequest(
@@ -486,6 +523,7 @@ namespace Nyxon.Client.Services.Messaging
                 if (decryptedSessionKey != null) CryptographicOperations.ZeroMemory(decryptedSessionKey);
                 if (messageKey != null) CryptographicOperations.ZeroMemory(messageKey);
                 if (decryptedMessage != null) CryptographicOperations.ZeroMemory(decryptedMessage);
+                if (decryptedNewSessionKey != null) CryptographicOperations.ZeroMemory(decryptedNewSessionKey);
             }
         }
 
