@@ -43,7 +43,7 @@ using System.Security.Cryptography;
 //  [ ]  receive message
 //      [ ]  receive signalr notification with new message kvkey
 //          [X]  get message from server
-//              [ ]  decrypt message
+//              [X]  decrypt message
 //                  [X]  clone session state to method
 //                  [X]  calculate jump size →
 //                      [ ]  if (jump == null) → decrpyt message with history logic - not impelmented yet
@@ -60,11 +60,11 @@ using System.Security.Cryptography;
 //                              [X]  uservaultservice.encrypt(key, aad)
 //                          [X]  decryptmessage with new key
 //                              [X]  decrypt(msg, key, aad)
-//                      [ ]  else →
-//                          [ ]  derive message key from session key
-//                              [ ]  hkdf(key) as many times as needed
-//                          [ ]  decryptmessage with new key
-//                              [ ]  decrypt(msg, key, aad)
+//                      [X]  else →
+//                          [X]  derive message key from session key
+//                              [X]  hkdf(key) as many times as needed
+//                          [X]  decryptmessage with new key
+//                              [X]  decrypt(msg, key, aad)
 //                  [X]  update temporal state:
 //                      [X]  recvcounter += jump
 //                      [X]  rotationindex = msg.rotation
@@ -391,7 +391,7 @@ namespace Nyxon.Client.Services.Messaging
 
             try
             {
-                decryptedSessionKey = await _userVaultService.DecryptAsync(session.EncryptedCurrentSessionKey, AadFactory.ForSendingSessionKey((Guid)ConversationId, session.RotationIndex));
+                decryptedSessionKey = await _userVaultService.DecryptAsync(session.EncryptedCurrentSessionKey, AadFactory.ForReceivingSessionKey((Guid)ConversationId, session.RotationIndex));
                 messageKey = _cryptoService.DeriveMessageKey(decryptedSessionKey, session.RotationIndex, session.MessageIndex, (Guid)ConversationId);
 
                 for (int i = 1; i <= instructions.MessageKeyRounds; i++)
