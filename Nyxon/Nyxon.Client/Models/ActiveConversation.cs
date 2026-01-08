@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Nyxon.Client.Pages;
+using Org.BouncyCastle.Asn1.X509;
 
 namespace Nyxon.Client.Models
 {
     public class ActiveConversation
     {
-        public Guid ConversationId { get; set; }
+        public Guid? ConversationId { get; set; }
         public string TargetUsername { get; set; } = "";
         public List<ChatMessage> Messages { get; set; } = new List<ChatMessage>();
         // for dupliacte protection in O(1)
@@ -33,7 +34,7 @@ namespace Nyxon.Client.Models
             await InsertMessageAsync(new ChatMessage()
             {
                 Id = newMessage.Id,
-                ConversationId = ConversationId,
+                ConversationId = (Guid)ConversationId,
                 SenderUsername = "Me",
                 SequenceNumber = newMessage.SequenceNumber,
                 Content = newMessage.Content,
@@ -67,6 +68,13 @@ namespace Nyxon.Client.Models
 
                 Messages.Insert(index, message);
             }
+        }
+        public void Clear()
+        {
+            Messages.Clear();
+            messageIds.Clear();
+            ConversationId = null;
+            TargetUsername = "";
         }
     }
     // required for binary search to work

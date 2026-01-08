@@ -113,10 +113,8 @@ namespace Nyxon.Server.Data
                      .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasIndex(s => new { s.UserId, s.ConversationId, s.Type, s.RotationIndex })
+                    .IsUnique()
                     .IncludeProperties(s => s.EncryptedSessionKey);
-
-                entity.HasIndex(s => s.RotationIndex)
-                    .IsUnique();
 
                 entity.Property(s => s.Type)
                     .HasConversion<string>();

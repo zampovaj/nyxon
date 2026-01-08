@@ -48,6 +48,7 @@ namespace Nyxon.Client
             services.AddScoped<IHandshakeRepository, HandshakeRepository>();
 
             // services
+            services.AddScoped<IHubService, HubService>();
             services.AddScoped<ActiveConversation>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<LayoutService>();

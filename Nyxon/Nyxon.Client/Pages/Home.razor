@@ -3,6 +3,7 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 @inject HomeViewModel _vm
+@inject IUserListService UserListService
 @implements IAsyncDisposable
 
 <AuthorizeView>
@@ -23,6 +24,13 @@
                     <div class="shortcut-chip">type <b>?</b> for help</div>
                     <div class="shortcut-chip"><b>:command</b></div>
                     <div class="shortcut-chip"><b>@@username</b> message</div>
+
+                    @foreach (var user in UserListService.Users)
+                    {
+                        <button class="send-btn" @onclick='() => Nav.NavigateTo($"chat/{user.Username}")'>
+                            @user.Username
+                        </button>
+                    }
                 }
                 else
                 {

@@ -18,24 +18,24 @@ namespace Nyxon.Client.Services.Hub
         {
             //var hubUrl = nav.ToAbsoluteUri("/hubs/chat");
             var hubUrl = nav.BaseUri.Contains("localhost")
-                ? new Uri("http://localhost:8080/hubs/chat") // dev only
+                ? new Uri("http://localhost:8000/hubs/chat") // dev only
                 : nav.ToAbsoluteUri("/hubs/chat");
 
             _hubConnection = new HubConnectionBuilder()
                 .WithUrl(hubUrl, options =>
                 {
                     options.AccessTokenProvider = async () =>
-                {
-                    return await jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
-                };
+                    {
+                        return await jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+                    };
                 })
                 .WithAutomaticReconnect()
                 .Build();
 
             // notification
-            _hubConnection.On<Object>("ReceiveMessageNotification", (payload) =>
+            _hubConnection.On<string>("ReceiveMessageNotification", kvKey =>
             {
-                OnMessageNotification?.Invoke(payload.ToString() ?? "");
+                OnMessageNotification?.Invoke(kvKey);
             });
         }
 
@@ -46,17 +46,18 @@ namespace Nyxon.Client.Services.Hub
         }
         public async Task DisconnectAsync()
         {
-            await _hubConnection.StopAsync();
+            if (_hubConnection.State != HubConnectionState.Disconnected)
+                await _hubConnection.StopAsync();
         }
-        public async Task JoinConversationAsync(Guid conversationId)
+        public async Task JoinConversationAsync(Guid conversationId, Guid userId)
         {
             if (_hubConnection.State == HubConnectionState.Connected)
-                await _hubConnection.InvokeAsync("JoinConversation", conversationId.ToString());
+                await _hubConnection.InvokeAsync("JoinConversation", conversationId.ToString(), userId.ToString());
         }
-        public async Task LeaveConversationAsync(Guid conversationId)
+        public async Task LeaveConversationAsync(Guid conversationId, Guid userId)
         {
             if (_hubConnection.State == HubConnectionState.Connected)
-                await _hubConnection.InvokeAsync("LeaveConversation", conversationId.ToString());
+                await _hubConnection.InvokeAsync("LeaveConversation", conversationId.ToString(), userId.ToString());
         }
         public async ValueTask DisposeAsync()
         {

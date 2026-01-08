@@ -55,14 +55,6 @@ namespace Nyxon.Server.Controllers
                 // save to postgres and valkey
                 var messageId = await _messageService.SendMessageAsync(senderId, request);
 
-                // signalr
-                /*await _hubContext.Clients.Group(request.ConversationId.ToString())
-                    .SendAsync("ReceiveMessageNotification", new
-                    {
-                        ConversationId = request.ConversationId,
-                        MessageId = messageId
-                    });*/
-
                 return Ok(messageId);
             }
 

@@ -8,6 +8,7 @@ using Nyxon.Server.Data;
 using Nyxon.Server.Interfaces;
 using Nyxon.Server.Services.Cache;
 using Org.BouncyCastle.Ocsp;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Nyxon.Server.Services.Messaging
 {
@@ -16,12 +17,17 @@ namespace Nyxon.Server.Services.Messaging
         private readonly AppDbContext _context;
         private readonly IMessageCacheService _messageCacheService;
         private readonly ILogger<MessageService> _logger;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public MessageService(AppDbContext context, IMessageCacheService messageCacheService, ILogger<MessageService> logger)
+        public MessageService(AppDbContext context,
+            IMessageCacheService messageCacheService,
+            ILogger<MessageService> logger,
+            IHubContext<ChatHub> hubContext)
         {
             _context = context;
             _messageCacheService = messageCacheService;
             _logger = logger;
+            _hubContext = hubContext;
         }
 
         public async Task<SendMessageResponse> SendMessageAsync(Guid senderId, SendMessageRequest request)
@@ -87,7 +93,7 @@ namespace Nyxon.Server.Services.Messaging
 
                 ++convVault.SendCounter;
 
-                if (request.EncryptedCurrentSessionKey == null)
+                if (request.EncryptedCurrentSessionKey == null || !request.EncryptedCurrentSessionKey.Any())
                 {
                     ++convVault.VaultData.Sending.Session.MessageIndex;
                 }
@@ -132,9 +138,15 @@ namespace Nyxon.Server.Services.Messaging
                 ++conversation.LastSequenceNumber;
                 conversation.LastMessageAt = now;
 
+                // jsonb thing, need to mark it as modified
+                _context.Entry(convVault).Property(v => v.VaultData).IsModified = true;
+
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
+
+                // signalr
+                await NotifyClientsAsync(kvKey, request.ConversationId, senderId);
 
                 return new SendMessageResponse()
                 {
@@ -151,6 +163,15 @@ namespace Nyxon.Server.Services.Messaging
                 await _messageCacheService.DeleteMessageAsync(kvKey);
 
                 throw;
+            }
+        }
+        private async Task NotifyClientsAsync(string kvKey, Guid conversationId, Guid userId)
+        {
+            if (ChatHub.TryGetConnection(userId.ToString(), out var senderConnectionId))
+            {
+                await _hubContext.Clients
+                    .GroupExcept(conversationId.ToString(), senderConnectionId)
+                    .SendAsync("ReceiveMessageNotification", kvKey);
             }
         }
 
@@ -234,6 +255,10 @@ namespace Nyxon.Server.Services.Messaging
 
                 var now = DateTime.UtcNow;
                 conversationUser.LastRead = now;
+
+                // jsonb thing, need to mark it as modified
+                _context.Entry(convVault).Property(v => v.VaultData).IsModified = true;
+
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();

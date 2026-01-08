@@ -11,9 +11,11 @@ namespace Nyxon.Server.Services.Vault
     public class ConversationVaultService : IConversationVaultService
     {
         private readonly AppDbContext _context;
-        public ConversationVaultService(AppDbContext context)
+        private readonly ILogger<ConversationVaultService> _logger;
+        public ConversationVaultService(AppDbContext context, ILogger<ConversationVaultService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<ConversationVaultDto?> GetConversationVaultAsync(Guid userId, Guid conversationId)
@@ -23,6 +25,10 @@ namespace Nyxon.Server.Services.Vault
 
             if (vault == null) return null;
 
+            _logger.LogInformation($"sending msgindex: {vault.VaultData.Sending.Session.MessageIndex}");
+            _logger.LogInformation($"sending rotationindex: {vault.VaultData.Sending.Session.RotationIndex}");
+            _logger.LogInformation($"sending counter: {vault.SendCounter}");
+
             return new ConversationVaultDto
             {
                 ConversationId = conversationId,
@@ -31,7 +37,6 @@ namespace Nyxon.Server.Services.Vault
                 SendCounter = vault.SendCounter,
                 VaultData = vault.VaultData
             };
-
 
         }
         public async Task UpdateConversationVaultAsync(Guid userId, ConversationVaultDto vaultDto)
@@ -61,6 +66,10 @@ namespace Nyxon.Server.Services.Vault
                 vault.UpdatedAt = DateTime.UtcNow;
 
                 _context.ConversationVaults.Update(vault);
+
+                // jsonb thing, need to mark it as modified
+                _context.Entry(vault).Property(v => v.VaultData).IsModified = true;
+
                 await _context.SaveChangesAsync();
             }
 
@@ -111,8 +120,10 @@ namespace Nyxon.Server.Services.Vault
 
                 await transaction.CommitAsync();
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "CreateVaultAsync failed for ConversationId={ConversationId}, UserId={UserId}",
+                    conversationId, userId);
                 await transaction.RollbackAsync();
                 throw;
             }

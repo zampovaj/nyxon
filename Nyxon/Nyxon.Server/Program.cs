@@ -68,11 +68,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//cors
-app.UseCors();
-
 //routing
 app.UseRouting();
+
+//cors
+app.UseCors();
 
 // auth
 app.UseAuthentication();

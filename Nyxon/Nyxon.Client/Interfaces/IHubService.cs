@@ -10,8 +10,8 @@ namespace Nyxon.Client.Interfaces
         Task ConnectAsync();
         Task DisconnectAsync();
 
-        Task JoinConversationAsync(Guid conversationId);
-        Task LeaveConversationAsync(Guid conversationId);
+        Task JoinConversationAsync(Guid conversationId, Guid userId);
+        Task LeaveConversationAsync(Guid conversationId, Guid userId);
 
         // ui hook
         event Action<string> OnMessageNotification;

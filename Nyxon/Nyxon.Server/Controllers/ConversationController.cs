@@ -60,7 +60,8 @@ namespace Nyxon.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { Error = ex.Message });
+                var innerMessage = ex.InnerException?.Message ?? ex.Message;
+                return BadRequest(new { error = innerMessage, details = ex.ToString() });
             }
         }
     }

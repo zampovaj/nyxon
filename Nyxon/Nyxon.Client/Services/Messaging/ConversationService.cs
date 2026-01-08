@@ -65,7 +65,7 @@ namespace Nyxon.Client.Services.Messaging
         {
             Console.WriteLine("Conversation service reached");
             if (!_userContext.IsAuthenticated)
-                throw new UnauthorizedAccessException("Can't creation conversation unless unauthenticated");
+                throw new UnauthorizedAccessException("Can't create conversation unless unauthenticated");
 
             var userId = (Guid)_userContext.UserId;
 

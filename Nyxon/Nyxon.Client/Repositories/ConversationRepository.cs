@@ -91,7 +91,7 @@ namespace Nyxon.Client.Repositories
         {
             try
             {
-                return await _apiService.GetAsync<MessageResponse>($"api/messages/{kvKey}");
+                return await _apiService.GetAsync<MessageResponse>($"api/message/{kvKey}");
             }
             catch (Exception ex)
             {

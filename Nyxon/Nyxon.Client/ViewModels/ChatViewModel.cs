@@ -2,10 +2,12 @@ using Microsoft.AspNetCore.Components.Web;
 
 namespace Nyxon.Client.ViewModels
 {
-    public class ChatViewModel : IDisposable
+    public class ChatViewModel : IAsyncDisposable
     {
         private readonly IConversationService _conversationService;
         private readonly IActiveConversationService _activeConversationService;
+        private readonly IHubService _hubService;
+        private readonly UserContext _userContext;
 
         public ActiveConversation ActiveConversation { get; private set; } = new ActiveConversation();
 
@@ -15,10 +17,14 @@ namespace Nyxon.Client.ViewModels
         public bool IsBusy { get; private set; } = false;
 
         public ChatViewModel(IConversationService conversationService,
-            IActiveConversationService activeConversationService)
+            IActiveConversationService activeConversationService,
+            IHubService hubService,
+            UserContext userContext)
         {
             _conversationService = conversationService;
             _activeConversationService = activeConversationService;
+            _hubService = hubService;
+            _userContext = userContext;
         }
 
         public async Task InitializeAsync(Guid conversationId)
@@ -26,8 +32,11 @@ namespace Nyxon.Client.ViewModels
             try
             {
                 IsBusy = true;
+                _hubService.OnMessageNotification += HandleMessageNotification;
                 var username = await _conversationService.OpenConversationAsync(conversationId);
                 await ActiveConversation.InitializeAsync(conversationId, username);
+                await _hubService.ConnectAsync();
+                await _hubService.JoinConversationAsync(conversationId, (Guid)_userContext.UserId);
             }
             catch (Exception ex)
             {
@@ -56,7 +65,7 @@ namespace Nyxon.Client.ViewModels
             {
                 var message = await _activeConversationService.SendMessageAsync(InputString);
                 if (message == null)
-                    throw new Exception("Message failed");
+                    throw new Exception("Sensding message failed silently.");
 
                 await ActiveConversation.AddMyMessageAsync(message);
                 InputString = "";
@@ -73,12 +82,37 @@ namespace Nyxon.Client.ViewModels
             }
         }
 
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
             InputString = "";
             ErrorMessage = "";
+            ActiveConversation.Clear();
+            if (_activeConversationService.ConversationId != null)
+                await _hubService.LeaveConversationAsync((Guid)_activeConversationService.ConversationId, (Guid)_userContext.UserId);
+            await _hubService.DisconnectAsync();
+            _hubService.OnMessageNotification -= HandleMessageNotification;
             _activeConversationService.Clear();
             Notify();
+        }
+
+        private async void HandleMessageNotification(string kvKey)
+        {
+            try
+            {
+                if (_activeConversationService.ConversationId == ActiveConversation.ConversationId)
+                {
+                    var newMessage = await _activeConversationService.ReceiveMessageAsync(kvKey);
+                    if (newMessage == null)
+                        throw new Exception("Receiving message failed silently.");
+
+                    await ActiveConversation.AddNewMessageAsync(newMessage);
+                    Notify();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error processing message notification: {ex.Message}");
+            }
         }
 
         private bool IsInputSafe(string input)

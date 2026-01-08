@@ -6,7 +6,7 @@
 @inject IConversationService ConversationService
 @inject NavigationManager Nav
 @inject ChatViewModel _vm
-@implements IDisposable
+@implements IAsyncDisposable
 
 @attribute [Authorize]
 
@@ -77,10 +77,10 @@
     [Parameter]
     public Guid ConversationId { get; set; }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         _vm.StateChanged -= StateHasChanged;
-        _vm.Dispose();
+        await _vm.DisposeAsync();
     }
     protected override async Task OnInitializedAsync()
     {

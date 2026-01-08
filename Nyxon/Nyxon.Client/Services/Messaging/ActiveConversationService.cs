@@ -170,7 +170,7 @@ namespace Nyxon.Client.Services.Messaging
                 {
                     Console.WriteLine("Rotating...");
                     session.RotationIndex++;
-                    session.MessageIndex = 0;
+                    session.MessageIndex = 1;
 
                     requestDto = await CreateMessageWithRotationAsync(session, messageBytes);
 
@@ -237,7 +237,7 @@ namespace Nyxon.Client.Services.Messaging
                 decryptedNewSessionKey = _cryptoService.AdvanceRatchet(decryptedSessionKey, session.RotationIndex, (Guid)ConversationId);
                 messageKey = _cryptoService.DeriveMessageKey(decryptedNewSessionKey, session.RotationIndex, session.MessageIndex, (Guid)ConversationId);
 
-                byte[] encryptedMessage = _cryptoService.EncryptWithKey(message, AadFactory.ForMessage((Guid)ConversationId, session.RotationIndex, session.MessageIndex));
+                byte[] encryptedMessage = _cryptoService.EncryptWithKey(message, messageKey, AadFactory.ForMessage((Guid)ConversationId, session.RotationIndex, session.MessageIndex));
                 byte[] encryptedNewSessionKey = await _userVaultService.EncryptAsync(decryptedNewSessionKey, AadFactory.ForSendingSessionKey((Guid)ConversationId, session.RotationIndex));
 
                 return new SendMessageRequest(

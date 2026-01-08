@@ -83,7 +83,7 @@ namespace Nyxon.Server.Services.Messaging
                 var sendingSnapshot = request.VaultData.Sending.Snapshots.FirstOrDefault();
                 var sending = new RatchetSnapshot(
                     id: sendingSnapshot.Id,
-                    userId: user1Id,
+                    userId: initiatorId,
                     conversationId: conversation.Id,
                     type: RatchetType.Sending,
                     rotationIndex: sendingSnapshot.RotationIndex,
@@ -95,7 +95,7 @@ namespace Nyxon.Server.Services.Messaging
                 var receivingSnapshot = request.VaultData.Receiving.Snapshots.FirstOrDefault();
                 var receiving = new RatchetSnapshot(
                     id: receivingSnapshot.Id,
-                    userId: user1Id,
+                    userId: initiatorId,
                     conversationId: conversation.Id,
                     type: RatchetType.Receiving,
                     rotationIndex: receivingSnapshot.RotationIndex,

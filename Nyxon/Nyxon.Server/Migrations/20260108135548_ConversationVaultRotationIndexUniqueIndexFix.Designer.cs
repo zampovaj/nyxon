@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Nyxon.Core.Models.Vaults;
@@ -12,9 +13,11 @@ using Nyxon.Server.Data;
 namespace Nyxon.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260108135548_ConversationVaultRotationIndexUniqueIndexFix")]
+    partial class ConversationVaultRotationIndexUniqueIndexFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -333,8 +336,10 @@ namespace Nyxon.Server.Migrations
 
                     b.HasIndex("ConversationId");
 
-                    b.HasIndex("UserId", "ConversationId", "Type", "RotationIndex")
+                    b.HasIndex("RotationIndex", "Type")
                         .IsUnique();
+
+                    b.HasIndex("UserId", "ConversationId", "Type", "RotationIndex");
 
                     NpgsqlIndexBuilderExtensions.IncludeProperties(b.HasIndex("UserId", "ConversationId", "Type", "RotationIndex"), new[] { "EncryptedSessionKey" });
 
