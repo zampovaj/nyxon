@@ -115,6 +115,9 @@ namespace Nyxon.Server.Data
                 entity.HasIndex(s => new { s.UserId, s.ConversationId, s.Type, s.RotationIndex })
                     .IncludeProperties(s => s.EncryptedSessionKey);
 
+                entity.HasIndex(s => s.RotationIndex)
+                    .IsUnique();
+
                 entity.Property(s => s.Type)
                     .HasConversion<string>();
 

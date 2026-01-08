@@ -87,6 +87,30 @@ namespace Nyxon.Client.Repositories
             }
         }
 
+        public async Task<MessageResponse?> GetMessageAsync(string kvKey)
+        {
+            try
+            {
+                return await _apiService.GetAsync<MessageResponse>($"api/messages/{kvKey}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during fetching message: {ex.Message}");
+                return null;
+            }
+        }
+        public async Task<MessageReceivedStateUpdateResponse?> ReceiveMessageServerUpdate(MessageReceivedStateUpdateRequest request)
+        {
+            try
+            {
+                return await _apiService.PatchAsync<MessageReceivedStateUpdateResponse, MessageReceivedStateUpdateRequest>("api/message/receive", request);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during receive server update: {ex.Message}");
+                return null;
+            }
+        }
 
     }
 }

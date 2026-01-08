@@ -41,19 +41,21 @@ namespace Nyxon.Core.DTOs
             Snapshots = snapshots;
         }
 
-        public MessageReceivedStateUpdateRequest(Guid conversationId, int sessionIndex, int messageIndex, byte[] encryptedCurrentSessionKey)
+        public MessageReceivedStateUpdateRequest(Guid conversationId, int sessionIndex, int messageIndex, int recvCounter, byte[] encryptedCurrentSessionKey)
         {
             ConversationId = conversationId;
             SessionIndex = sessionIndex;
             MessageIndex = messageIndex;
+            RecvCounter = recvCounter;
             EncryptedNewSessionKey = encryptedCurrentSessionKey;
         }
 
-        public MessageReceivedStateUpdateRequest(Guid conversationId, int sessionIndex, int messageIndex)
+        public MessageReceivedStateUpdateRequest(Guid conversationId, int sessionIndex, int messageIndex, int recvCounter)
         {
             ConversationId = conversationId;
             SessionIndex = sessionIndex;
             MessageIndex = messageIndex;
+            RecvCounter = recvCounter;
         }
 
         public void AddSnapshot(Snapshot snapshot)

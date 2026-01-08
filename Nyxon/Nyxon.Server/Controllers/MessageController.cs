@@ -28,7 +28,7 @@ namespace Nyxon.Server.Controllers
             _snapshotService = snapshotService;
         }
 
-        [HttpGet("{kvKey}}")]
+        [HttpGet("{kvKey}")]
         public async Task<ActionResult<MessageResponse>> GetMessageAsync(string kvKey)
         {
             try

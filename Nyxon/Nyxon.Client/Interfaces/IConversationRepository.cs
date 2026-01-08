@@ -13,5 +13,7 @@ namespace Nyxon.Client.Interfaces
         Task<SendMessageResponse?> SendMessageAsync(SendMessageRequest messageRequest);
         Task<CreateConversationResponse?> CreateConversationAsync(CreateConversationRequest conversationRequest);
         Task<bool> CreateConversationVaultAsync(Guid conversationId, ConversationVaultData vaultData);
+        Task<MessageResponse?> GetMessageAsync(string kvKey);
+        Task<MessageReceivedStateUpdateResponse?> ReceiveMessageServerUpdate(MessageReceivedStateUpdateRequest request);
     }
 }

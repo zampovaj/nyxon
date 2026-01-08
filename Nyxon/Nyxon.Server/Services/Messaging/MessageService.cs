@@ -15,12 +15,15 @@ namespace Nyxon.Server.Services.Messaging
     {
         private readonly AppDbContext _context;
         private readonly IMessageCacheService _messageCacheService;
+        private readonly ILogger<MessageService> _logger;
 
-        public MessageService(AppDbContext context, IMessageCacheService messageCacheService)
+        public MessageService(AppDbContext context, IMessageCacheService messageCacheService, ILogger<MessageService> logger)
         {
             _context = context;
             _messageCacheService = messageCacheService;
+            _logger = logger;
         }
+
         public async Task<SendMessageResponse> SendMessageAsync(Guid senderId, SendMessageRequest request)
         {
             var sender = await _context.Users
@@ -95,18 +98,25 @@ namespace Nyxon.Server.Services.Messaging
                     convVault.VaultData.Sending.Session.EncryptedCurrentSessionKey = request.EncryptedCurrentSessionKey;
 
                     // snapshot
-                    if (request.Snapshot != null)
+                    try
                     {
-                        var snapshot = new RatchetSnapshot(
-                            id: request.Snapshot.Id,
-                            userId: senderId,
-                            conversationId: request.ConversationId,
-                            type: RatchetType.Sending,
-                            rotationIndex: request.SessionIndex,
-                            encryptedSessionKey: request.EncryptedCurrentSessionKey,
-                            createdAt: request.Snapshot.CreatedAt
-                        );
-                        _context.RatchetSnapshots.Add(snapshot);
+                        if (request.Snapshot != null)
+                        {
+                            var snapshot = new RatchetSnapshot(
+                                id: request.Snapshot.Id,
+                                userId: senderId,
+                                conversationId: request.ConversationId,
+                                type: RatchetType.Sending,
+                                rotationIndex: request.SessionIndex,
+                                encryptedSessionKey: request.EncryptedCurrentSessionKey,
+                                createdAt: request.Snapshot.CreatedAt
+                            );
+                            _context.RatchetSnapshots.Add(snapshot);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception($"Couldn't add snapshot R:{request.Snapshot.RotationIndex}::Id:{request.Snapshot.Id}: {ex.Message}");
                     }
                 }
                 // update time
@@ -162,31 +172,53 @@ namespace Nyxon.Server.Services.Messaging
                 if (convVault == null)
                     throw new InvalidOperationException("Conversation vault fetch failed.");
 
+                if (convVault.RecvCounter > request.RecvCounter)
+                    throw new InvalidOperationException($"Ratchet can't move backwards: {nameof(request.RecvCounter)}");
+
                 // rotation happened
                 if (request.EncryptedNewSessionKey != null && request.EncryptedNewSessionKey.Any())
                 {
+                    if (convVault.VaultData.Receiving.Session.RotationIndex > request.SessionIndex)
+                        throw new InvalidOperationException($"Ratchet can't move backwards: {nameof(request.SessionIndex)}");
+
                     convVault.VaultData.Receiving.Session.EncryptedCurrentSessionKey = request.EncryptedNewSessionKey;
 
                     // snapshots
                     if (request.Snapshots != null && request.Snapshots.Any())
                     {
-                        await _context.RatchetSnapshots.AddRangeAsync(request.Snapshots.Select(
-                            s => new RatchetSnapshot(
-                                id: s.Id,
-                                userId: userId,
-                                conversationId: request.ConversationId,
-                                RatchetType.Receiving,
-                                rotationIndex: s.RotationIndex,
-                                encryptedSessionKey: s.EncryptedSessionKey,
-                                createdAt: s.CreatedAt
-                            )
-                        ));
+                        foreach (var snapshot in request.Snapshots)
+                        {
+                            try
+                            {
+                                await _context.RatchetSnapshots.AddAsync(
+                                    new RatchetSnapshot(
+                                        id: snapshot.Id,
+                                        userId: userId,
+                                        conversationId: request.ConversationId,
+                                        RatchetType.Receiving,
+                                        rotationIndex: snapshot.RotationIndex,
+                                        encryptedSessionKey: snapshot.EncryptedSessionKey,
+                                        createdAt: snapshot.CreatedAt
+                                    )
+                                );
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogInformation($"Couldn't add snapshot R:{snapshot.RotationIndex}::Id:{snapshot.Id}: {ex.Message}");
+                            }
+                        }
+                        convVault.VaultData.Receiving.Session.RotationIndex = request.SessionIndex;
+
                     }
+                }
+                else
+                {
+                    if (convVault.VaultData.Receiving.Session.MessageIndex > request.MessageIndex)
+                        throw new InvalidOperationException($"Ratchet can't move backwards: {nameof(request.MessageIndex)}");
                 }
 
                 // vault
                 convVault.RecvCounter = request.RecvCounter;
-                convVault.VaultData.Receiving.Session.RotationIndex = request.SessionIndex;
                 convVault.VaultData.Receiving.Session.MessageIndex = request.MessageIndex;
                 await _context.SaveChangesAsync();
 

@@ -31,7 +31,6 @@ namespace Nyxon.Client.Services
                 Console.WriteLine($"API Error [POST {uri}]: {ex.Message}");
                 throw; // throw again for viewmodel
             }
-
         }
         public async Task<TResponse?> DeleteAsync<TResponse>(string uri)
         {
@@ -82,6 +81,23 @@ namespace Nyxon.Client.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"API Error [POST {uri}]: {ex.Message}");
+                throw; // throw again for viewmodel
+            }
+        }
+        
+        public async Task<TResponse?> PatchAsync<TResponse, TRequest>(string uri, TRequest request)
+        {
+            try
+            {
+                var response = await _http.PostAsJsonAsync(uri, request);
+                response.EnsureSuccessStatusCode();
+                if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                    return default;
+                return await response.Content.ReadFromJsonAsync<TResponse>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"API Error [PATCH {uri}]: {ex.Message}");
                 throw; // throw again for viewmodel
             }
         }
