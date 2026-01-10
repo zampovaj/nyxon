@@ -27,6 +27,7 @@ namespace Nyxon.Server.Services.Vault
             {
                 EncryptedVaultKey = vault.VaultKey,
                 EncryptedPrivateIdentityKey = vault.PrivateIdentityKey,
+                EncryptedPrivateAgreementKey = vault.PrivateAgreementKey,
                 PassphraseSalt = vault.PassphraseSalt
             };
         }

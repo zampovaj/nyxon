@@ -16,6 +16,9 @@ namespace Nyxon.Core.DTOs
         public byte[] EncryptedPrivateIdentityKey { get; set; }
         [Required]
         [NotNull]
+        public byte[] EncryptedPrivateAgreementKey { get; set; }
+        [Required]
+        [NotNull]
         [MinLength(32)]
         [MaxLength(32)]
         public byte[] PassphraseSalt { get; set; }

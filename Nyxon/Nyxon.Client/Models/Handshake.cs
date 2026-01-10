@@ -10,17 +10,17 @@ namespace Nyxon.Client.Models
         public Guid Id { get; set; }
         public Guid ConversationId { get; set; }
         public byte[] PublicEphemeralKey { get; set; }
-        public byte[] PublicIdentityKey { get; set; }
+        public byte[] PublicAgreementKey { get; set; }
         public byte[] PrivateSpk { get; set; }
         public byte[]? PrivateOpk { get; set; }
         public bool IsProcessing { get; set; } = false;
 
-        public Handshake(Guid id, Guid conversationId, byte[] publicEphemeralKey, byte[] publicIdentityKey, byte[] privateSpk, byte[]? privateOpk = null)
+        public Handshake(Guid id, Guid conversationId, byte[] publicEphemeralKey, byte[] publicAgreementKey, byte[] privateSpk, byte[]? privateOpk = null)
         {
             Id = id;
             ConversationId = conversationId;
             PublicEphemeralKey = publicEphemeralKey;
-            PublicIdentityKey = publicIdentityKey;
+            PublicAgreementKey = publicAgreementKey;
             PrivateSpk = privateSpk;
             PrivateOpk = privateOpk;
         }

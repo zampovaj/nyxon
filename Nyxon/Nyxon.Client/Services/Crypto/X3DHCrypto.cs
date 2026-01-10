@@ -42,9 +42,13 @@ namespace Nyxon.Client.Services.Crypto
             try
             {
                 DH1 = await _userVaultService.CalculateIdentityDhAsync(SPK_B_pub);
+                Console.WriteLine($"DH1: {Convert.ToBase64String(DH1)}");
                 DH2 = _cryptoService.DeriveSharedSecret(EphemeralKeyPair.PrivateKey, IK_B_pub);
+                Console.WriteLine($"DH2: {Convert.ToBase64String(DH2)}");
                 DH3 = _cryptoService.DeriveSharedSecret(EphemeralKeyPair.PrivateKey, SPK_B_pub);
+                Console.WriteLine($"DH3: {Convert.ToBase64String(DH3)}");
                 DH4 = _cryptoService.DeriveSharedSecret(EphemeralKeyPair.PrivateKey, OPK_B_pub);
+                Console.WriteLine($"DH4: {Convert.ToBase64String(DH4)}");
 
                 var result = new X3DHResult(
                     publicEphemeralKey: EphemeralKeyPair.PublicKey,
@@ -76,8 +80,11 @@ namespace Nyxon.Client.Services.Crypto
             try
             {
                 DH1 = await _userVaultService.CalculateIdentityDhAsync(SPK_B_pub);
+                Console.WriteLine($"DH1: {Convert.ToBase64String(DH1)}");
                 DH2 = _cryptoService.DeriveSharedSecret(EphemeralKeyPair.PrivateKey, IK_B_pub);
+                Console.WriteLine($"DH2: {Convert.ToBase64String(DH2)}");
                 DH3 = _cryptoService.DeriveSharedSecret(EphemeralKeyPair.PrivateKey, SPK_B_pub);
+                Console.WriteLine($"DH3: {Convert.ToBase64String(DH3)}");
 
                 var result = new X3DHResult(
                     publicEphemeralKey: EphemeralKeyPair.PublicKey,
@@ -111,9 +118,13 @@ namespace Nyxon.Client.Services.Crypto
             try
             {
                 DH1 = _cryptoService.DeriveSharedSecret(SPK_B_priv, IK_A_pub);
+                Console.WriteLine($"DH1: {Convert.ToBase64String(DH1)}");
                 DH2 = await _userVaultService.CalculateIdentityDhAsync(EK_A_pub);
+                Console.WriteLine($"DH2: {Convert.ToBase64String(DH2)}");
                 DH3 = _cryptoService.DeriveSharedSecret(SPK_B_priv, EK_A_pub);
+                Console.WriteLine($"DH3: {Convert.ToBase64String(DH3)}");
                 DH4 = _cryptoService.DeriveSharedSecret(OPK_B_priv, EK_A_pub);
+                Console.WriteLine($"DH4: {Convert.ToBase64String(DH4)}");
 
                 var result = DeriveRootKey(DH1, DH2, DH3, DH4);
 
@@ -138,8 +149,11 @@ namespace Nyxon.Client.Services.Crypto
             try
             {
                 DH1 = _cryptoService.DeriveSharedSecret(SPK_B_priv, IK_A_pub);
+                Console.WriteLine($"DH1: {Convert.ToBase64String(DH1)}");
                 DH2 = await _userVaultService.CalculateIdentityDhAsync(EK_A_pub);
+                Console.WriteLine($"DH2: {Convert.ToBase64String(DH2)}");
                 DH3 = _cryptoService.DeriveSharedSecret(SPK_B_priv, EK_A_pub);
+                Console.WriteLine($"DH3: {Convert.ToBase64String(DH3)}");
 
                 var result = DeriveRootKey(DH1, DH2, DH3);
 

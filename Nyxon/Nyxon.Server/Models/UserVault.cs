@@ -25,10 +25,11 @@ namespace Nyxon.Server.Models
         public byte[] PassphraseSalt { get; set; } // 32 bytes
         public byte[] VaultKey { get; set; }
         public byte[] PrivateIdentityKey { get; set; }
+        public byte[] PrivateAgreementKey { get; set; }
 
         protected UserVault() {}
 
-        public UserVault(Guid userId, DateTime updatedAt, short version, byte[] passphraseSalt, byte[] vaultKey, byte[] privateIdentityKey)
+        public UserVault(Guid userId, DateTime updatedAt, short version, byte[] passphraseSalt, byte[] vaultKey, byte[] privateIdentityKey, byte[] privateAgreementKey)
         {
             UserId = userId;
             UpdatedAt = updatedAt;
@@ -36,12 +37,13 @@ namespace Nyxon.Server.Models
             PassphraseSalt = passphraseSalt;
             VaultKey = vaultKey;
             PrivateIdentityKey = privateIdentityKey;
+            PrivateAgreementKey = privateAgreementKey;
         }
 
         /// <summary>
         /// Creates a brand new user vault
         /// </summary>
-        public UserVault(Guid userId, byte[] passphraseSalt, byte[] vaultKey, byte[] privateIdentityKey)
+        public UserVault(Guid userId, byte[] passphraseSalt, byte[] vaultKey, byte[] privateIdentityKey, byte[] privateAgreementKey)
         {
             UserId = userId;
             UpdatedAt = DateTime.UtcNow;
@@ -49,6 +51,7 @@ namespace Nyxon.Server.Models
             PassphraseSalt = passphraseSalt;
             VaultKey = vaultKey;
             PrivateIdentityKey = privateIdentityKey;
+            PrivateAgreementKey = privateAgreementKey;
         }
     }
 }

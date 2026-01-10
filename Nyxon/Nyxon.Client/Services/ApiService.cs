@@ -89,7 +89,7 @@ namespace Nyxon.Client.Services
         {
             try
             {
-                var response = await _http.PostAsJsonAsync(uri, request);
+                var response = await _http.PatchAsJsonAsync(uri, request);
                 response.EnsureSuccessStatusCode();
                 if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
                     return default;

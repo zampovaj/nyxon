@@ -64,7 +64,8 @@ namespace Nyxon.Server.Services.Messaging
                     SpkSignature = spk.Signature,
                     OpkId = opk?.Id,
                     OpkPublic = opk?.PublicKey,
-                    PublicIdentityKey = user.PublicKey
+                    PublicIdentityKey = user.PublicIdentityKey,
+                    PublicAgreementKey = user.PublicAgreementKey
                 };
             }
             catch

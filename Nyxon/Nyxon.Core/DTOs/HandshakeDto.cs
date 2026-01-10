@@ -25,16 +25,12 @@ namespace Nyxon.Core.DTOs
         [NotNull]
         [MinLength(32)]
         [MaxLength(32)]
-        public byte[] PublicIdentityKey { get; set; }
+        public byte[] PublicAgreementKey { get; set; }
         [Required]
         [NotNull]
         [MinLength(32)]
         [MaxLength(32)]
         public byte[] PrivateSpk { get; set; }
-        [Required]
-        [NotNull]
-        [MinLength(32)]
-        [MaxLength(32)]
         public byte[]? PrivateOpk { get; set; }
     }
 }

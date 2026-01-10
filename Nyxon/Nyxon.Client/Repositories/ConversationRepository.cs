@@ -99,7 +99,7 @@ namespace Nyxon.Client.Repositories
                 return null;
             }
         }
-        public async Task<MessageReceivedStateUpdateResponse?> ReceiveMessageServerUpdate(MessageReceivedStateUpdateRequest request)
+        public async Task<MessageReceivedStateUpdateResponse?> ReceiveMessageServerUpdateAsync(MessageReceivedStateUpdateRequest request)
         {
             try
             {
@@ -111,6 +111,5 @@ namespace Nyxon.Client.Repositories
                 return null;
             }
         }
-
     }
 }

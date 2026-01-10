@@ -8,15 +8,23 @@ namespace Nyxon.Core.Services
     public static class AadFactory
     {
         private const string IdentityPrefix = "nyxon::identity::v1";
+        private const string AgreementPrefix = "nyxon::agreement::v1";
         private const string MessagePrefix = "nyxon::message::v1";
         private const string SessionReceivePrefix = "nyxon::session::recv::v1";
         private const string SessionSendPrefix = "nyxon::session::send::v1";
         private const string UserVaultPrefix = "nyxon::user_vault::v1";
-        private const string RootKeyPrefix = "nyxon::root_key::v1";        
+        private const string RootKeyPrefix = "nyxon::root_key::v1";
+        private const string OneTimePrekeyPrefix = "nyxon::opk::v1";
+        private const string SignedPrekeyPrefix = "nyxon::spk::v1";
 
         public static byte[] ForIdentityKey(Guid userId)
         {
             return GetBytes($"{IdentityPrefix}::{userId}");
+        }
+
+        public static byte[] ForAgreementKey(Guid userId)
+        {
+            return GetBytes($"{AgreementPrefix}::{userId}");
         }
 
         public static byte[] ForMessage(Guid conversationId, int rotationIndex, int messageIndex)
@@ -42,6 +50,16 @@ namespace Nyxon.Core.Services
         public static byte[] ForRootKey(Guid conversationId, Guid userId)
         {
             return GetBytes($"{RootKeyPrefix}::{conversationId}::{userId}");
+        }
+
+        public static byte[] ForOpk(Guid userId)
+        {
+            return GetBytes($"{OneTimePrekeyPrefix}::{userId}");
+        }
+
+        public static byte[] ForSpk(Guid userId)
+        {
+            return GetBytes($"{SignedPrekeyPrefix}::{userId}");
         }
 
         private static byte[] GetBytes(string text)

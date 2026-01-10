@@ -65,7 +65,8 @@ namespace Nyxon.Server.Services.Auth
                     username: request.Username,
                     passwordHash: passwordHash,
                     passwordSalt: request.PasswordSalt,
-                    publicKey: request.PublicIdentityKey,
+                    publicIdentityKey: request.PublicIdentityKey,
+                    publicAgreementKey: request.PublicAgreementKey,
                     admin: false,
                     canCreateInvites: false);
 
@@ -105,7 +106,9 @@ namespace Nyxon.Server.Services.Auth
                     userId: newUser.Id,
                     passphraseSalt: request.PassphraseSalt,
                     vaultKey: request.EncryptedVaultKey,
-                    privateIdentityKey: request.EncryptedPrivateIdentityKey);
+                    privateIdentityKey: request.EncryptedPrivateIdentityKey,
+                    privateAgreementKey: request.EncryptedPrivateAgreementKey
+                );
 
                 _context.UserVaults.Add(newUserVault);
                 await _context.SaveChangesAsync();

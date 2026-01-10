@@ -15,6 +15,7 @@ namespace Nyxon.Client.Interfaces
         Task<byte[]> DecryptAsync(byte[] data, byte[]? aad = null);
         Task<byte[]> EncryptAsync(byte[] data, byte[]? aad = null);
         Task<byte[]> CalculateIdentityDhAsync(byte[] publicKey);
+        Task<byte[]> SignAsync(byte[] data);
         void Clear();
         void CheckEncryptedVault();
         //void CheckDecryptedKeys();

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Nyxon.Client.Interfaces.Crypto;
 using System.Security.Cryptography;
 using System.Runtime.Intrinsics.Arm;
+using Nyxon.Core.Services;
 
 namespace Nyxon.Client.Services.Crypto
 {
@@ -41,6 +42,11 @@ namespace Nyxon.Client.Services.Crypto
             return _keyGenerationService.GenerateIdentityKeyPair();
         }
 
+        public AsymmetricKey GenerateAgreementKey()
+        {
+            return _keyGenerationService.GenerateEphemeralKeyPair();
+        }
+
         public byte[] GeneratePassphraseSalt()
         {
             return _keyGenerationService.GenerateRandomSalt(32);
@@ -56,17 +62,17 @@ namespace Nyxon.Client.Services.Crypto
             return _keyGenerationService.GenerateVaultKey();
         }
 
-        public PrekeyBundle GeneratePrekeyBundle(byte[] privateIdentityKey, byte[] vaultKey, int opkCount)
+        public PrekeyBundle GeneratePrekeyBundle(byte[] privateIdentityKey, byte[] vaultKey, int opkCount, Guid userId)
         {
             List<OneTimePrekey> opkList = new List<OneTimePrekey>();
 
             var spk = _keyGenerationService.GenerateSPK(privateIdentityKey);
-            spk.PrivateKey = _keyGenerationService.EncryptWithKey(spk.PrivateKey, vaultKey);
+            spk.PrivateKey = _keyGenerationService.EncryptWithKey(spk.PrivateKey, vaultKey, AadFactory.ForSpk(userId));
 
             for (int i = 0; i < opkCount; i++)
             {
                 var opk = _keyGenerationService.GenerateOPK();
-                opk.PrivateKey = _keyGenerationService.EncryptWithKey(opk.PrivateKey, vaultKey);
+                opk.PrivateKey = _keyGenerationService.EncryptWithKey(opk.PrivateKey, vaultKey, AadFactory.ForOpk(userId));
 
                 if (opk == null)
                     throw new ArgumentNullException(nameof(opk), "OneTimePrekey generation failed.");
@@ -112,24 +118,17 @@ namespace Nyxon.Client.Services.Crypto
         {
             byte[] salt = Encoding.UTF8.GetBytes($"{conversationId}:{rotationIndex}");
             byte[] info = Encoding.UTF8.GetBytes($"ratchet:{conversationId}:{rotationIndex}:v1");
-            return HKDF.DeriveKey(
-                HashAlgorithmName.SHA256,
-                key,
-                32,
-                salt,
-                info
-            );
+            return HKDF.DeriveKey(HashAlgorithmName.SHA256, key, 32, salt, info);
         }
+        public byte[] SignData(byte[] data, byte[] privateKey)
+        {
+            return _keyGenerationService.SignWithIdentityKey(data, privateKey);
+        }
+
         public byte[] DeriveMessageKey(byte[] key, int rotationIndex, int messageIndex, Guid conversationId)
         {
             byte[] info = Encoding.UTF8.GetBytes($"msg:{conversationId}:{rotationIndex}:{messageIndex}:v1");
-            return HKDF.DeriveKey(
-                HashAlgorithmName.SHA256,
-                key,
-                32,
-                null,
-                info
-            );
+            return HKDF.DeriveKey(HashAlgorithmName.SHA256, key, 32, null, info);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Nyxon.Client.ViewModels
             get => password;
             set => password = value.Trim();
         }
-        private byte[] passwordBytes = Array.Empty<byte>();
+        private byte[]? passwordBytes = null;
         private string confirmPassword = "";
         public string ConfirmPassword
         {
@@ -51,7 +51,7 @@ namespace Nyxon.Client.ViewModels
             get => passphrase;
             set => passphrase = value.Trim();
         }
-        private byte[] passphraseBytes = Array.Empty<byte>();
+        private byte[]? passphraseBytes = null;
         private string confirmPassphrase = "";
         public string ConfirmPassphrase
         {
@@ -183,32 +183,44 @@ namespace Nyxon.Client.ViewModels
                 return;
             }
 
-            passwordBytes = Encoding.UTF8.GetBytes(Password);
-
-            if (IsRegistering)
+            try
             {
+                passwordBytes = Encoding.UTF8.GetBytes(Password);
 
-                passphraseBytes = Encoding.UTF8.GetBytes(passphrase);
-                success = await _authService.RegisterAsync(Username, passwordBytes, InviteCode, passphraseBytes);
-            }
-            else
-            {
-                success = await _authService.LoginAsync(Username, passwordBytes);
-            }
+                if (IsRegistering)
+                {
 
-            IsBusy = false;
+                    passphraseBytes = Encoding.UTF8.GetBytes(passphrase);
+                    success = await _authService.RegisterAsync(Username, passwordBytes, InviteCode, passphraseBytes);
+                }
+                else
+                {
+                    success = await _authService.LoginAsync(Username, passwordBytes);
+                }
 
-            if (success)
-            {
-                Passphrase = string.Empty;
-                _nav.NavigateTo("/");
-                ((HostAuthenticationStateProvider)_authStateProvider).NotifyStateChanged();
+                IsBusy = false;
+
+                if (success)
+                {
+                    Passphrase = string.Empty;
+                    _nav.NavigateTo("/");
+                    ((HostAuthenticationStateProvider)_authStateProvider).NotifyStateChanged();
+                }
+                else
+                {
+                    ErrorMessage = IsRegistering ? "Registration failed." : "Invalid credentials or login failed.";
+                }
             }
-            else
+            catch (Exception ex)
             {
-                ErrorMessage = IsRegistering ? "Registration failed." : "Invalid credentials or login failed.";
+                ErrorMessage = $"Exception: {ex.Message}";
             }
-            Notify();
+            finally
+            {
+                if (passphraseBytes != null) CryptographicOperations.ZeroMemory(passphraseBytes);
+                if (passwordBytes != null) CryptographicOperations.ZeroMemory(passwordBytes);
+                Notify();
+            }
         }
 
         public async Task InitializeAsync()
@@ -225,8 +237,8 @@ namespace Nyxon.Client.ViewModels
 
         public void Dispose()
         {
-            CryptographicOperations.ZeroMemory(passphraseBytes);
-            CryptographicOperations.ZeroMemory(passwordBytes);
+            if (passphraseBytes != null) CryptographicOperations.ZeroMemory(passphraseBytes);
+            if (passwordBytes != null) CryptographicOperations.ZeroMemory(passwordBytes);
             Passphrase = string.Empty;
             ConfirmPassphrase = string.Empty;
             Password = string.Empty;

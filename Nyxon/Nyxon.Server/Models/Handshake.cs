@@ -39,11 +39,11 @@ namespace Nyxon.Server.Models
         public virtual OneTimePrekey? Opk { get; set; }
 
         public byte[] PublicEphemeralKey { get; set; }
-        public byte[] PublicIdentityKey { get; set; }
+        public byte[] PublicAgreementKey { get; set; }
 
         protected Handshake() { }
 
-        public Handshake(Guid conversationId, Guid initiatorId, Guid targetUserId, Guid spkId, Guid? opkId, byte[] publicEphemeralKey, byte[] publicIdentityKey)
+        public Handshake(Guid conversationId, Guid initiatorId, Guid targetUserId, Guid spkId, Guid? opkId, byte[] publicEphemeralKey, byte[] publicAgreementKey)
         {
             Id = Guid.NewGuid();
             ConversationId = conversationId;
@@ -52,7 +52,7 @@ namespace Nyxon.Server.Models
             SpkId = spkId;
             OpkId = opkId;
             PublicEphemeralKey = publicEphemeralKey;
-            PublicIdentityKey = publicIdentityKey;
+            PublicAgreementKey = publicAgreementKey;
 
             Version = AppVersion.Current;
             CreatedAt = DateTime.UtcNow;

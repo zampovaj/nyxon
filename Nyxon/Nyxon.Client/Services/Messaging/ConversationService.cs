@@ -92,16 +92,16 @@ namespace Nyxon.Client.Services.Messaging
                 if (_opkExists)
                 {
                     x3dhResult = await _x3dh.CalculateInitiatorSecretAsync(
-                        prekeyBundle.PublicIdentityKey,
-                        prekeyBundle.SpkPublic,
-                        prekeyBundle.OpkPublic
+                        IK_B_pub: prekeyBundle.PublicAgreementKey,
+                        SPK_B_pub: prekeyBundle.SpkPublic,
+                        OPK_B_pub: prekeyBundle.OpkPublic
                     );
                 }
                 else
                 {
                     x3dhResult = await _x3dh.CalculateInitiatorSecretAsync(
-                        prekeyBundle.PublicIdentityKey,
-                        prekeyBundle.SpkPublic
+                        IK_B_pub: prekeyBundle.PublicAgreementKey,
+                        SPK_B_pub: prekeyBundle.SpkPublic
                     );
                 }
 
@@ -127,8 +127,8 @@ namespace Nyxon.Client.Services.Messaging
                         TargetUserId = prekeyBundle.UserId,
                         VaultData = encryptedVaultData,
                         PublicEphemeralKey = x3dhResult.PublicEphemeralKey,
-                        SpkPublicId = prekeyBundle.SpkId,
-                        OpkPublicId = prekeyBundle.OpkId
+                        SpkId = prekeyBundle.SpkId,
+                        OpkId = prekeyBundle.OpkId
                     };
                 }
                 else
@@ -139,7 +139,7 @@ namespace Nyxon.Client.Services.Messaging
                         TargetUserId = prekeyBundle.UserId,
                         VaultData = encryptedVaultData,
                         PublicEphemeralKey = x3dhResult.PublicEphemeralKey,
-                        SpkPublicId = prekeyBundle.SpkId
+                        SpkId = prekeyBundle.SpkId
                     };
                 }
 
@@ -166,6 +166,9 @@ namespace Nyxon.Client.Services.Messaging
             }
             finally
             {
+                Console.WriteLine($"SharedSecret: {Convert.ToBase64String(x3dhResult.SharedSecret)}");
+                Console.WriteLine($"Chainkey1: {Convert.ToBase64String(chainKey1)}");
+                Console.WriteLine($"Chainkey2: {Convert.ToBase64String(chainKey2)}");
                 if (x3dhResult?.SharedSecret != null) CryptographicOperations.ZeroMemory(x3dhResult.SharedSecret);
                 if (chainKey1 != null) CryptographicOperations.ZeroMemory(chainKey1);
                 if (chainKey2 != null) CryptographicOperations.ZeroMemory(chainKey2);
@@ -230,25 +233,31 @@ namespace Nyxon.Client.Services.Messaging
             byte[]? sharedSecret = null;
             byte[]? chainKey1 = null;
             byte[]? chainKey2 = null;
+            byte[]? decryptedPrivateSpk = null;
+            byte[]? decryptedPrivateOpk = null;
 
             _opkExists = handshake.PrivateOpk != null;
 
             try
             {
+                decryptedPrivateSpk = await _userVaultService.DecryptAsync(handshake.PrivateSpk, AadFactory.ForSpk(userId));
+
                 if (_opkExists)
                 {
+                    decryptedPrivateOpk = await _userVaultService.DecryptAsync(handshake.PrivateOpk, AadFactory.ForOpk(userId));
+
                     sharedSecret = await _x3dh.CalculateReceiverSecretAsync(
-                        SPK_B_priv: handshake.PrivateSpk,
-                        OPK_B_priv: handshake.PrivateOpk,
-                        IK_A_pub: handshake.PublicIdentityKey,
+                        SPK_B_priv: decryptedPrivateSpk,
+                        OPK_B_priv: decryptedPrivateOpk,
+                        IK_A_pub: handshake.PublicAgreementKey,
                         EK_A_pub: handshake.PublicEphemeralKey
                     );
                 }
                 else
                 {
                     sharedSecret = await _x3dh.CalculateReceiverSecretAsync(
-                        SPK_B_priv: handshake.PrivateSpk,
-                        IK_A_pub: handshake.PublicIdentityKey,
+                        SPK_B_priv: decryptedPrivateSpk,
+                        IK_A_pub: handshake.PublicAgreementKey,
                         EK_A_pub: handshake.PublicEphemeralKey
                     );
                 }
@@ -262,9 +271,14 @@ namespace Nyxon.Client.Services.Messaging
             }
             finally
             {
+                Console.WriteLine($"SharedSecret: {Convert.ToBase64String(sharedSecret)}");
+                Console.WriteLine($"Chainkey1: {Convert.ToBase64String(chainKey1)}");
+                Console.WriteLine($"Chainkey2: {Convert.ToBase64String(chainKey2)}");
                 if (sharedSecret != null) CryptographicOperations.ZeroMemory(sharedSecret);
                 if (chainKey1 != null) CryptographicOperations.ZeroMemory(chainKey1);
                 if (chainKey2 != null) CryptographicOperations.ZeroMemory(chainKey2);
+                if (decryptedPrivateOpk != null) CryptographicOperations.ZeroMemory(decryptedPrivateOpk);
+                if (decryptedPrivateSpk != null) CryptographicOperations.ZeroMemory(decryptedPrivateSpk);
             }
         }
     }

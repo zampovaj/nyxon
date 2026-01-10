@@ -33,7 +33,7 @@ namespace Nyxon.Client.Services
                 id: d.Id,
                 conversationId: d.ConversationId,
                 publicEphemeralKey: d.PublicEphemeralKey,
-                publicIdentityKey: d.PublicIdentityKey,
+                publicAgreementKey: d.PublicAgreementKey,
                 privateSpk: d.PrivateSpk,
                 privateOpk: d.PrivateOpk
             )).ToList();

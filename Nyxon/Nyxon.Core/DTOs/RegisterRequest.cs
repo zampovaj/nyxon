@@ -11,7 +11,7 @@ namespace Nyxon.Core.DTOs
         [MinLength(5)]
         [MaxLength(20)]
         [NotNull]
-        public string Username { get; set; } = string.Empty;
+        public string Username { get; set; }
         [Required]
         [NotNull]
         public byte[] PasswordHash { get; set; } // already prehashed from client
@@ -35,13 +35,19 @@ namespace Nyxon.Core.DTOs
 
         [Required]
         [NotNull]
-        public byte[] PublicIdentityKey { get; set; } = Array.Empty<byte>();
+        public byte[] PublicIdentityKey { get; set; }
         [Required]
         [NotNull]
-        public byte[] EncryptedVaultKey { get; set; } = Array.Empty<byte>();
+        public byte[] PublicAgreementKey { get; set; }
         [Required]
         [NotNull]
-        public byte[] EncryptedPrivateIdentityKey { get; set; } = Array.Empty<byte>();
+        public byte[] EncryptedVaultKey { get; set; }
+        [Required]
+        [NotNull]
+        public byte[] EncryptedPrivateIdentityKey { get; set; }
+        [Required]
+        [NotNull]
+        public byte[] EncryptedPrivateAgreementKey { get; set; }
 
         [Required]
         [NotNull]

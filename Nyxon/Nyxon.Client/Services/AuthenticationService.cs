@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using NSec.Cryptography;
 using Nyxon.Client.Interfaces;
 using Nyxon.Core.Services;
 
@@ -70,41 +71,56 @@ namespace Nyxon.Client.Services
                 await LogoutAsync();
 
             var userId = Guid.NewGuid();
-            var passwordSalt = _cryptoService.GeneratePasswordSalt();
-            var passphraseSalt = _cryptoService.GeneratePassphraseSalt();
-            var passphraseKey = await _cryptoService.DerivePassphraseKeyAsync(passphrase, passphraseSalt);
-            var vaultKey = _cryptoService.GenerateVaultKey();
-            var identityKey = _cryptoService.GenerateIdentityKey();
-            var prekeyBundle = _cryptoService.GeneratePrekeyBundle(identityKey.PrivateKey, vaultKey, 100);
 
-            var encryptedVaultKey = _cryptoService.EncryptWithKey(
-                vaultKey,
-                passphraseKey,
-                AadFactory.ForUserVaultKey(userId)
-            );
-            var encryptedPrivateIdentityKey = _cryptoService.EncryptWithKey(
-                identityKey.PrivateKey,
-                vaultKey,
-                AadFactory.ForIdentityKey(userId)
-            );
-
-
-            var request = new RegisterRequest()
-            {
-                Id = userId,
-                Username = username,
-                PasswordHash = _hashService.HashPassword(password),
-                InviteCode = inviteCode,
-                PasswordSalt = passwordSalt,
-                PublicIdentityKey = identityKey.PublicKey,
-                EncryptedVaultKey = encryptedVaultKey,
-                EncryptedPrivateIdentityKey = encryptedPrivateIdentityKey,
-                PassphraseSalt = passphraseSalt,
-                PrekeyBundle = prekeyBundle
-            };
+            byte[]? passphraseKey = null;
+            byte[]? vaultKey = null;
+            AsymmetricKey? identityKey = null;
+            AsymmetricKey? agreementKey = null;
 
             try
             {
+                var passwordSalt = _cryptoService.GeneratePasswordSalt();
+                var passphraseSalt = _cryptoService.GeneratePassphraseSalt();
+
+                passphraseKey = await _cryptoService.DerivePassphraseKeyAsync(passphrase, passphraseSalt);
+                vaultKey = _cryptoService.GenerateVaultKey();
+                identityKey = _cryptoService.GenerateIdentityKey();
+                agreementKey = _cryptoService.GenerateAgreementKey();
+                var prekeyBundle = _cryptoService.GeneratePrekeyBundle(identityKey.PrivateKey, vaultKey, 100, userId);
+
+                var encryptedVaultKey = _cryptoService.EncryptWithKey(
+                    vaultKey,
+                    passphraseKey,
+                    AadFactory.ForUserVaultKey(userId)
+                );
+                var encryptedPrivateIdentityKey = _cryptoService.EncryptWithKey(
+                    identityKey.PrivateKey,
+                    vaultKey,
+                    AadFactory.ForIdentityKey(userId)
+                );
+                var encryptedPrivateAgreementKey = _cryptoService.EncryptWithKey(
+                    agreementKey.PrivateKey,
+                    vaultKey,
+                    AadFactory.ForAgreementKey(userId)
+                );
+
+
+                var request = new RegisterRequest()
+                {
+                    Id = userId,
+                    Username = username,
+                    PasswordHash = _hashService.HashPassword(password),
+                    InviteCode = inviteCode,
+                    PasswordSalt = passwordSalt,
+                    PublicIdentityKey = identityKey.PublicKey,
+                    PublicAgreementKey = agreementKey.PublicKey,
+                    EncryptedVaultKey = encryptedVaultKey,
+                    EncryptedPrivateIdentityKey = encryptedPrivateIdentityKey,
+                    EncryptedPrivateAgreementKey = encryptedPrivateAgreementKey,
+                    PassphraseSalt = passphraseSalt,
+                    PrekeyBundle = prekeyBundle
+                };
+
                 // loginresponse -> id, token
                 var response = await _apiService.PostAsync<LoginResponse, RegisterRequest>("api/auth/register", request);
                 return response != null;
@@ -115,13 +131,10 @@ namespace Nyxon.Client.Services
             }
             finally
             {
-                CryptographicOperations.ZeroMemory(passwordSalt);
-                CryptographicOperations.ZeroMemory(passphraseSalt);
-                CryptographicOperations.ZeroMemory(passphraseKey);
-                CryptographicOperations.ZeroMemory(vaultKey);
-                CryptographicOperations.ZeroMemory(identityKey.PrivateKey);
-                CryptographicOperations.ZeroMemory(encryptedVaultKey);
-                CryptographicOperations.ZeroMemory(encryptedPrivateIdentityKey);
+                if (passphraseKey != null) CryptographicOperations.ZeroMemory(passphraseKey);
+                if (vaultKey != null) CryptographicOperations.ZeroMemory(vaultKey);
+                if (identityKey != null && identityKey.PrivateKey != null) CryptographicOperations.ZeroMemory(identityKey.PrivateKey);
+                if (agreementKey != null && agreementKey.PrivateKey != null) CryptographicOperations.ZeroMemory(agreementKey.PrivateKey);
             }
         }
         public async Task LogoutAsync()

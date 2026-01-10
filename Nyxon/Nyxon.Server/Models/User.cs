@@ -11,7 +11,8 @@ namespace Nyxon.Server.Models
         public string Username { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; } // 16 bytes
-        public byte[] PublicKey { get; set; }
+        public byte[] PublicIdentityKey { get; set; }
+        public byte[] PublicAgreementKey { get; set; }
         public DateTime CreatedAt { get; set; }
         public short Version { get; set; }
         public bool Admin { get; set; }
@@ -24,14 +25,15 @@ namespace Nyxon.Server.Models
 
         protected User() { }
 
-        public User(Guid id, UserVault userVault, string username, byte[] passwordHash, byte[] passwordSalt, byte[] publicKey, DateTime createdAt, short version, bool admin, bool canCreateInvites, SignedPrekey signedPrekeys, OneTimePrekey oneTimePrekeys, ICollection<ConversationVault> conversationVaults, ICollection<ConversationUser> conversationUsers = null)
+        public User(Guid id, UserVault userVault, string username, byte[] passwordHash, byte[] passwordSalt, byte[] publicIdentityKey, byte[] publicAgreementKey, DateTime createdAt, short version, bool admin, bool canCreateInvites, SignedPrekey signedPrekeys, OneTimePrekey oneTimePrekeys, ICollection<ConversationVault> conversationVaults, ICollection<ConversationUser> conversationUsers = null)
         {
             Id = id;
             UserVault = userVault;
             Username = username;
             PasswordHash = passwordHash;
             PasswordSalt = passwordSalt;
-            PublicKey = publicKey;
+            PublicIdentityKey = publicIdentityKey;
+            PublicAgreementKey = publicAgreementKey;
             CreatedAt = createdAt;
             Version = version;
             Admin = admin;
@@ -57,25 +59,27 @@ namespace Nyxon.Server.Models
         /// <summary>
         /// Creates a brand new user
         /// </summary>
-        public User(string username, byte[] passwordHash, byte[] passwordSalt, byte[] publicKey, bool admin, bool canCreateInvites)
+        public User(string username, byte[] passwordHash, byte[] passwordSalt, byte[] publicIdentityKey, byte[] publicAgreementKey, bool admin, bool canCreateInvites)
         {
             Id = Guid.NewGuid();
             Username = username;
             PasswordHash = passwordHash;
             PasswordSalt = passwordSalt;
-            PublicKey = publicKey;
+            PublicIdentityKey = publicIdentityKey;
+            PublicAgreementKey = publicAgreementKey;
             CreatedAt = DateTime.UtcNow;
             Version = AppVersion.Current;
             Admin = admin;
             CanCreateInvites = canCreateInvites;
         }
-        public User(Guid id, string username, byte[] passwordHash, byte[] passwordSalt, byte[] publicKey, bool admin, bool canCreateInvites)
+        public User(Guid id, string username, byte[] passwordHash, byte[] passwordSalt, byte[] publicIdentityKey, byte[] publicAgreementKey, bool admin, bool canCreateInvites)
         {
             Id = id;
             Username = username;
             PasswordHash = passwordHash;
             PasswordSalt = passwordSalt;
-            PublicKey = publicKey;
+            PublicIdentityKey = publicIdentityKey;
+            PublicAgreementKey = publicAgreementKey;
             CreatedAt = DateTime.UtcNow;
             Version = AppVersion.Current;
             Admin = admin;

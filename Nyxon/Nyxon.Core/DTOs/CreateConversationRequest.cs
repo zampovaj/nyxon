@@ -30,9 +30,7 @@ namespace Nyxon.Core.DTOs
         public byte[] PublicEphemeralKey { get; set; } = Array.Empty<byte>();
         [Required]
         [NotNull]
-        public Guid SpkPublicId { get; set; }
-        [Required]
-        [NotNull]
-        public Guid? OpkPublicId { get; set; }
+        public Guid SpkId { get; set; }
+        public Guid? OpkId { get; set; }
     }
 }

@@ -106,15 +106,20 @@ namespace Nyxon.Server.Services.Messaging
 
                 await _context.SaveChangesAsync();
 
+                var initiator = await _context.Users
+                    .Where(u => u.Id == initiatorId)
+                    .FirstOrDefaultAsync();
+
                 // handshake
+
                 var handshake = new Handshake(
                     conversationId: conversation.Id,
                     initiatorId: initiatorId,
                     targetUserId: targetUser.Id,
-                    spkId: request.SpkPublicId,
-                    opkId: request.OpkPublicId ?? null,
+                    spkId: request.SpkId,
+                    opkId: request.OpkId ?? null,
                     publicEphemeralKey: request.PublicEphemeralKey,
-                    publicIdentityKey: targetUser.PublicKey
+                    publicAgreementKey: initiator.PublicAgreementKey
                 );
                 _context.Handshakes.Add(handshake);
                 await _context.SaveChangesAsync();

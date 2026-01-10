@@ -369,7 +369,7 @@ namespace Nyxon.Client.Services.Messaging
                 }
 
                 // send request to server
-                var responseDto = await _conversationRepository.ReceiveMessageServerUpdate(requestDto);
+                var responseDto = await _conversationRepository.ReceiveMessageServerUpdateAsync(requestDto);
                 if (responseDto == null)
                     throw new Exception("Failed to update server about receiving message. Message read aborted.");
 
@@ -421,6 +421,7 @@ namespace Nyxon.Client.Services.Messaging
                 // update session
                 session.MessageIndex = instructions.MessageKeyRounds;
 
+                Console.WriteLine($"AAD: {Convert.ToBase64String(AadFactory.ForMessage((Guid)ConversationId, session.RotationIndex, session.MessageIndex))}");
                 byte[] decryptedMessage = _cryptoService.DecryptWithKey(encryptedPayload, messageKey, AadFactory.ForMessage((Guid)ConversationId, session.RotationIndex, session.MessageIndex));
 
                 var requestDto = new MessageReceivedStateUpdateRequest(

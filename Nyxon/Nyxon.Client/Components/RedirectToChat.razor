@@ -3,6 +3,7 @@
 @inject NavigationManager Nav
 @inject IConversationService ConversationService
 @inject IInboxService InboxService
+@inject UserContext UserContext
 
 @code
 {
@@ -15,6 +16,8 @@
         Console.WriteLine("Redirect opened");
         try
         {
+            if (!UserContext.IsAuthenticated) Nav.NavigateTo("/");
+
             if (string.IsNullOrEmpty(Username) || string.IsNullOrWhiteSpace(Username))
             {
                 Console.WriteLine("Username empty");

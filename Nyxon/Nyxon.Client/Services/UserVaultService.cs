@@ -18,7 +18,8 @@ namespace Nyxon.Client.Services
 
         private byte[]? DecryptedVaultKey { get; set; } = null;
         private byte[]? DecryptedPrivateIdentityKey { get; set; } = null;
-        public bool IsUnlocked => DecryptedVaultKey != null && DecryptedPrivateIdentityKey != null;
+        private byte[]? DecryptedPrivateAgreementKey { get; set; } = null;
+        public bool IsUnlocked => DecryptedVaultKey != null;
 
         public event Action? StateChanged;
 
@@ -38,7 +39,7 @@ namespace Nyxon.Client.Services
             // safety net for unauthenticated user
             if (!_userContext.IsAuthenticated)
                 return false;
-            
+
             var userId = (Guid)_userContext.UserId;
 
             if (!_vaultSessionService.HasVault)
@@ -58,12 +59,8 @@ namespace Nyxon.Client.Services
                     _vaultSessionService.EncryptedVaultKey,
                     passphraseKey,
                     AadFactory.ForUserVaultKey(userId));
-                DecryptedPrivateIdentityKey = _cryptoService.DecryptWithKey(
-                    _vaultSessionService.EncryptedPrivateIdentityKey,
-                    DecryptedVaultKey,
-                    AadFactory.ForIdentityKey(userId));
 
-                if (DecryptedVaultKey == null || DecryptedPrivateIdentityKey == null)
+                if (DecryptedVaultKey == null)
                     return false;
 
                 Notify();
@@ -110,6 +107,7 @@ namespace Nyxon.Client.Services
 
             return _cryptoService.DecryptWithKey(data, DecryptedVaultKey, aad);
         }
+
         public async Task<byte[]> EncryptAsync(byte[] data, byte[]? aad = null)
         {
             if (!IsUnlocked)
@@ -120,10 +118,58 @@ namespace Nyxon.Client.Services
 
         public async Task<byte[]> CalculateIdentityDhAsync(byte[] publicKey)
         {
-            if (!IsUnlocked)
-                throw new UnauthorizedAccessException("Vault needs to be decrypted to derive shared secret.");
+            if (!_userContext.IsAuthenticated || !IsUnlocked)
+                throw new UnauthorizedAccessException("User must be authenticated to derive shared secret.");
 
-            return _cryptoService.DeriveSharedSecret(DecryptedPrivateIdentityKey, publicKey);
+            try
+            {
+                DecryptedPrivateAgreementKey = _cryptoService.DecryptWithKey(
+                    _vaultSessionService.EncryptedPrivateAgreementKey,
+                    DecryptedVaultKey,
+                    AadFactory.ForAgreementKey((Guid)_userContext.UserId));
+
+                if (DecryptedPrivateAgreementKey == null)
+                    throw new InvalidOperationException("Failed to decrypt private agreement key.");
+
+                return _cryptoService.DeriveSharedSecret(DecryptedPrivateAgreementKey, publicKey);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in CalculateIdentityDhAsync: " + ex.Message);
+                throw;
+            }
+            finally
+            {
+                if (DecryptedPrivateAgreementKey != null) CryptographicOperations.ZeroMemory(DecryptedPrivateAgreementKey);
+            }
+        }
+
+        public async Task<byte[]> SignAsync(byte[] data)
+        {
+            if (!_userContext.IsAuthenticated || !IsUnlocked)
+                throw new UnauthorizedAccessException("User must be authenticated to sign data.");
+
+            try
+            {
+                DecryptedPrivateIdentityKey = _cryptoService.DecryptWithKey(
+                    _vaultSessionService.EncryptedPrivateIdentityKey,
+                    DecryptedVaultKey,
+                    AadFactory.ForIdentityKey((Guid)_userContext.UserId));
+
+                if (DecryptedPrivateIdentityKey == null)
+                    throw new InvalidOperationException("Failed to decrypt private identity key.");
+
+                return _cryptoService.SignData(data, DecryptedPrivateIdentityKey);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in SignAsync: " + ex.Message);
+                throw;
+            }
+            finally
+            {
+                if (DecryptedPrivateIdentityKey != null) CryptographicOperations.ZeroMemory(DecryptedPrivateIdentityKey);
+            }
         }
 
         public void Clear()

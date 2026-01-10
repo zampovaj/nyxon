@@ -27,7 +27,7 @@ namespace Nyxon.Server.Services.Messaging
                     Id = h.Id,
                     ConversationId = h.ConversationId,
                     PublicEphemeralKey = h.PublicEphemeralKey,
-                    PublicIdentityKey = h.PublicIdentityKey,
+                    PublicAgreementKey = h.PublicAgreementKey,
                     PrivateSpk = h.Spk.EncryptedKey,
                     PrivateOpk = h.Opk != null ? h.Opk.EncryptedKey : null
                 })
