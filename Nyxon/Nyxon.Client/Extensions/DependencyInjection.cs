@@ -49,7 +49,6 @@ namespace Nyxon.Client
 
             // services
             services.AddScoped<IHubService, HubService>();
-            services.AddScoped<ActiveConversation>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<LayoutService>();
             services.AddScoped<IUserVaultService, UserVaultService>();

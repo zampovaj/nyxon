@@ -113,11 +113,6 @@ body {
     background-color: var(--bg-surface);
 }
 
-.unread {
-    font-weight: bold;
-    color: var(--mud-palette-primary);
-}
-
 /*LAYOUT SHELL*/
 .layout-shell {
     height: 100%;
@@ -986,6 +981,19 @@ input[type="password"] {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateX(10px); }
-    to { opacity: 1; transform: translateX(0); }
+    from {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/*sidebar unread*/
+.unread .chat-name {
+    color: var(--mud-palette-primary);
+    font-weight: bold;
 }

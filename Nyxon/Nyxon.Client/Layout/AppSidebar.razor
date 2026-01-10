@@ -31,7 +31,7 @@
                     <MudAvatar class="avatar side-avatar">
                         @conv.Initials
                     </MudAvatar>
-                    <div class="side-nav-info">
+                    <div class="side-nav-info @(conv.HasUnreadMessages ? "unread" : "")">
                         <span class="chat-name">
                             @conv.TargetUsername
                             @if (conv.HasHandshake)
@@ -39,7 +39,7 @@
                                 <span style="margin-left: 4px;"><b>NEW!</b></span>
                             }
                         </span>
-                        <span class="chat-preview @(conv.HasUnreadMessages ? "unread" : "")">
+                        <span class="chat-preview">
                             @conv.LastMessageAt.ToLocalTime().ToShortTimeString()
                         </span>
                     </div>

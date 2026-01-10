@@ -38,7 +38,8 @@
                         <div class="msg-wrapper sent">
                             <div class="msg-header-row">
                                 <span class="msg-sender">@msg.SenderUsername</span>
-                                <span class="msg-time-header">@msg.SentAt.ToLocalTime().ToShortTimeString() @msg.SentAt.ToLocalTime().ToShortDateString()</span>
+                                <span class="msg-time-header">@msg.SentAt.ToLocalTime().ToShortTimeString()
+                                    @msg.SentAt.ToLocalTime().ToShortDateString()</span>
                             </div>
                             <div class="bubble">@msg.Content</div>
                         </div>
@@ -58,7 +59,8 @@
                         <div class="msg-wrapper received">
                             <div class="msg-header-row">
                                 <span class="msg-sender">@msg.SenderUsername</span>
-                                <span class="msg-time-header">@msg.SentAt.ToLocalTime().ToShortTimeString() @msg.SentAt.ToLocalTime().ToShortDateString()</span>
+                                <span class="msg-time-header">@msg.SentAt.ToLocalTime().ToShortTimeString()
+                                    @msg.SentAt.ToLocalTime().ToShortDateString()</span>
                             </div>
                             <div class="bubble">@msg.Content</div>
                         </div>
@@ -83,6 +85,7 @@
     private Action? _stateChangedHandler;
     private bool _shouldAutoScroll = false;
     private int _lastMessageCount = 0;
+    private Guid? _lastConversationId = null;
 
     public async ValueTask DisposeAsync()
     {
@@ -102,24 +105,35 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        if (ConversationId == Guid.Empty) return;
         try
         {
-            if (ConversationId != Guid.Empty)
+
+            if (_lastConversationId != null && _lastConversationId != ConversationId)
             {
-                _stateChangedHandler = () =>
+                if (_stateChangedHandler != null)
                 {
-                    _ = InvokeAsync(async () =>
-                    {
-                        await PrepareAutoScrollAsync();
-                        StateHasChanged();
-                    });
-                };
-
-                _vm.StateChanged += _stateChangedHandler;
-
-                await _vm.InitializeAsync(ConversationId);
-                LayoutState.SetHeaderTitle(_vm.ActiveConversation.TargetUsername);
+                    _vm.StateChanged -= _stateChangedHandler;
+                    _stateChangedHandler = null;
+                }
+                await _vm.DisposeAsync();
             }
+
+            _lastConversationId = ConversationId;
+
+            _stateChangedHandler = () =>
+            {
+                _ = InvokeAsync(async () =>
+    {
+                await PrepareAutoScrollAsync();
+                StateHasChanged();
+            });
+            };
+
+            _vm.StateChanged += _stateChangedHandler;
+
+            await _vm.InitializeAsync(ConversationId);
+            LayoutState.SetHeaderTitle(_vm.ActiveConversation.TargetUsername);
         }
         catch (Exception ex)
         {
