@@ -1,88 +1,5 @@
 using System.Linq.Expressions;
 using System.Security.Cryptography;
-
-//  [ ]  send message
-//      [X]  encrypt message
-//          [X]  load current state from state object into method
-//              [X]  do kdf messageindex times to get current key
-//          [X]  do the rotations if needed and do kdf to derive next key → keep only as local var for now
-//              [X]  if rotation happenned →
-//                  [X]  encrpyt the new sesion key and keep in memory as local var
-//          [X]  decide if snapshot is needed
-//              [X]  if yes → create snapshot
-//              [X]  else → continue
-//          [X]  encrypt message
-//          [X]  create message dto
-//          [X]  send current state update and new message to server
-//              [X]  state:
-//                  [X]  inlcudes current rotationindex if changed and and messageindex (always increments by one so probably dont even need to send it i guess)
-//                  [X]  if rotaiton happenned → include new sessionkey as well
-//                  [X]  if fail → abort whole thing
-//                  [X]  else → continue
-//              [X]  message:
-//                  [X]  save to postgres
-//                  [X]  save to valkey
-//                      [X]  if valkey fails → delete postgres row
-//                  [X]  if rotation happened
-//                      [X]  save new key
-//                      [X]  rotationindex++
-//                      [X]  messageindex = 0
-//                      [X]  if any snapshot got created →
-//                          [X]  send post to server
-//                  [X]  else
-//                      [X]  messageindex++
-//                  [ ]  server sends signalr notification - exclude sender
-//          [X]  if client receives failed http status response
-//              [X]  abort the whole thing
-//          [X]  else
-//              [X]  save updated ratchet state in memory
-//              [X]  save new snapshot in memory
-//              [X]  display message in ui
-//                  [X]  load into activeconversatoin.messages
-
-//  [ ]  receive message
-//      [ ]  receive signalr notification with new message kvkey
-//          [X]  get message from server
-//              [X]  decrypt message
-//                  [X]  clone session state to method
-//                  [X]  calculate jump size →
-//                      [ ]  if (jump == null) → decrpyt message with history logic - not impelmented yet
-//                  [X]  decide if rotation will happen
-//                      [X]  if yes → derive the new sesion key and keep in memory as local var
-//                          [X]  decrypt session key
-//                          [X]  advanceratchet(key) as many times as needed (need to accoutnf or big jumps)
-//                              [X]  for each advancement:
-//                                  [X]  decide if snapshot is needed
-//                                      [X]  if yes → create and add to collection
-//                          [X]  derive message key from new session key
-//                              [X]  hkdf(key) as many times as needed
-//                          [X]  encrypt new session key
-//                              [X]  uservaultservice.encrypt(key, aad)
-//                          [X]  decryptmessage with new key
-//                              [X]  decrypt(msg, key, aad)
-//                      [X]  else →
-//                          [X]  derive message key from session key
-//                              [X]  hkdf(key) as many times as needed
-//                          [X]  decryptmessage with new key
-//                              [X]  decrypt(msg, key, aad)
-//                  [X]  update temporal state:
-//                      [X]  recvcounter += jump
-//                      [X]  rotationindex = msg.rotation
-//                      [X]  msgindex = msg.msgindex
-//                      [X]  if snapshots got created → save snasphots
-//                  [X]  send to server → if fail, abort all
-//                      [X]  if (encryptednewsessionkey ! = null) →
-//                          [X]  receiving.session.encrpytedkey = request.newkey
-//                      [X]  rotationindex = request.rotation (if rotationindex < request.rotation)
-//                      [X]  recvcounter = request.recvcounter (if recvcounter < request.recvcounter
-//                      [X]  msgindex = request.msgindex
-//                      [X]  conversationuser.lastreadat = now
-//                      [X]  if (snapshots ! = null) →
-//                          [X]  save new snapshots
-//                  [X]  update real state
-//              [ ]  display message in ui
-//                  [ ]  load into activeconversatoin.messages
-
 using System.Text;
 using Nyxon.Client.Repositories;
 using Nyxon.Core.Services;
@@ -97,7 +14,7 @@ namespace Nyxon.Client.Services.Messaging
         private readonly ICryptoService _cryptoService;
         private readonly IUserVaultService _userVaultService;
 
-        private const int SnapshotFrequency = 5;
+        private const int SnapshotFrequency = 1;
 
         public Guid? ConversationId { get; private set; }
         private RuntimeConvVaultData? EncryptedVault { get; set; }
@@ -374,7 +291,7 @@ namespace Nyxon.Client.Services.Messaging
                     throw new Exception("Failed to update server about receiving message. Message read aborted.");
 
                 // save session state
-                EncryptedVault.Sending.Session = session;
+                EncryptedVault.Receiving.Session = session;
                 // save snapshot if exists
                 if (requestDto.Snapshots != null && requestDto.Snapshots.Any())
                     EncryptedVault.Receiving.MergeHistory(requestDto.Snapshots);
@@ -431,7 +348,7 @@ namespace Nyxon.Client.Services.Messaging
                     recvCounter: ReceivingCounter + instructions.Jump
                 );
 
-                return (requestDto, Convert.ToBase64String(decryptedMessage));
+                return (requestDto, Encoding.UTF8.GetString(decryptedMessage));
             }
             catch
             {
@@ -466,16 +383,26 @@ namespace Nyxon.Client.Services.Messaging
                 decryptedNewSessionKey = _cryptoService.AdvanceRatchet(decryptedSessionKey, session.RotationIndex, (Guid)ConversationId);
                 Console.WriteLine($"Decrypted new session key [{session.RotationIndex}]: {Convert.ToBase64String(decryptedNewSessionKey)}");
 
-                while (session.RotationIndex <= instructions.RatchetRotations)
+                // if snapshot for the first rotation
+                if (session.RotationIndex % SnapshotFrequency == 0 && session.RotationIndex != 0)
+                {
+                    Console.WriteLine($"Creating snapshot");
+                    var encryptedCurrentSessionKey = await _userVaultService.EncryptAsync(decryptedNewSessionKey, AadFactory.ForReceivingSessionKey((Guid)ConversationId, session.RotationIndex));
+                    session.EncryptedCurrentSessionKey = encryptedCurrentSessionKey;
+                    snapshots.Add(await CreateSnapshotAsync(session));
+                }
+
+                while (session.RotationIndex < instructions.RatchetRotations)
                 {
                     ++session.RotationIndex;
-                    decryptedSessionKey = _cryptoService.AdvanceRatchet(decryptedSessionKey, session.RotationIndex, (Guid)ConversationId);
+                    decryptedNewSessionKey = _cryptoService.AdvanceRatchet(decryptedNewSessionKey, session.RotationIndex, (Guid)ConversationId);
                     Console.WriteLine($"Decrypted session key [{session.RotationIndex}]: {Convert.ToBase64String(decryptedSessionKey)}");
 
                     // snapshots
                     if (session.RotationIndex % SnapshotFrequency == 0 && session.RotationIndex != 0)
                     {
-                        var encryptedCurrentSessionKey = await _userVaultService.EncryptAsync(decryptedSessionKey, AadFactory.ForReceivingSessionKey((Guid)ConversationId, session.RotationIndex));
+                        Console.WriteLine($"Creating snapshot");
+                        var encryptedCurrentSessionKey = await _userVaultService.EncryptAsync(decryptedNewSessionKey, AadFactory.ForReceivingSessionKey((Guid)ConversationId, session.RotationIndex));
                         session.EncryptedCurrentSessionKey = encryptedCurrentSessionKey;
                         snapshots.Add(await CreateSnapshotAsync(session));
                     }
@@ -485,7 +412,7 @@ namespace Nyxon.Client.Services.Messaging
 
                 // derive message key
                 session.MessageIndex = 1;
-                messageKey = _cryptoService.DeriveMessageKey(decryptedSessionKey, session.RotationIndex, session.MessageIndex, (Guid)ConversationId);
+                messageKey = _cryptoService.DeriveMessageKey(decryptedNewSessionKey, session.RotationIndex, session.MessageIndex, (Guid)ConversationId);
                 Console.WriteLine($"Decrypted message key [1]: {Convert.ToBase64String(messageKey)}");
 
                 Console.WriteLine("Starting the message loop...");
@@ -502,8 +429,9 @@ namespace Nyxon.Client.Services.Messaging
                 // decrypt message
                 Console.WriteLine($"AAD: {Convert.ToBase64String(AadFactory.ForMessage((Guid)ConversationId, session.RotationIndex, session.MessageIndex))}");
                 decryptedMessage = _cryptoService.DecryptWithKey(encryptedPayload, messageKey, AadFactory.ForMessage((Guid)ConversationId, session.RotationIndex, session.MessageIndex));
-                byte[] encryptedNewSessionKey = await _userVaultService.EncryptAsync(decryptedSessionKey, AadFactory.ForReceivingSessionKey((Guid)ConversationId, session.RotationIndex));
+                byte[] encryptedNewSessionKey = await _userVaultService.EncryptAsync(decryptedNewSessionKey, AadFactory.ForReceivingSessionKey((Guid)ConversationId, session.RotationIndex));
 
+                Console.WriteLine($"Snapshots count: {(snapshots.Any() ? snapshots.Count : "null")}");
                 var requestDto = new MessageReceivedStateUpdateRequest(
                     conversationId: (Guid)ConversationId,
                     sessionIndex: session.RotationIndex,
@@ -513,7 +441,7 @@ namespace Nyxon.Client.Services.Messaging
                     snapshots: snapshots.Any() ? snapshots : null
                 );
 
-                return (requestDto, Convert.ToBase64String(decryptedMessage));
+                return (requestDto, Encoding.UTF8.GetString(decryptedMessage));
             }
             catch
             {

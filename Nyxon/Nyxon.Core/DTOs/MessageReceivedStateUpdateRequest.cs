@@ -27,7 +27,7 @@ namespace Nyxon.Core.DTOs
         // ratchet
         public byte[]? EncryptedNewSessionKey { get; set; } = null;
         // snapshots
-        public List<Snapshot>? Snapshots = new();
+        public List<Snapshot>? Snapshots { get; set; } = new();
 
         public MessageReceivedStateUpdateRequest() { }
 

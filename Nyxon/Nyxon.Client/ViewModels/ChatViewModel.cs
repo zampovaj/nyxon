@@ -8,6 +8,7 @@ namespace Nyxon.Client.ViewModels
         private readonly IActiveConversationService _activeConversationService;
         private readonly IHubService _hubService;
         private readonly UserContext _userContext;
+        private readonly IJSRuntime _jSRuntime;
 
         public ActiveConversation ActiveConversation { get; private set; } = new ActiveConversation();
 
@@ -19,12 +20,14 @@ namespace Nyxon.Client.ViewModels
         public ChatViewModel(IConversationService conversationService,
             IActiveConversationService activeConversationService,
             IHubService hubService,
-            UserContext userContext)
+            UserContext userContext,
+            IJSRuntime jSRuntime)
         {
             _conversationService = conversationService;
             _activeConversationService = activeConversationService;
             _hubService = hubService;
             _userContext = userContext;
+            _jSRuntime = jSRuntime;
         }
 
         public async Task InitializeAsync(Guid conversationId)
@@ -107,6 +110,8 @@ namespace Nyxon.Client.ViewModels
 
                     await ActiveConversation.AddNewMessageAsync(newMessage);
                     Notify();
+
+                    await ScrollIfNeededAsync();
                 }
             }
             catch (Exception ex)
@@ -137,6 +142,22 @@ namespace Nyxon.Client.ViewModels
 
             await SendMessageAsync();
         }
+        private async Task ScrollIfNeededAsync()
+        {
+            try
+            {
+                bool atBottom = await _jSRuntime.InvokeAsync<bool>("chatScroll.isUserAtBottom", "messagesContainer");
+                if (atBottom)
+                {
+                    await _jSRuntime.InvokeVoidAsync("chatScroll.scrollToBottom", "messagesContainer");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Scroll error: {ex.Message}");
+            }
+        }
+
 
         private void Notify() => StateChanged?.Invoke();
     }

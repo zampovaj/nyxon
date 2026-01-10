@@ -11,7 +11,7 @@
 @attribute [Authorize]
 
 <div class=chat-view>
-    <div class="messages-area">
+    <div class="messages-area" id="messagesContainer">
         @if (!_vm.ActiveConversation.Messages.Any() || _vm.ActiveConversation.Messages == null)
         {
             <div class="inbox-empty-area">
