@@ -1,14 +1,14 @@
 window.chatScroll = {
-    isUserAtBottom: (containerId) => {
-        const container = document.getElementById(containerId);
-        const threshold = 50; // px from bottom
-        return (container.scrollHeight - container.scrollTop - container.clientHeight) < threshold;
+    isAtBottom: function (elementId, threshold = 20) {
+        const el = document.getElementById(elementId);
+        if (!el) return false;
+
+        return el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
     },
-    scrollToBottom: (containerId) => {
-        const container = document.getElementById(containerId);
-        container.scrollTo({
-            top: container.scrollHeight,
-            behavior: 'smooth'
-        });
+    scrollToBottom: function (elementId) {
+        const el = document.getElementById(elementId);
+        if (el) {
+            el.scrollTop = el.scrollHeight;
+        }
     }
-};
+}

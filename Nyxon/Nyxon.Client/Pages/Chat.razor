@@ -6,13 +6,15 @@
 @inject IConversationService ConversationService
 @inject NavigationManager Nav
 @inject ChatViewModel _vm
+@inject IJSRuntime JS
+
 @implements IAsyncDisposable
 
 @attribute [Authorize]
 
 <div class=chat-view>
     <div class="messages-area" id="messagesContainer">
-        @if (!_vm.ActiveConversation.Messages.Any() || _vm.ActiveConversation.Messages == null)
+        @if (_vm.ActiveConversation.Messages == null || !_vm.ActiveConversation.Messages.Any())
         {
             <div class="inbox-empty-area">
                 <span class="inbox-empty-text">There are no messages in this conversation yet...</span>
@@ -49,6 +51,7 @@
                         <div class="msg-wrapper received consecutive">
                             <div class="bubble">@msg.Content</div>
                         </div>
+
                     }
                     else
                     {
@@ -67,8 +70,8 @@
 
     </div>
     <div class="input-area">
-        <input type="text" class="input-std msg-input" placeholder="Type your message..."
-        @bind="_vm.InputString" @bind:event="oninput" @onkeydown="_vm.HandleEnterKey">
+        <input type="text" class="input-std msg-input" placeholder="Type your message..." @bind="_vm.InputString"
+            @bind:event="oninput" @onkeydown="_vm.HandleEnterKey">
         <button class="send-btn" @onclick="_vm.SendMessageAsync">></button>
     </div>
 </div>
@@ -77,9 +80,17 @@
     [Parameter]
     public Guid ConversationId { get; set; }
 
+    private Action? _stateChangedHandler;
+    private bool _shouldAutoScroll = false;
+    private int _lastMessageCount = 0;
+
     public async ValueTask DisposeAsync()
     {
-        _vm.StateChanged -= StateHasChanged;
+        if (_stateChangedHandler != null)
+        {
+            _vm.StateChanged -= _stateChangedHandler;
+        }
+
         await _vm.DisposeAsync();
     }
     protected override async Task OnInitializedAsync()
@@ -95,7 +106,17 @@
         {
             if (ConversationId != Guid.Empty)
             {
-                _vm.StateChanged += StateHasChanged;
+                _stateChangedHandler = () =>
+                {
+                    _ = InvokeAsync(async () =>
+                    {
+                        await PrepareAutoScrollAsync();
+                        StateHasChanged();
+                    });
+                };
+
+                _vm.StateChanged += _stateChangedHandler;
+
                 await _vm.InitializeAsync(ConversationId);
                 LayoutState.SetHeaderTitle(_vm.ActiveConversation.TargetUsername);
             }
@@ -106,4 +127,34 @@
             Nav.NavigateTo("/");
         }
     }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var currentCount = _vm.ActiveConversation.Messages?.Count ?? 0;
+
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync(
+            "chatScroll.scrollToBottom",
+            "messagesContainer"
+            );
+        }
+
+        if (_shouldAutoScroll && currentCount != _lastMessageCount)
+        {
+            await JS.InvokeVoidAsync(
+            "chatScroll.scrollToBottom",
+            "messagesContainer"
+            );
+        }
+
+        _lastMessageCount = currentCount;
+    }
+    private async Task PrepareAutoScrollAsync()
+    {
+        _shouldAutoScroll = await JS.InvokeAsync<bool>(
+        "chatScroll.isAtBottom",
+        "messagesContainer"
+        );
+    }
+
 }
