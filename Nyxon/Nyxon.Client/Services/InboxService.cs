@@ -84,6 +84,42 @@ namespace Nyxon.Client.Services
         {
             await SyncInboxAsync();
         }
+        public async Task UpdateConversationAsync(DateTime lastMessageAt, bool isRead, Guid conversationId)
+        {
+            var conversation = Conversations
+                .FirstOrDefault(c => c.ConversationId == conversationId);
 
+            if (conversation == null)
+            {
+                // if null -> resync and try again
+                await SyncInboxAsync();
+                conversation = Conversations
+                    .FirstOrDefault(c => c.ConversationId == conversationId);
+
+                if (conversation == null)
+                    throw new ArgumentNullException("Conversation update failed: conversation doesn't exist");
+            }
+            conversation.LastMessageAt = lastMessageAt;
+            conversation.HasUnreadMessages = !isRead;
+            NotifyStateChanged();
+        }
+        public async Task ReadConversationAsync(Guid conversationId)
+        {
+            var conversation = Conversations
+                .FirstOrDefault(c => c.ConversationId == conversationId);
+
+            if (conversation == null)
+            {
+                // if null -> resync and try again
+                await SyncInboxAsync();
+                conversation = Conversations
+                    .FirstOrDefault(c => c.ConversationId == conversationId);
+
+                if (conversation == null)
+                    throw new ArgumentNullException("Conversation read update failed: conversation doesn't exist");
+            }
+            conversation.HasUnreadMessages = false;
+            NotifyStateChanged();
+        }
     }
 }

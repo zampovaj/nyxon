@@ -8,6 +8,7 @@ namespace Nyxon.Client.ViewModels
         private readonly IActiveConversationService _activeConversationService;
         private readonly IHubService _hubService;
         private readonly UserContext _userContext;
+        private readonly IInboxService _inboxService;
 
         public ActiveConversation ActiveConversation { get; private set; } = new ActiveConversation();
 
@@ -19,12 +20,14 @@ namespace Nyxon.Client.ViewModels
         public ChatViewModel(IConversationService conversationService,
             IActiveConversationService activeConversationService,
             IHubService hubService,
-            UserContext userContext)
+            UserContext userContext,
+            IInboxService inboxService)
         {
             _conversationService = conversationService;
             _activeConversationService = activeConversationService;
             _hubService = hubService;
             _userContext = userContext;
+            _inboxService = inboxService;
         }
 
         public async Task InitializeAsync(Guid conversationId)
@@ -37,6 +40,8 @@ namespace Nyxon.Client.ViewModels
                 await ActiveConversation.InitializeAsync(conversationId, username);
                 await _hubService.ConnectAsync();
                 await _hubService.JoinConversationAsync(conversationId, (Guid)_userContext.UserId);
+                // TODO: read history
+                await _inboxService.ReadConversationAsync(conversationId);
             }
             catch (Exception ex)
             {
@@ -61,6 +66,7 @@ namespace Nyxon.Client.ViewModels
                 Notify();
                 return;
             }
+
             try
             {
                 var message = await _activeConversationService.SendMessageAsync(InputString);
@@ -68,6 +74,7 @@ namespace Nyxon.Client.ViewModels
                     throw new Exception("Sensding message failed silently.");
 
                 await ActiveConversation.AddMyMessageAsync(message);
+                await _inboxService.UpdateConversationAsync(message.SentAt, true, (Guid)ActiveConversation.ConversationId);
                 InputString = "";
             }
             catch (Exception ex)
@@ -99,15 +106,30 @@ namespace Nyxon.Client.ViewModels
         {
             try
             {
-                if (_activeConversationService.ConversationId == ActiveConversation.ConversationId)
-                {
-                    var newMessage = await _activeConversationService.ReceiveMessageAsync(kvKey);
-                    if (newMessage == null)
-                        throw new Exception("Receiving message failed silently.");
+                var split = kvKey.Split(':');
+                if (split.Length != 3)
+                    throw new InvalidOperationException($"Invalid kvKey format: {kvKey}");
+                var conversationIdString = split[1];
 
-                    await ActiveConversation.AddNewMessageAsync(newMessage);
-                    Notify();
+                if (Guid.TryParse(conversationIdString, out var conversationId))
+                {
+                    if (_activeConversationService.ConversationId == conversationId &&
+                        ActiveConversation.ConversationId == conversationId)
+                    {
+                        var newMessage = await _activeConversationService.ReceiveMessageAsync(kvKey);
+                        if (newMessage == null)
+                            throw new Exception("Receiving message failed silently.");
+
+                        await ActiveConversation.AddNewMessageAsync(newMessage);
+                        Notify();
+                        await _inboxService.UpdateConversationAsync(newMessage.SentAt, true, conversationId);
+                    }
+                    else
+                    {
+                        await _inboxService.UpdateConversationAsync(DateTime.UtcNow, false, conversationId);
+                    }
                 }
+                else throw new InvalidOperationException($"Failed to read conversation id from message key");
             }
             catch (Exception ex)
             {

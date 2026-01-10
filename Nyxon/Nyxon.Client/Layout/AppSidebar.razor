@@ -39,8 +39,8 @@
                                 <span style="margin-left: 4px;"><b>NEW!</b></span>
                             }
                         </span>
-                        <span class="chat-preview @(conv.HasUnreadMessages ? "bold" : "")">
-                            @conv.LastMessageAt.ToShortTimeString()
+                        <span class="chat-preview @(conv.HasUnreadMessages ? "unread" : "")">
+                            @conv.LastMessageAt.ToLocalTime().ToShortTimeString()
                         </span>
                     </div>
                 </div>

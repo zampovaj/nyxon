@@ -322,6 +322,7 @@ namespace Nyxon.Server.Services.Messaging
                     Id = message.Id,
                     SequenceNumber = message.SequenceNumber,
                     SenderId = message.SenderId,
+                    SenderUsername = message.SenderUsername,
                     SessionIndex = message.SessionIndex,
                     MessageIndex = message.MessageIndex,
                     CreatedAt = message.CreatedAt,

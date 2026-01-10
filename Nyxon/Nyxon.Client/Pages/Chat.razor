@@ -38,7 +38,7 @@
                         <div class="msg-wrapper sent">
                             <div class="msg-header-row">
                                 <span class="msg-sender">@msg.SenderUsername</span>
-                                <span class="msg-time-header">@msg.SentAt.ToShortTimeString() @msg.SentAt.ToShortDateString()</span>
+                                <span class="msg-time-header">@msg.SentAt.ToLocalTime().ToShortTimeString() @msg.SentAt.ToLocalTime().ToShortDateString()</span>
                             </div>
                             <div class="bubble">@msg.Content</div>
                         </div>
@@ -58,7 +58,7 @@
                         <div class="msg-wrapper received">
                             <div class="msg-header-row">
                                 <span class="msg-sender">@msg.SenderUsername</span>
-                                <span class="msg-time-header">@msg.SentAt.ToShortTimeString() @msg.SentAt.ToShortDateString()</span>
+                                <span class="msg-time-header">@msg.SentAt.ToLocalTime().ToShortTimeString() @msg.SentAt.ToLocalTime().ToShortDateString()</span>
                             </div>
                             <div class="bubble">@msg.Content</div>
                         </div>

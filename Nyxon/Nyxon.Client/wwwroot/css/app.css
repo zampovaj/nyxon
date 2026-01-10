@@ -113,8 +113,9 @@ body {
     background-color: var(--bg-surface);
 }
 
-.bold {
+.unread {
     font-weight: bold;
+    color: var(--mud-palette-primary);
 }
 
 /*LAYOUT SHELL*/
