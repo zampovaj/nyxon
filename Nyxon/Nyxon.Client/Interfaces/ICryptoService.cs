@@ -13,7 +13,7 @@ namespace Nyxon.Client.Interfaces.Crypto
         Task<byte[]> DerivePassphraseKeyAsync(byte[] passphrase, byte[] salt);
         byte[] GenerateVaultKey();
         PrekeyBundle GeneratePrekeyBundle(byte[] privateIdentityKey, byte[] vaultKey, int opkCount, Guid userId);
-    AsymmetricKey GenerateIdentityKey();
+        AsymmetricKey GenerateIdentityKey();
         AsymmetricKey GenerateAgreementKey();
         byte[] EncryptWithKey(byte[] data, byte[] key, byte[]? aad = null);
         byte[] DecryptWithKey(byte[] data, byte[] key, byte[]? aad = null);
@@ -24,5 +24,7 @@ namespace Nyxon.Client.Interfaces.Crypto
         byte[] SignData(byte[] data, byte[] privateKey);
         byte[] AdvanceRatchet(byte[] key, int rotationIndex, Guid conversationId);
         byte[] DeriveMessageKey(byte[] key, int rotationIndex, int messageIndex, Guid ConversationId);
+        SignedPrekey GenerateSpk(byte[] privateIdentityKey, byte[] vaultKey, Guid userId);
+
     }
 }

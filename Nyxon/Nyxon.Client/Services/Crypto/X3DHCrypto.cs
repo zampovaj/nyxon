@@ -37,7 +37,7 @@ namespace Nyxon.Client.Services.Crypto
             if (EphemeralKeyPair == null)
                 throw new ArgumentNullException($"X3DH failed: {nameof(EphemeralKeyPair)}");
 
-            byte[] DH1 = null, DH2 = null, DH3 = null, DH4 = null;
+            byte[]? DH1 = null, DH2 = null, DH3 = null, DH4 = null;
 
             try
             {
@@ -75,7 +75,7 @@ namespace Nyxon.Client.Services.Crypto
             if (EphemeralKeyPair == null)
                 throw new ArgumentNullException($"X3DH failed: {nameof(EphemeralKeyPair)}");
 
-            byte[] DH1 = null, DH2 = null, DH3 = null;
+            byte[]? DH1 = null, DH2 = null, DH3 = null;
 
             try
             {
@@ -113,7 +113,7 @@ namespace Nyxon.Client.Services.Crypto
             byte[] IK_A_pub,
             byte[] EK_A_pub)
         {
-            byte[] DH1 = null, DH2 = null, DH3 = null, DH4 = null;
+            byte[]? DH1 = null, DH2 = null, DH3 = null, DH4 = null;
 
             try
             {
@@ -144,7 +144,7 @@ namespace Nyxon.Client.Services.Crypto
             byte[] IK_A_pub,
             byte[] EK_A_pub)
         {
-            byte[] DH1 = null, DH2 = null, DH3 = null;
+            byte[]? DH1 = null, DH2 = null, DH3 = null;
 
             try
             {

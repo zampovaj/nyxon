@@ -25,5 +25,32 @@ namespace Nyxon.Client.Repositories
                 return null;
             }
         }
+
+        public async Task SaveNewSpkAsync(SignedPrekey spk)
+        {
+            try
+            {
+                var dto = new SignedPrekeyDto(spk);
+                await _apiService.PostAsync<SignedPrekeyDto>("api/prekeys", dto);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving new signed prekey: {ex.Message}");
+            }
+        }
+
+        public async Task<bool> CheckSignedPrekeyAsync()
+        {
+            try
+            {
+                return await _apiService.GetAsync<bool>("api/prekeys");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking the expiration date of signed prekey");
+                return false;
+            }
+        }
+
     }
 }

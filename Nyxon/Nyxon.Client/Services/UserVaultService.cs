@@ -62,6 +62,9 @@ namespace Nyxon.Client.Services
 
                 if (DecryptedVaultKey == null)
                     return false;
+                
+                // do spk check
+                await CheckAndGenerateSpkAsync();
 
                 Notify();
                 return IsUnlocked;
@@ -191,5 +194,35 @@ namespace Nyxon.Client.Services
         }*/
 
         private void Notify() => StateChanged?.Invoke();
+
+        private async Task CheckAndGenerateSpkAsync()
+        {
+            if (!_userContext.IsAuthenticated || !IsUnlocked)
+                throw new UnauthorizedAccessException("User must be authenticated to sign data.");
+
+            byte[]? decryptedIdentityKey = null;
+            SignedPrekey? spk = null;
+
+            try
+            {
+                var response = await _vaultRepository.CheckSignedPrekeyAsync();
+                if (response)
+                {
+                    decryptedIdentityKey = _cryptoService.DecryptWithKey(_vaultSessionService.EncryptedPrivateIdentityKey, DecryptedVaultKey, AadFactory.ForIdentityKey((Guid)_userContext.UserId));
+                    if (decryptedIdentityKey == null) throw new Exception("Failed to decrypt private identity key");
+                    spk = _cryptoService.GenerateSpk(decryptedIdentityKey, DecryptedVaultKey, (Guid)_userContext.UserId);
+                    await _vaultRepository.SaveNewSpkAsync(spk);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating new signed prekey: {ex.Message}");
+            }
+            finally
+            {
+                if (decryptedIdentityKey != null) CryptographicOperations.ZeroMemory(decryptedIdentityKey);
+                if (spk != null && spk.PrivateKey != null) CryptographicOperations.ZeroMemory(spk.PrivateKey);
+            }
+        }
     }
 }

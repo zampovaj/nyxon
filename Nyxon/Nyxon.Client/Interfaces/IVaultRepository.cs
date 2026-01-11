@@ -8,5 +8,7 @@ namespace Nyxon.Client.Interfaces
     public interface IVaultRepository
     {
         Task<UserVaultResponse?> FetchUserVaultAsync();
+        Task<bool> CheckSignedPrekeyAsync();
+        Task SaveNewSpkAsync(SignedPrekey spk);
     }
 }

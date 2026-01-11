@@ -13,7 +13,7 @@ namespace Nyxon.Core.DTOs
         public string UserId { get; set; }
         [Required]
         [NotNull]
-        [Length(5,20)]
+        [Length(5, 20)]
         public string Username { get; set; }
         [Required]
         [NotNull]

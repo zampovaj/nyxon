@@ -16,13 +16,19 @@ namespace Nyxon.Server.Controllers
         private readonly ILoginService _loginService;
         private readonly IAntiforgery _antiforgery;
         private readonly ISessionIdService _sessionIdService;
+        private readonly IPrekeyService _prekeyService;
 
-        public AuthController(IRegistrationService registrationService, ILoginService loginService, IAntiforgery antiforgery, ISessionIdService sessionIdService)
+        public AuthController(IRegistrationService registrationService,
+            ILoginService loginService,
+            IAntiforgery antiforgery,
+            ISessionIdService sessionIdService,
+            IPrekeyService prekeyService)
         {
             _registrationService = registrationService;
             _loginService = loginService;
             _antiforgery = antiforgery;
             _sessionIdService = sessionIdService;
+            _prekeyService = prekeyService;
         }
 
         [HttpGet("me")]
@@ -137,6 +143,8 @@ namespace Nyxon.Server.Controllers
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
+
+
 
                 // success
                 return Ok(new UserSessionDto

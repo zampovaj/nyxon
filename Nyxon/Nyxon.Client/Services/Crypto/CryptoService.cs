@@ -64,23 +64,55 @@ namespace Nyxon.Client.Services.Crypto
 
         public PrekeyBundle GeneratePrekeyBundle(byte[] privateIdentityKey, byte[] vaultKey, int opkCount, Guid userId)
         {
-            List<OneTimePrekey> opkList = new List<OneTimePrekey>();
+            List<OneTimePrekey?> opkList = null;
+            SignedPrekey? spk = null;
 
-            var spk = _keyGenerationService.GenerateSPK(privateIdentityKey);
-            spk.PrivateKey = _keyGenerationService.EncryptWithKey(spk.PrivateKey, vaultKey, AadFactory.ForSpk(userId));
-
-            for (int i = 0; i < opkCount; i++)
+            try
             {
-                var opk = _keyGenerationService.GenerateOPK();
-                opk.PrivateKey = _keyGenerationService.EncryptWithKey(opk.PrivateKey, vaultKey, AadFactory.ForOpk(userId));
+                opkList = new List<OneTimePrekey>();
+                spk = _keyGenerationService.GenerateSPK(privateIdentityKey);
+                spk.PrivateKey = _keyGenerationService.EncryptWithKey(spk.PrivateKey, vaultKey, AadFactory.ForSpk(userId));
 
-                if (opk == null)
-                    throw new ArgumentNullException(nameof(opk), "OneTimePrekey generation failed.");
+                for (int i = 0; i < opkCount; i++)
+                {
+                    var opk = _keyGenerationService.GenerateOPK();
+                    opk.PrivateKey = _keyGenerationService.EncryptWithKey(opk.PrivateKey, vaultKey, AadFactory.ForOpk(userId));
 
-                opkList.Add(opk);
+                    if (opk == null)
+                        throw new ArgumentNullException(nameof(opk), "OneTimePrekey generation failed.");
+
+                    opkList.Add(opk);
+                }
+
+                return new PrekeyBundle(spk, opkList);
             }
+            finally
+            {
+                foreach (var opk in opkList)
+                {
+                    if (opk != null && opk.PrivateKey != null)
+                    {
+                        CryptographicOperations.ZeroMemory(opk.PrivateKey);
+                    }
+                }
+                if (spk != null && spk.PrivateKey != null) CryptographicOperations.ZeroMemory(spk.PrivateKey);
+            }
+        }
 
-            return new PrekeyBundle(spk, opkList);
+        public SignedPrekey GenerateSpk(byte[] privateIdentityKey, byte[] vaultKey, Guid userId)
+        {
+            SignedPrekey? spk = null;
+            try
+            {
+                spk = _keyGenerationService.GenerateSPK(privateIdentityKey);
+                spk.PrivateKey = _keyGenerationService.EncryptWithKey(spk.PrivateKey, vaultKey, AadFactory.ForSpk(userId));
+
+                return spk;
+            }
+            finally
+            {
+                if (spk != null && spk.PrivateKey != null) CryptographicOperations.ZeroMemory(spk.PrivateKey);
+            }
         }
 
         public AsymmetricKey GenerateEphemeralKeyPair()

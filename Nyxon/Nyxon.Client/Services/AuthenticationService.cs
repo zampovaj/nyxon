@@ -51,8 +51,9 @@ namespace Nyxon.Client.Services
             try
             {
                 // loginresponse -> id, token
-                var response = await _apiService.PostAsync<LoginResponse, LoginRequest>("api/auth/login", request);
+                var response = await _apiService.PostAsync<UserSessionDto, LoginRequest>("api/auth/login", request);
                 Console.WriteLine("Login finished");
+
                 return response != null;
             }
             catch (Exception)
@@ -122,7 +123,8 @@ namespace Nyxon.Client.Services
                 };
 
                 // loginresponse -> id, token
-                var response = await _apiService.PostAsync<LoginResponse, RegisterRequest>("api/auth/register", request);
+                var response = await _apiService.PostAsync<UserSessionDto, RegisterRequest>("api/auth/register", request);
+
                 return response != null;
             }
             catch (Exception)

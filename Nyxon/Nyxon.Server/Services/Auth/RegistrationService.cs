@@ -30,11 +30,10 @@ namespace Nyxon.Server.Services.Auth
             _inviteCodeService = inviteCodeService;
             _logger = logger;
         }
+
         public async Task<bool> RegisterUserAsync(RegisterRequest request)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
-
-            _logger.LogInformation("Starting registration for user {Username}", request.Username);
 
             try
             {
@@ -45,7 +44,6 @@ namespace Nyxon.Server.Services.Auth
 
                 if (usernameExists)
                 {
-                    _logger.LogWarning("Registration failed: Username {Username} is already taken", request.Username);
                     throw new InvalidOperationException("Username taken");
                 }
 
@@ -54,7 +52,6 @@ namespace Nyxon.Server.Services.Auth
                 {
                     var inviteId = await _inviteCodeService.ValidateAsync(request.InviteCode);
                     await _inviteCodeService.MarkUsedAsync(inviteId);
-                    _logger.LogDebug("Invite code validated and marked used for {Username}", request.Username);
                 }
 
                 var passwordHash = _passwordService.HashPassword(request.PasswordHash, request.PasswordSalt);
@@ -70,7 +67,6 @@ namespace Nyxon.Server.Services.Auth
                     admin: false,
                     canCreateInvites: false);
 
-                _logger.LogDebug("User entity created for {Username}", request.Username);
                 //spk
                 var spk = new Nyxon.Server.Models.SignedPrekey
                 (
@@ -99,8 +95,6 @@ namespace Nyxon.Server.Services.Auth
                 _context.Users.Add(newUser);
                 await _context.SaveChangesAsync(); // wait for db to save changes
 
-                _logger.LogDebug("User {Username} saved to database. Creating vault...", request.Username);
-
                 // create uservault
                 var newUserVault = new UserVault(
                     userId: newUser.Id,
@@ -117,8 +111,6 @@ namespace Nyxon.Server.Services.Auth
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
-
-                _logger.LogInformation("Registration completed successfully for user {Username} (ID: {UserId})", request.Username, newUser.Id);
 
                 return true;
             }
