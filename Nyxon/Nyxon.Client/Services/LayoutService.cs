@@ -2,7 +2,7 @@ using System;
 
 namespace Nyxon.Client.Services
 {
-    public class LayoutService
+    public class LayoutService : IDisposable
     {
         private readonly IUserVaultService _userVaultService;
         public event Action? OnChange;
@@ -22,6 +22,18 @@ namespace Nyxon.Client.Services
 
             HeaderTitle = title;
             NotifyStateChanged();
+        }
+
+        public void Clear()
+        {
+            HeaderTitle = "";
+            NotifyStateChanged();
+        }
+
+        public void Dispose()
+        {
+            Clear();
+            _userVaultService.StateChanged -= NotifyStateChanged;
         }
 
         private void NotifyStateChanged() => OnChange?.Invoke();

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Nyxon.Client.Interfaces
 {
-    public interface IInboxService
+    public interface IInboxService : IDisposable
     {
         List<Conversation> Conversations { get; }
         event Action OnChange;

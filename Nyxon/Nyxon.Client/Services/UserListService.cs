@@ -65,6 +65,11 @@ namespace Nyxon.Client.Services
             }
         }
 
+        public void Dispose()
+        {
+            Clear();
+        }
+
         private void NotifyStateChanged() => OnChange?.Invoke();
     }
 }

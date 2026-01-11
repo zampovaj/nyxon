@@ -51,7 +51,6 @@ namespace Nyxon.Client.Services
             }
         }
 
-
         public async Task<TResponse?> GetAsync<TResponse>(string uri)
         {
             try

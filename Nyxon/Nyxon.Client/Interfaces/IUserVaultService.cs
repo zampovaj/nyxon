@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Nyxon.Client.Interfaces
 {
-    public interface IUserVaultService
+    public interface IUserVaultService : IDisposable
     {
         bool IsUnlocked { get; }
         event Action? StateChanged;

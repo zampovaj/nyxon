@@ -46,32 +46,29 @@ namespace Nyxon.Client.ViewModels
                     Console.WriteLine("Unlocked succesfully");
                     ErrorMessage = "";
                 }
-                Notify();
             }
             catch (Exception ex)
             {
                 ErrorMessage = ex.Message;
-                Notify();
             }
             finally
             {
                 InputString = string.Empty;
                 CryptographicOperations.ZeroMemory(PassphraseBytes);
+                Notify();
             }
         }
         private bool IsInputSafe(string input)
         {
-            if (!IsUnlocked)
-            {
-                if (string.IsNullOrWhiteSpace(input) || input.Length > 256 || input.Length < 16)
-                    return false;
-            }
-
-            if (input.Length > 160 || string.IsNullOrWhiteSpace(input))
+            if (string.IsNullOrWhiteSpace(input))
                 return false;
 
-            return true;
+            int maxLength = IsUnlocked ? 160 : 256;
+            int minLength = IsUnlocked ? 1 : 16;
+
+            return input.Length >= minLength && input.Length <= maxLength;
         }
+
         public void Dispose()
         {
             _layoutService.OnChange -= Notify;

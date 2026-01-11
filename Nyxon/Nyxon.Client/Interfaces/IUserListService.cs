@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Nyxon.Client.Interfaces
 {
-    public interface IUserListService
+    public interface IUserListService : IDisposable
     {
         public List<UserModel> Users { get; }
         event Action OnChange;

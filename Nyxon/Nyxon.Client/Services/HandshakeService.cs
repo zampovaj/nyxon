@@ -45,5 +45,10 @@ namespace Nyxon.Client.Services
             Handshakes?.Clear();
             NotifyStateChanged();
         }
+
+        public void Dispose()
+        {
+            Clear();
+        }
     }
 }

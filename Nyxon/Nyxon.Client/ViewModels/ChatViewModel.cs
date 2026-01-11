@@ -15,7 +15,10 @@ namespace Nyxon.Client.ViewModels
         public string InputString { get; set; } = "";
         public string? ErrorMessage { get; private set; } = "";
         public event Action? StateChanged;
-        public bool IsBusy { get; private set; } = false;
+
+        private readonly SemaphoreSlim _messageLock = new(1, 1);
+        private readonly TaskCompletionSource _initializationCompletion = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
 
         public ChatViewModel(IConversationService conversationService,
             IActiveConversationService activeConversationService,
@@ -32,9 +35,9 @@ namespace Nyxon.Client.ViewModels
 
         public async Task InitializeAsync(Guid conversationId)
         {
+
             try
             {
-                IsBusy = true;
                 _hubService.OnMessageNotification += HandleMessageNotification;
                 var username = await _conversationService.OpenConversationAsync(conversationId);
                 await ActiveConversation.InitializeAsync(conversationId, username);
@@ -49,26 +52,25 @@ namespace Nyxon.Client.ViewModels
             }
             finally
             {
-                IsBusy = false;
+                _initializationCompletion.TrySetResult();
                 Notify();
             }
         }
 
         public async Task SendMessageAsync()
         {
-            if (IsBusy) return;
-            IsBusy = true;
-
-            ErrorMessage = "";
-
-            if (!IsInputSafe(InputString))
-            {
-                Notify();
-                return;
-            }
+            await _initializationCompletion.Task;
+            await _messageLock.WaitAsync();
 
             try
             {
+                ErrorMessage = "";
+                if (!IsInputSafe(InputString))
+                {
+                    Notify();
+                    return;
+                }
+
                 var message = await _activeConversationService.SendMessageAsync(InputString);
                 if (message == null)
                     throw new Exception("Sensding message failed silently.");
@@ -84,7 +86,7 @@ namespace Nyxon.Client.ViewModels
             }
             finally
             {
-                IsBusy = false;
+                _messageLock.Release();
                 Notify();
             }
         }
@@ -104,6 +106,9 @@ namespace Nyxon.Client.ViewModels
 
         private async void HandleMessageNotification(string kvKey)
         {
+            await _initializationCompletion.Task;
+            await _messageLock.WaitAsync();
+
             try
             {
                 var split = kvKey.Split(':');
@@ -121,7 +126,6 @@ namespace Nyxon.Client.ViewModels
                             throw new Exception("Receiving message failed silently.");
 
                         await ActiveConversation.AddNewMessageAsync(newMessage);
-                        Notify();
                         await _inboxService.UpdateConversationAsync(newMessage.SentAt, true, conversationId);
                     }
                     else
@@ -135,6 +139,11 @@ namespace Nyxon.Client.ViewModels
             {
                 Console.WriteLine($"Error processing message notification: {ex.Message}");
             }
+            finally
+            {
+                _messageLock.Release();
+                Notify();
+            }
         }
 
         private bool IsInputSafe(string input)
@@ -144,7 +153,7 @@ namespace Nyxon.Client.ViewModels
                 ErrorMessage = "Message can't be empty.";
                 return false;
             }
-            if (input.Length > 1024)
+            if (input.Length > 8192)
             {
                 ErrorMessage = "Message is too long. Maximum allowed length is 1024 characters";
                 return false;

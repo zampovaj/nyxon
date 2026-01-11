@@ -9,7 +9,7 @@ using Nyxon.Core.Services;
 
 namespace Nyxon.Client.Services
 {
-    public class UserVaultService : IUserVaultService
+    public class UserVaultService : IUserVaultService, IDisposable
     {
         private readonly UserContext _userContext;
         private readonly EncryptedUserVaultSessionService _vaultSessionService;
@@ -180,6 +180,11 @@ namespace Nyxon.Client.Services
             LockVault();
             _vaultSessionService.Clear();
             Notify();
+        }
+
+        public void Dispose()
+        {
+            Clear();
         }
 
         public void CheckEncryptedVault()

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Nyxon.Client.Interfaces
 {
-    public interface IActiveConversationService
+    public interface IActiveConversationService : IDisposable
     {
         Guid? ConversationId { get; }
 

@@ -144,7 +144,7 @@ namespace Nyxon.Client.ViewModels
                 }
                 if (!IsPassphraseValid(Passphrase))
                 {
-                    ErrorMessage = "Pasphrase invalid. Passphrase must be 16-256 characters long";
+                    ErrorMessage = "Passphrase invalid. Passphrase must be 16-256 characters long";
                 }
                 if (!IsConfirmPassphraseValid(ConfirmPassphrase))
                 {

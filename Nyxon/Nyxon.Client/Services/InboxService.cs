@@ -121,5 +121,11 @@ namespace Nyxon.Client.Services
             conversation.HasUnreadMessages = false;
             NotifyStateChanged();
         }
+
+        public void Dispose()
+        {
+            _handshakeService.OnChange -= HandshakeChanged;
+            Clear();
+        }
     }
 }

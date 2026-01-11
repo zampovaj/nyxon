@@ -16,6 +16,9 @@ namespace Nyxon.Client.Services
         private readonly IHandshakeService _handshakeService;
         private readonly IInboxService _inboxService;
         private readonly CsrfTokenStore _csrfTokenStore;
+        private readonly IActiveConversationService _activeConversationService;
+        private readonly IHubService _hubService;
+        private readonly LayoutService _layoutService;
 
         private bool _isInitialized;
 
@@ -25,7 +28,10 @@ namespace Nyxon.Client.Services
             IUserListService userListService,
             IHandshakeService handshakeService,
             IInboxService inboxService,
-            CsrfTokenStore csrfTokenStore)
+            CsrfTokenStore csrfTokenStore,
+            IActiveConversationService activeConversationService,
+            IHubService hubService,
+            LayoutService layoutService)
         {
             _userContext = userContext;
             _authStateProvider = authStateProvider;
@@ -34,6 +40,9 @@ namespace Nyxon.Client.Services
             _handshakeService = handshakeService;
             _inboxService = inboxService;
             _csrfTokenStore = csrfTokenStore;
+            _activeConversationService = activeConversationService;
+            _hubService = hubService;
+            _layoutService = layoutService;
         }
 
         public async Task Initialize()
@@ -67,7 +76,6 @@ namespace Nyxon.Client.Services
                         _userContext.SetUser(userId, username);
 
                         _csrfTokenStore.Clear();
-                        //_csrfTokenStore.Check();
 
                         await _userVaultService.SyncVaultAsync();
                         await _inboxService.SyncInboxAsync();
@@ -76,12 +84,7 @@ namespace Nyxon.Client.Services
                 }
                 else
                 {
-                    _userContext.Clear();
-                    _userVaultService.Clear();
-                    _userListService.Clear();
-                    _handshakeService.Clear();
-                    _inboxService.Clear();
-                    _csrfTokenStore.Clear();
+                    ClearServices();
 
                     Console.WriteLine("Everything clear");
                     Console.WriteLine("Token: " + (_csrfTokenStore.Token ?? "null"));
@@ -95,6 +98,33 @@ namespace Nyxon.Client.Services
         public void Dispose()
         {
             _authStateProvider.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+            DisposeServices();
+        }
+
+        private void ClearServices()
+        {
+            _userContext.Clear();
+            _userVaultService.Clear();
+            _userListService.Clear();
+            _handshakeService.Clear();
+            _inboxService.Clear();
+            _csrfTokenStore.Clear();
+            _activeConversationService.Clear();
+            _hubService.DisconnectAsync().GetAwaiter().GetResult();
+            _layoutService.Clear();
+        }
+
+        private void DisposeServices()
+        {
+            _userContext.Dispose();
+            _userVaultService.Dispose();
+            _userListService.Dispose();
+            _handshakeService.Dispose();
+            _inboxService.Dispose();
+            _activeConversationService.Dispose();
+            _csrfTokenStore.Clear();
+            _hubService.DisconnectAsync().GetAwaiter().GetResult();
+            _layoutService.Dispose();
         }
     }
 }

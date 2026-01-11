@@ -257,6 +257,7 @@ namespace Nyxon.Client.Services.Messaging
                 // rotate ratchet
                 if (keyDerivationInstructions.RatchetRotations > 0)
                 {
+                    keyDerivationInstructions.RatchetRotations += session.RotationIndex;
                     Console.WriteLine("Ratchet rotating...");
                     session.MessageIndex = 0;
                     (requestDto, content) = await DecryptMessageWithRotationAsync(
@@ -500,6 +501,11 @@ namespace Nyxon.Client.Services.Messaging
             UpdatedAt = null;
             SendingCounter = 0;
             ReceivingCounter = 0;
+        }
+
+        public void Dispose()
+        {
+            Clear();
         }
     }
 }

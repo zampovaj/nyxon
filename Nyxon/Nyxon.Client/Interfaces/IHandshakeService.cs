@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Nyxon.Client.Interfaces
 {
-    public interface IHandshakeService
+    public interface IHandshakeService : IDisposable
     {
         List<Handshake> Handshakes { get; }
         Task UseAsync(Guid handshakeId);

@@ -142,7 +142,7 @@ namespace Nyxon.Client.Services
         public async Task LogoutAsync()
         {
             await _apiService.PostAsync<object, object>("api/auth/logout", null);
-            //_userVaultService.Clear();
+            _csrfTokenStore.Clear();
             ((HostAuthenticationStateProvider)_authStateProvider).NotifyStateChanged();
         }
     }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Nyxon.Client.Services
 {
-    public class UserContext
+    public class UserContext : IDisposable
     {
         public Guid? UserId { get; private set; }
         public string Username { get; private set; }
@@ -21,6 +21,11 @@ namespace Nyxon.Client.Services
         {
             UserId = null;
             Username = string.Empty;
+        }
+
+        public void Dispose()
+        {
+            Clear();
         }
     }
 }
