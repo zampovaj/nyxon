@@ -160,7 +160,7 @@ namespace Nyxon.Server.Services.Messaging
                 await transaction.RollbackAsync();
 
                 // delete valkey message
-                await _messageCacheService.DeleteMessageAsync(kvKey);
+                await _messageCacheService.DeleteMessageAsync(kvKey, request.ConversationId);
 
                 throw;
             }
@@ -274,7 +274,19 @@ namespace Nyxon.Server.Services.Messaging
 
         public async Task<List<MessageResponse>> GetRecentMessagesAsync(Guid conversationId)
         {
-            var messages = await _messageCacheService.GetRecentMessagesAsync(conversationId);
+            try {
+            List<Message> messages;
+            messages = await _messageCacheService.GetRecentMessagesAsync(conversationId);
+
+            if (!messages.Any())
+            {
+                var conversation = await _context.Conversations
+                    .Where(c => c.Id == conversationId)
+                    .FirstOrDefaultAsync();
+
+                messages = await _messageCacheService.GetRecentMessagesAsync(conversation.LastSequenceNumber, conversationId);
+            }
+
             return messages
                 .Select(m => new MessageResponse
                 {
@@ -289,7 +301,14 @@ namespace Nyxon.Server.Services.Messaging
                 })
                 .OrderBy(m => m.SequenceNumber)
                 .ToList();
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError($"Loading recent messages failed: {ex.Message}");
+                throw;
+            }
         }
+
         public async Task<MessageResponse?> GetMessageAsync(Guid conversationId, int sequenceNumber)
         {
             var message = await _messageCacheService.GetMessageAsync(conversationId, sequenceNumber);
@@ -344,7 +363,7 @@ namespace Nyxon.Server.Services.Messaging
             if (message == null)
                 throw new Exception("Message does not exist");
 
-            await _messageCacheService.DeleteMessageAsync(message.KvKey);
+            await _messageCacheService.DeleteMessageAsync(message.KvKey, message.ConversationId);
 
             _context.Remove(message);
             await _context.SaveChangesAsync();
