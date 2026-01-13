@@ -9,6 +9,7 @@ using Nyxon.Server.Interfaces;
 using Nyxon.Server.Services.Cache;
 using Org.BouncyCastle.Ocsp;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Nyxon.Server.Services.Messaging
 {
@@ -75,6 +76,8 @@ namespace Nyxon.Server.Services.Messaging
                     senderId: senderId,
                     rotationIndex: request.SessionIndex,
                     messageIndex: request.MessageIndex,
+                    sequenceNumber: messageSequence,
+                    encryptedPayload: request.EncryptedPayload,
                     createdAt: now,
                     version: AppVersion.Current,
                     attachments: null
@@ -132,6 +135,10 @@ namespace Nyxon.Server.Services.Messaging
                 var convsersationUser = await _context.ConversationUsers
                     .Where(c => c.UserId == senderId)
                     .FirstOrDefaultAsync();
+
+                if (convsersationUser == null)
+                    throw new UnauthorizedAccessException("User is not part of this conversation");
+
                 convsersationUser.LastRead = now;
 
                 // advance index in conversation
@@ -251,7 +258,7 @@ namespace Nyxon.Server.Services.Messaging
                     .FirstOrDefaultAsync();
 
                 if (conversationUser == null)
-                    throw new InvalidOperationException("User and conversation database join not found");
+                    throw new UnauthorizedAccessException("User is not part of this conversation");
 
                 var now = DateTime.UtcNow;
                 conversationUser.LastRead = now;
@@ -272,49 +279,196 @@ namespace Nyxon.Server.Services.Messaging
             }
         }
 
-        public async Task<List<MessageResponse>> GetRecentMessagesAsync(Guid conversationId)
+        public async Task<List<MessageResponse>> GetRecentMessagesAsync(Guid userId, Guid conversationId)
         {
-            try {
-            List<Message> messages;
-            messages = await _messageCacheService.GetRecentMessagesAsync(conversationId);
-
-            if (!messages.Any())
+            try
             {
-                var conversation = await _context.Conversations
-                    .Where(c => c.Id == conversationId)
-                    .FirstOrDefaultAsync();
+                List<Message> messages;
+                messages = await _messageCacheService.GetRecentMessagesAsync(conversationId);
 
-                messages = await _messageCacheService.GetRecentMessagesAsync(conversation.LastSequenceNumber, conversationId);
+                return messages
+                    .Select(m => new MessageResponse
+                    {
+                        Id = m.Id,
+                        SequenceNumber = m.SequenceNumber,
+                        SenderId = m.SenderId,
+                        SenderUsername = m.SenderUsername,
+                        SessionIndex = m.SessionIndex,
+                        MessageIndex = m.MessageIndex,
+                        CreatedAt = m.CreatedAt,
+                        EncryptedPayload = m.EncryptedPayload
+                    })
+                    .OrderBy(m => m.SequenceNumber)
+                    .ToList();
             }
-
-            return messages
-                .Select(m => new MessageResponse
-                {
-                    Id = m.Id,
-                    SequenceNumber = m.SequenceNumber,
-                    SenderId = m.SenderId,
-                    SenderUsername = m.SenderUsername,
-                    SessionIndex = m.SessionIndex,
-                    MessageIndex = m.MessageIndex,
-                    CreatedAt = m.CreatedAt,
-                    EncryptedPayload = m.EncryptedPayload
-                })
-                .OrderBy(m => m.SequenceNumber)
-                .ToList();
-            }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError($"Loading recent messages failed: {ex.Message}");
                 throw;
             }
         }
 
-        public async Task<MessageResponse?> GetMessageAsync(Guid conversationId, int sequenceNumber)
+        public async Task<List<MessageResponse>> GetMessagesBundleAsync(Guid userId, Guid conversationId, int count, int lastSequenceNumber)
         {
-            var message = await _messageCacheService.GetMessageAsync(conversationId, sequenceNumber);
-            if (message == null)
-                return null;
+            try
+            {
+                var conversation = await _context.Conversations
+                    .Where(c => c.Id == conversationId &&
+                        c.ConversationUsers.Any(cu => cu.UserId == userId))
+                    .FirstOrDefaultAsync();
 
+                if (conversation == null)
+                    throw new InvalidOperationException("Combination of conversation and user not found");
+
+                if (conversation.LastSequenceNumber < lastSequenceNumber)
+                    throw new InvalidOperationException("Last sequence doesn't match database value");
+
+                var messages = await _messageCacheService.GetMessagesBundleAsync(conversationId, lastSequenceNumber, count);
+
+                if (messages.Count == count)
+                {
+                    return messages
+                        .Select(m => MapMessage(m))
+                        .ToList();
+                }
+
+                //50, 101
+                //45 -> 100 - 56
+                //minseq = 56
+                //countleft = 5
+                //floor = 51
+                //where(m < 56 && m >= 51)
+
+                //minseq = 101
+                //countleft = 50
+                //floor = 51
+                //where(m < 101 && m >= 51)
+
+                int minSequence = lastSequenceNumber + 1;
+                if (messages.Count > 0) minSequence = messages
+                    .Min(m => m.SequenceNumber);
+                int countLeft = count - messages.Count;
+                int floor = minSequence - countLeft;
+                if (floor < 1) floor = 1;
+
+                var dbMessages = await _context.MessageMetadata
+                    .Where(m => m.ConversationId == conversationId &&
+                        m.SequenceNumber < minSequence &&
+                        m.SequenceNumber >= floor)
+                    .AsNoTracking() // less memory
+                    .ToListAsync();
+
+                List<MessageResponse> result = new();
+                result.AddRange(dbMessages
+                        .Select(m => MapMessage(m)));
+                result.AddRange(messages
+                        .Select(m => MapMessage(m)));
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Loading messages bundle failed: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<MessageResponse?> GetMessageAsync(Guid userId, Guid conversationId, int sequenceNumber)
+        {
+            try
+            {
+                var conversationUser = await _context.ConversationUsers
+                    .Where(c => c.UserId == userId &&
+                        c.ConversationId == conversationId)
+                    .FirstOrDefaultAsync();
+                if (conversationUser == null)
+                    throw new UnauthorizedAccessException("User must be part of this conversation to get a message");
+
+                var key = KeyFactory.MessageKey(conversationId, sequenceNumber);
+                var message = await _messageCacheService.GetMessageAsync(key);
+
+                // if not in valkey -> try postgres
+                if (message == null)
+                {
+                    return await GetMessageFromDbAsync(key);
+                }
+
+                return MapMessage(message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Fetching message: {conversationId}:{sequenceNumber} failed: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<MessageResponse?> GetMessageAsync(Guid userId, string kvKey)
+        {
+            try
+            {
+                var message = await _messageCacheService.GetMessageAsync(kvKey);
+
+                // if not in valkey -> try postgres
+                if (message == null)
+                {
+                    return await GetMessageFromDbAsync(kvKey);
+                }
+
+                // TODO: add check for unauthorized access (user not form this conversation)
+
+                return MapMessage(message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Fetching message: {kvKey} failed: {ex.Message}");
+                throw;
+            }
+        }
+
+        private async Task<MessageResponse?> GetMessageFromDbAsync(string kvKey)
+        {
+            try
+            {
+                var message = await _context.MessageMetadata
+                    .Include(m => m.Sender)
+                    .Where(m => m.KvKey == kvKey)
+                    .FirstOrDefaultAsync();
+
+                if (message == null) return null;
+
+                return MapMessage(message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Fetching message: {kvKey} failed: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task DeleteMessageAsync(Guid userId, Guid messageId)
+        {
+            var message = await _context.MessageMetadata
+                .Where(m => m.Id == messageId)
+                .FirstOrDefaultAsync();
+
+            if (message == null)
+                throw new Exception("Message does not exist");
+
+            var conversationUser = await _context.ConversationUsers
+                .Where(c => c.UserId == userId &&
+                    c.ConversationId == message.ConversationId)
+                .FirstOrDefaultAsync();
+            if (conversationUser == null)
+                throw new UnauthorizedAccessException("User must be part of this conversation to deleet a message");
+
+            await _messageCacheService.DeleteMessageAsync(message.KvKey, message.ConversationId);
+
+            _context.Remove(message);
+            await _context.SaveChangesAsync();
+        }
+
+        private MessageResponse MapMessage(Message message)
+        {
             return new MessageResponse
             {
                 Id = message.Id,
@@ -328,45 +482,19 @@ namespace Nyxon.Server.Services.Messaging
             };
         }
 
-        public async Task<MessageResponse?> GetMessageAsync(string kvKey)
+        private MessageResponse MapMessage(MessageMetadata message)
         {
-            try
+            return new MessageResponse
             {
-                var message = await _messageCacheService.GetMessageAsync(kvKey);
-                if (message == null)
-                    throw new KeyNotFoundException("Messages with this key ddoesn't exist");
-
-                return new MessageResponse
-                {
-                    Id = message.Id,
-                    SequenceNumber = message.SequenceNumber,
-                    SenderId = message.SenderId,
-                    SenderUsername = message.SenderUsername,
-                    SessionIndex = message.SessionIndex,
-                    MessageIndex = message.MessageIndex,
-                    CreatedAt = message.CreatedAt,
-                    EncryptedPayload = message.EncryptedPayload
-                };
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
-        public async Task DeleteMessageAsync(Guid messageId)
-        {
-            var message = await _context.MessageMetadata
-                .Where(m => m.Id == messageId)
-                .FirstOrDefaultAsync();
-
-            if (message == null)
-                throw new Exception("Message does not exist");
-
-            await _messageCacheService.DeleteMessageAsync(message.KvKey, message.ConversationId);
-
-            _context.Remove(message);
-            await _context.SaveChangesAsync();
+                Id = message.Id,
+                SequenceNumber = message.SequenceNumber,
+                SenderId = message.SenderId,
+                SenderUsername = message.Sender.Username,
+                SessionIndex = message.RotationIndex,
+                MessageIndex = message.MessageIndex,
+                CreatedAt = message.CreatedAt,
+                EncryptedPayload = message.EncryptedPayload
+            };
         }
     }
 }

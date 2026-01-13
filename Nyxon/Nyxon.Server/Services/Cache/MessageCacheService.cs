@@ -30,17 +30,14 @@ namespace Nyxon.Server.Services.Cache
             // _ discard variable
             // tran returns task - i dont need that task cause i will await them all at once using tran
 
-            // save message
-            _ = tran.StringSetAsync(messageKey, json);
+            // save message and set expiration
+            _ = tran.StringSetAsync(messageKey, json, TimeSpan.FromDays(30));
 
             // lpush to list -> lpush means newest on top
             _ = tran.ListLeftPushAsync(listKey, json);
 
             // trim to keep only latest 50 messages
             _ = tran.ListTrimAsync(listKey, 0, 49);
-
-            // set expiration for list
-            _ = tran.KeyExpireAsync(listKey, TimeSpan.FromDays(30));
 
             // executes async all three operations
             await tran.ExecuteAsync();
@@ -85,12 +82,11 @@ namespace Nyxon.Server.Services.Cache
             return results;
         }
 
-
-        public async Task<List<Message>> GetRecentMessagesAsync(int lastSequenceNumber, Guid conversationId, int count = 50)
+        public async Task<List<Message>> GetMessagesBundleAsync(Guid conversationId, int lastSequenceNumber, int count = 50)
         {
             var results = new List<Message>();
 
-            // build array of keys in advcacne to ftech all messages in one trip to redis
+            // build array of keys in advcacne to fetch all messages in one trip to redis
             int realCount = Math.Min(count, lastSequenceNumber);
             var keys = new RedisKey[realCount];
 

@@ -20,6 +20,6 @@ namespace Nyxon.Server.Interfaces
 
         // fetch last n messages for conversation
         Task<List<Message>> GetRecentMessagesAsync(Guid conversationId, int count = 50);
-        Task<List<Message>> GetRecentMessagesAsync(int lastSequenceNumber, Guid conversationId, int count = 50);
+        Task<List<Message>> GetMessagesBundleAsync(Guid conversationId, int lastSequenceNumber, int count = 50);
     }
 }

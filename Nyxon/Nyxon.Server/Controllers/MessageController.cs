@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.SignalR;
 using Nyxon.Core.DTOs;
 using Nyxon.Server.Hubs;
@@ -31,9 +32,13 @@ namespace Nyxon.Server.Controllers
         [HttpGet("{kvKey}")]
         public async Task<ActionResult<MessageResponse>> GetMessageAsync(string kvKey)
         {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
+                return Unauthorized();
+
             try
             {
-                var message = await _messageService.GetMessageAsync(kvKey);
+                var message = await _messageService.GetMessageAsync(userId, kvKey);
 
                 return Ok(message);
             }
@@ -86,7 +91,7 @@ namespace Nyxon.Server.Controllers
         }
 
         [HttpGet("{conversationId}/recent")]
-        public async Task<ActionResult<MessagesBundle>> GetRecentMessages([FromRoute] Guid conversationId)
+        public async Task<ActionResult<MessagesBundleResponse>> GetRecentMessages([FromRoute] Guid conversationId)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
@@ -94,9 +99,29 @@ namespace Nyxon.Server.Controllers
 
             try
             {
-                var messages = await _messageService.GetRecentMessagesAsync(conversationId);
+                var messages = await _messageService.GetRecentMessagesAsync(userId, conversationId);
                 var snapshots = await _snapshotService.GetSnapshotsAsync(userId, conversationId, messages);
-                return Ok(new MessagesBundle(messages, snapshots));
+                return Ok(new MessagesBundleResponse(messages, snapshots));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpGet("{conversationId}/bundle")]
+        public async Task<ActionResult<MessagesBundleResponse>> GetMessagesBundle([FromRoute] Guid conversationId, [FromBody] MessagesBundleRequest request)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
+                return Unauthorized();
+
+            try
+            {
+                var messages = await _messageService.GetMessagesBundleAsync(userId, conversationId, request.Count, request.LastSequenceNumber);
+                var snapshots = await _snapshotService.GetSnapshotsAsync(userId, conversationId, messages);
+
+                return new MessagesBundleResponse(messages, snapshots);
             }
             catch (Exception ex)
             {
@@ -107,9 +132,13 @@ namespace Nyxon.Server.Controllers
         [HttpGet("{conversationId}/message/{sequenceNumber}")]
         public async Task<ActionResult<MessageResponse>> GetMessage([FromRoute] Guid conversationId, [FromRoute] int sequenceNumber)
         {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
+                return Unauthorized();
+
             try
             {
-                var message = await _messageService.GetMessageAsync(conversationId, sequenceNumber);
+                var message = await _messageService.GetMessageAsync(userId, conversationId, sequenceNumber);
                 if (message == null)
                     throw new Exception("Message not found");
 
