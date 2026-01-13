@@ -86,7 +86,7 @@ namespace Nyxon.Client.Services.Crypto
 
                 return new PrekeyBundle(spk, opkList);
             }
-            finally
+            catch
             {
                 foreach (var opk in opkList)
                 {
@@ -96,6 +96,11 @@ namespace Nyxon.Client.Services.Crypto
                     }
                 }
                 if (spk != null && spk.PrivateKey != null) CryptographicOperations.ZeroMemory(spk.PrivateKey);
+                throw;
+            }
+            finally
+            {
+                
             }
         }
 
