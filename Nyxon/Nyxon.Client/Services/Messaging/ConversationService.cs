@@ -78,7 +78,7 @@ namespace Nyxon.Client.Services.Messaging
 
             try
             {
-                var prekeyBundle = await _conversationRepository.GetPrekeyBundle(username);
+                var prekeyBundle = await _conversationRepository.GetPrekeyBundleAsync(username);
 
                 if (prekeyBundle == null)
                     throw new InvalidOperationException("Prekey bundle fetch failed");

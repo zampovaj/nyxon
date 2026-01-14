@@ -72,7 +72,6 @@ namespace Nyxon.Server.Services.Vault
 
                 await _context.SaveChangesAsync();
             }
-
         }
         public async Task CreateVaultAsync(Guid conversationId, Guid userId, ConversationVaultData vaultData)
         {

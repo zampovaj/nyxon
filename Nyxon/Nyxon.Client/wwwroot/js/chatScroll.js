@@ -10,5 +10,11 @@ window.chatScroll = {
         if (el) {
             el.scrollTop = el.scrollHeight;
         }
-    }
+    },
+    isNearTop: function (elementId, threshold = 80) {
+        const el = document.getElementById(elementId);
+        if (!el) return false;
+
+        return el.scrollTop < threshold;
+    },
 }

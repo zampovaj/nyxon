@@ -15,8 +15,15 @@ namespace Nyxon.Client.ViewModels
         public string InputString { get; set; } = "";
         public string? ErrorMessage { get; private set; } = "";
         public event Action? StateChanged;
+        public bool CanLoadHistory => _isInitialized && !_isLoadingHistory && _hasMoreHistory;
+        public bool ScrollToBottom = true;
 
         private readonly SemaphoreSlim _messageLock = new(1, 1);
+        private readonly SemaphoreSlim _historyLock = new(1, 1);
+        private bool _isInitialized = false;
+        private bool _isLoadingHistory = false;
+        private bool _hasMoreHistory = true;
+
         private readonly TaskCompletionSource _initializationCompletion = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
 
@@ -39,12 +46,14 @@ namespace Nyxon.Client.ViewModels
             try
             {
                 _hubService.OnMessageNotification += HandleMessageNotification;
+                _activeConversationService.MessagesDecrypted += OnMessageBundleLoadedNotification;
                 var username = await _conversationService.OpenConversationAsync(conversationId);
                 await ActiveConversation.InitializeAsync(conversationId, username);
                 await _hubService.ConnectAsync();
                 await _hubService.JoinConversationAsync(conversationId, (Guid)_userContext.UserId);
-                // TODO: read history
                 await _inboxService.ReadConversationAsync(conversationId);
+                // read history
+                await _activeConversationService.LoadRecentMessagesAsync();
             }
             catch (Exception ex)
             {
@@ -52,7 +61,46 @@ namespace Nyxon.Client.ViewModels
             }
             finally
             {
+                _isInitialized = true;
                 _initializationCompletion.TrySetResult();
+                _hasMoreHistory = ActiveConversation.Messages.Count == 0 ||
+                    ActiveConversation.Messages.Min(m => m.SequenceNumber) > 1;
+                Notify();
+            }
+        }
+
+        public async Task LoadHistoryAsync()
+        {
+            if (!_isInitialized) return;
+            if (!_hasMoreHistory) return;
+
+            await _initializationCompletion.Task;
+            await _historyLock.WaitAsync();
+
+            if (_isLoadingHistory)
+            {
+                _historyLock.Release();
+                return;
+            }
+
+            _isLoadingHistory = true;
+
+            try
+            {
+                int lastSequenceNumber = ActiveConversation.Messages
+                    .Min(m => m.SequenceNumber);
+
+                await _activeConversationService.LoadHistoryAsync(lastSequenceNumber);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during loading message history: {ex.Message}");
+            }
+            finally
+            {
+                _historyLock.Release();
+                _isLoadingHistory = false;
+                _hasMoreHistory = ActiveConversation.Messages.Min(m => m.SequenceNumber) > 1;
                 Notify();
             }
         }
@@ -100,17 +148,32 @@ namespace Nyxon.Client.ViewModels
                 await _hubService.LeaveConversationAsync((Guid)_activeConversationService.ConversationId, (Guid)_userContext.UserId);
             await _hubService.DisconnectAsync();
             _hubService.OnMessageNotification -= HandleMessageNotification;
+            _activeConversationService.MessagesDecrypted -= OnMessageBundleLoadedNotification;
             _activeConversationService.Clear();
             Notify();
         }
 
+        private async void OnMessageBundleLoadedNotification(List<ChatMessage> messages)
+        {
+            try
+            {
+                await ActiveConversation.AddNewMessagesBundle(messages);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Loading of messages failed: {ex.Message}");
+            }
+        }
+
         private async void HandleMessageNotification(string kvKey)
         {
+            Console.WriteLine("Reached the handler");
             await _initializationCompletion.Task;
             await _messageLock.WaitAsync();
 
             try
             {
+                Console.WriteLine("Passed the sempahore");
                 var split = kvKey.Split(':');
                 if (split.Length != 3)
                     throw new InvalidOperationException($"Invalid kvKey format: {kvKey}");

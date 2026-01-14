@@ -189,7 +189,6 @@ namespace Nyxon.Client.ViewModels
 
                 if (IsRegistering)
                 {
-
                     passphraseBytes = Encoding.UTF8.GetBytes(passphrase);
                     success = await _authService.RegisterAsync(Username, passwordBytes, InviteCode, passphraseBytes);
                 }

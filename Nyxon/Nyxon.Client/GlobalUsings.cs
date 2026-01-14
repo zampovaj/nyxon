@@ -4,6 +4,7 @@ global using Nyxon.Core.Interfaces;
 global using Nyxon.Core.Version;
 global using Nyxon.Core.Models.Vaults;
 global using Nyxon.Core.Models;
+global using RatchetType = Nyxon.Core.DTOs.CreateSnapshotDto.RatchetType;
 
 //frontend
 global using Microsoft.AspNetCore.Components;

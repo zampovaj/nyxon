@@ -21,10 +21,23 @@ namespace Nyxon.Client.Models
             TargetUsername = targetUsername;
         }
 
+        public async Task AddNewMessagesBundle(List<ChatMessage> messages)
+        {
+            // TODO: this cant be right lol
+            foreach (var message in messages)
+            {
+                try
+                {
+                    await AddNewMessageAsync(message);
+                }
+                catch { }
+            }
+        }
+
         public async Task AddNewMessageAsync(ChatMessage message)
         {
             if (message.ConversationId != ConversationId)
-                throw new InvalidOperationException("Message conversatoin id doesn't match this conversation");
+                throw new InvalidOperationException("Message conversation id doesn't match this conversation");
 
             await InsertMessageAsync(message);
         }

@@ -210,6 +210,7 @@ namespace Nyxon.Server.Services.Messaging
                         throw new InvalidOperationException($"Ratchet can't move backwards: {nameof(request.SessionIndex)}");
 
                     convVault.VaultData.Receiving.Session.EncryptedCurrentSessionKey = request.EncryptedNewSessionKey;
+                    convVault.VaultData.Receiving.Session.RotationIndex = request.SessionIndex;
 
                     // snapshots
                     if (request.Snapshots != null && request.Snapshots.Any())
@@ -235,7 +236,6 @@ namespace Nyxon.Server.Services.Messaging
                                 _logger.LogInformation($"Couldn't add snapshot R:{snapshot.RotationIndex}::Id:{snapshot.Id}: {ex.Message}");
                             }
                         }
-                        convVault.VaultData.Receiving.Session.RotationIndex = request.SessionIndex;
 
                     }
                 }
@@ -248,8 +248,6 @@ namespace Nyxon.Server.Services.Messaging
                 // vault
                 convVault.RecvCounter = request.RecvCounter;
                 convVault.VaultData.Receiving.Session.MessageIndex = request.MessageIndex;
-                await _context.SaveChangesAsync();
-
 
                 // conversation users
                 var conversationUser = await _context.ConversationUsers
@@ -286,18 +284,10 @@ namespace Nyxon.Server.Services.Messaging
                 List<Message> messages;
                 messages = await _messageCacheService.GetRecentMessagesAsync(conversationId);
 
+                if (!messages.Any()) return new List<MessageResponse>();
+
                 return messages
-                    .Select(m => new MessageResponse
-                    {
-                        Id = m.Id,
-                        SequenceNumber = m.SequenceNumber,
-                        SenderId = m.SenderId,
-                        SenderUsername = m.SenderUsername,
-                        SessionIndex = m.SessionIndex,
-                        MessageIndex = m.MessageIndex,
-                        CreatedAt = m.CreatedAt,
-                        EncryptedPayload = m.EncryptedPayload
-                    })
+                    .Select(m => MapMessage(m))
                     .OrderBy(m => m.SequenceNumber)
                     .ToList();
             }

@@ -14,7 +14,7 @@ namespace Nyxon.Client.Repositories
             _apiService = apiService;
         }
 
-        public async Task<PrekeyBundleResponse?> GetPrekeyBundle(string username)
+        public async Task<PrekeyBundleResponse?> GetPrekeyBundleAsync(string username)
         {
             try
             {
@@ -108,6 +108,32 @@ namespace Nyxon.Client.Repositories
             catch (Exception ex)
             {
                 Console.WriteLine($"Error during receive server update: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<MessagesBundleDto?> FetchHistoryAsync(Guid conversationId, int count, int lastSequenceNumber)
+        {
+            try
+            {
+                return await _apiService.GetAsync<MessagesBundleDto>($"api/message/{conversationId}/bundle/{count}/{lastSequenceNumber}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during fetching messages bundle: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<MessagesBundleDto?> FetchRecentAsync(Guid conversationId)
+        {
+            try
+            {
+                return await _apiService.GetAsync<MessagesBundleDto>($"api/message/{conversationId}/recent");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during fetching recent messages bundle: {ex.Message}");
                 return null;
             }
         }

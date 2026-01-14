@@ -8,7 +8,9 @@ namespace Nyxon.Client.Interfaces
     public interface IConversationRepository
     {
         Task<InboxDto?> FetchInboxAsync();
-        Task<PrekeyBundleResponse?> GetPrekeyBundle(string username);
+        Task<MessagesBundleDto?> FetchHistoryAsync(Guid conversationId, int count, int lastSequenceNumber); 
+        Task<MessagesBundleDto?> FetchRecentAsync(Guid conversationId); 
+        Task<PrekeyBundleResponse?> GetPrekeyBundleAsync(string username);
         Task<ConversationVaultDto?> FetchVaultAsync(Guid conversationId);
         Task<SendMessageResponse?> SendMessageAsync(SendMessageRequest messageRequest);
         Task<CreateConversationResponse?> CreateConversationAsync(CreateConversationRequest conversationRequest);

@@ -91,7 +91,7 @@ namespace Nyxon.Server.Controllers
         }
 
         [HttpGet("{conversationId}/recent")]
-        public async Task<ActionResult<MessagesBundleResponse>> GetRecentMessages([FromRoute] Guid conversationId)
+        public async Task<ActionResult<MessagesBundleDto>> GetRecentMessages([FromRoute] Guid conversationId)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
@@ -101,7 +101,7 @@ namespace Nyxon.Server.Controllers
             {
                 var messages = await _messageService.GetRecentMessagesAsync(userId, conversationId);
                 var snapshots = await _snapshotService.GetSnapshotsAsync(userId, conversationId, messages);
-                return Ok(new MessagesBundleResponse(messages, snapshots));
+                return Ok(new MessagesBundleDto(messages, snapshots));
             }
             catch (Exception ex)
             {
@@ -109,8 +109,8 @@ namespace Nyxon.Server.Controllers
             }
         }
 
-        [HttpGet("{conversationId}/bundle")]
-        public async Task<ActionResult<MessagesBundleResponse>> GetMessagesBundle([FromRoute] Guid conversationId, [FromBody] MessagesBundleRequest request)
+        [HttpGet("{conversationId}/bundle/{count}/{lastSequenceNumber}")]
+        public async Task<ActionResult<MessagesBundleDto>> GetMessagesBundle([FromRoute] Guid conversationId, int count, int lastSequenceNumber)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
@@ -118,10 +118,10 @@ namespace Nyxon.Server.Controllers
 
             try
             {
-                var messages = await _messageService.GetMessagesBundleAsync(userId, conversationId, request.Count, request.LastSequenceNumber);
+                var messages = await _messageService.GetMessagesBundleAsync(userId, conversationId, count, lastSequenceNumber);
                 var snapshots = await _snapshotService.GetSnapshotsAsync(userId, conversationId, messages);
 
-                return new MessagesBundleResponse(messages, snapshots);
+                return new MessagesBundleDto(messages, snapshots);
             }
             catch (Exception ex)
             {

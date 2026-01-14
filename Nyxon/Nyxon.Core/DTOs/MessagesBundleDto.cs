@@ -7,16 +7,16 @@ using Nyxon.Core.Models.Vaults;
 
 namespace Nyxon.Core.DTOs
 {
-    public class MessagesBundleResponse
+    public class MessagesBundleDto
     {
         [Required]
         [NotNull]
         public List<MessageResponse> Messages { get; set; } = new();
         [Required]
         [NotNull]
-        public SnapshotsDto Snapshots { get; set; }
+        public SnapshotsBundleDto Snapshots {get;set;}
 
-        public MessagesBundleResponse(List<MessageResponse> messages, SnapshotsDto snapshots)
+        public MessagesBundleDto(List<MessageResponse> messages, SnapshotsBundleDto snapshots)
         {
             Messages = messages;
             Snapshots = snapshots;

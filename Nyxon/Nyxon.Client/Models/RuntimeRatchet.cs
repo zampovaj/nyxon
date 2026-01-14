@@ -8,7 +8,7 @@ namespace Nyxon.Client.Models
     public class RuntimeRatchet
     {
         public SessionState Session { get; set; }
-        private readonly SortedList<int, byte[]> _snapshotsHistory = new();
+        public SortedList<int, byte[]> SnapshotsHistory { get; private set; } = new();
 
         public RuntimeRatchet(SessionState session)
         {
@@ -25,15 +25,15 @@ namespace Nyxon.Client.Models
         {
             foreach (var snapshot in snapshots)
             {
-                if (!_snapshotsHistory.ContainsKey(snapshot.RotationIndex))
+                if (! SnapshotsHistory.ContainsKey(snapshot.RotationIndex))
                 {
-                    _snapshotsHistory.Add(snapshot.RotationIndex, snapshot.EncryptedSessionKey);
+                     SnapshotsHistory.Add(snapshot.RotationIndex, snapshot.EncryptedSessionKey);
                 }
             }
         }
         public void AddSnapshot(Snapshot snapshot)
         {
-            _snapshotsHistory.Add(snapshot.RotationIndex, snapshot.EncryptedSessionKey);
+             SnapshotsHistory.Add(snapshot.RotationIndex, snapshot.EncryptedSessionKey);
         }
     }
 }

@@ -65,6 +65,7 @@ namespace Nyxon.Client.Services
                 throw; // rethrow for viewmodel
             }
         }
+
         public async Task PostAsync<TRequest>(string uri, TRequest data)
         {
             try

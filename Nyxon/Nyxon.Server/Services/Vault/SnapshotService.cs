@@ -41,9 +41,9 @@ namespace Nyxon.Server.Services.Vault
             await _context.SaveChangesAsync();
         }
 
-        public async Task<SnapshotsDto> GetSnapshotsAsync(Guid userId, Guid conversationId, List<MessageResponse> messages)
+        public async Task<SnapshotsBundleDto> GetSnapshotsAsync(Guid userId, Guid conversationId, List<MessageResponse> messages)
         {
-            SnapshotsDto result = new SnapshotsDto();
+            SnapshotsBundleDto result = new SnapshotsBundleDto();
 
             if (messages == null || !messages.Any())
                 return result;
@@ -85,6 +85,7 @@ namespace Nyxon.Server.Services.Vault
                     q.RotationIndex <= min)
                 .Select(q => new Snapshot()
                 {
+                    Id = q.Id,
                     RotationIndex = q.RotationIndex,
                     EncryptedSessionKey = q.EncryptedSessionKey,
                     CreatedAt = q.CreatedAt

@@ -15,8 +15,9 @@ namespace Nyxon.Client.Interfaces
         Task InitializeAsync(Guid conversationId);
         Task<NewMessageObject> SendMessageAsync(string message);
         Task<ChatMessage> ReceiveMessageAsync(string kvKey);
-        Task<List<ChatMessage>> LoadHistoryAsync(int count = 50, int skip = 0);
-        event Action<ChatMessage> MessageDecrypted;
+        Task LoadHistoryAsync(int lastSequenceNumber, int count = 50);
+        Task LoadRecentMessagesAsync();
+        event Action<List<ChatMessage>> MessagesDecrypted;
         void Clear();
     }
 }

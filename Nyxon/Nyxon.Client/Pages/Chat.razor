@@ -84,6 +84,7 @@
 
     private Action? _stateChangedHandler;
     private bool _shouldAutoScroll = false;
+    private bool _shouldLoadHistory = false;
     private int _lastMessageCount = 0;
     private Guid? _lastConversationId = null;
 
@@ -153,6 +154,15 @@
             );
         }
 
+        if (_vm.ScrollToBottom && _vm.CanLoadHistory)
+        {
+            await JS.InvokeVoidAsync(
+            "chatScroll.scrollToBottom",
+            "messagesContainer"
+            );
+            _vm.ScrollToBottom = false;
+        }
+
         if (_shouldAutoScroll && currentCount != _lastMessageCount)
         {
             await JS.InvokeVoidAsync(
@@ -162,6 +172,16 @@
         }
 
         _lastMessageCount = currentCount;
+
+        bool isNearTop = await JS.InvokeAsync<bool>(
+        "chatScroll.isNearTop",
+        "messagesContainer"
+        );
+
+        if (isNearTop && _vm.CanLoadHistory)
+        {
+            _ = _vm.LoadHistoryAsync();
+        }
     }
     private async Task PrepareAutoScrollAsync()
     {
