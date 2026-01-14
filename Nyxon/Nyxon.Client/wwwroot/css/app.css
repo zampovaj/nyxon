@@ -750,6 +750,59 @@ input[type="password"] {
     width: 500px;
 }
 
+.search-results-popup {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-top: 10px;
+    z-index: 100;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.search-item {
+    padding: 12px 20px;
+    font-size: 1rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background-color 0.2s;
+}
+
+.search-item:last-child {
+    border-bottom: none;
+}
+
+.search-item:hover {
+    background-color: var(--bg-surface-hover);
+    color: var(--text-main);
+    border: 1px solid var(--primary);
+}
+
+.search-item:first-child:hover {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.search-item:last-child:hover {
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.search-item.existing-friend {
+    color: var(--primary);
+}
+
+.search-item.existing-friend:hover {
+    color: var(--text-main);
+    background-color: var(--primary-dim);
+}
+
 .dash-search {
     width: 100%;
     background: var(--bg-surface);

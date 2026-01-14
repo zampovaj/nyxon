@@ -13,20 +13,53 @@ namespace Nyxon.Client.ViewModels
     {
         private readonly LayoutService _layoutService;
         private readonly IUserVaultService _userVaultService;
+        private readonly IUserListService _userListService;
+        private readonly NavigationManager _nav;
         public event Action? StateChanged;
 
         public bool IsUnlocked => _layoutService.IsVaultUnlocked;
         //in case terminal gets more states in the future, enum is a better option
         public TerminalMode Mode => IsUnlocked ? TerminalMode.Unlocked : TerminalMode.Locked;
-        private byte[] PassphraseBytes = Array.Empty<byte>();
-        public string InputString { get; set; } = "";
+        private byte[] PassphraseBytes = Array.Empty<byte>(); private string _inputString = "";
+        public string InputString
+        {
+            get => _inputString;
+            set
+            {
+                _inputString = value;
+
+                if (IsUnlocked &&
+                    !string.IsNullOrWhiteSpace(_inputString) &&
+                    !_inputString.StartsWith(":"))
+                {
+                    SearchResults = _userListService.SearchUsers(_inputString);
+
+                    foreach (var result in SearchResults)
+                    {
+                        Console.WriteLine($"User: {result.Username}");
+                    }
+                }
+                else
+                {
+                    SearchResults.Clear();
+                }
+
+                Notify();
+            }
+        }
         public string? ErrorMessage { get; private set; } = "";
+        public List<UserModel> SearchResults = new();
 
 
-        public HomeViewModel(LayoutService layoutService, IUserVaultService userVaultService)
+        public HomeViewModel(LayoutService layoutService,
+            IUserVaultService userVaultService,
+            IUserListService userListService,
+            NavigationManager nav)
         {
             _layoutService = layoutService;
             _userVaultService = userVaultService;
+            _userListService = userListService;
+            _nav = nav;
 
             _layoutService.OnChange += Notify;
         }
@@ -98,6 +131,10 @@ namespace Nyxon.Client.ViewModels
             }
             else
             {
+                if (SearchResults.Any(s => s.Username.ToLower() == InputString.ToLower()))
+                {
+                    _nav.NavigateTo($"chat/{InputString}");
+                }
                 // TODO: commands
             }
         }

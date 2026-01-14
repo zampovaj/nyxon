@@ -20,6 +20,47 @@ namespace Nyxon.Client.Services
 
         public event Action OnChange;
 
+        public List<UserModel> SearchUsers(string query, int limit = 10)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return new List<UserModel>();
+
+            query = query.Trim();
+
+            return Users
+                .Where(u =>
+                    u.Username.Contains(query, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(u => u.Conversation)
+                .ThenBy(u => u.Username)
+                .Take(limit)
+                .ToList();
+        }
+
+        public async Task SyncOfflineAsync()
+        {
+            try
+            {
+                var conversationUsernames = _inboxService.Conversations
+                    .Select(c => c.TargetUsername)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+
+                if (Users != null)
+                {
+                    Users
+                        .Select(u => u.Conversation = conversationUsernames
+                            .Contains(u.Username))
+                        .ToList();
+
+                    NotifyStateChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"USer list sync failed: {ex.Message}");
+            }
+        }
+
         public async Task SyncListAsync()
         {
             try

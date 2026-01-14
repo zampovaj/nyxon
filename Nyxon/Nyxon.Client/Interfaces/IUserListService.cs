@@ -10,7 +10,9 @@ namespace Nyxon.Client.Interfaces
         public List<UserModel> Users { get; }
         event Action OnChange;
         Task SyncListAsync();
+        Task SyncOfflineAsync();
         void Clear();
         void Check();
+        public List<UserModel> SearchUsers(string query, int limit = 10);
     }
 }

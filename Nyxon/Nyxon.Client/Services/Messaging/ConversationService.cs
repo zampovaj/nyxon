@@ -41,6 +41,7 @@ namespace Nyxon.Client.Services.Messaging
         private readonly IActiveConversationService _activeConversation;
         private readonly IInboxService _inboxService;
         private readonly IHandshakeService _handshakeService;
+        private readonly IUserListService _userListService;
 
         public ConversationService(IConversationRepository conversationRepository,
             IX3DHCrypto x3dh,
@@ -49,7 +50,8 @@ namespace Nyxon.Client.Services.Messaging
             UserContext userContext,
             IActiveConversationService activeConversation,
             IInboxService inboxService,
-            IHandshakeService handshakeService)
+            IHandshakeService handshakeService,
+            IUserListService userListService)
         {
             _conversationRepository = conversationRepository;
             _x3dh = x3dh;
@@ -59,6 +61,7 @@ namespace Nyxon.Client.Services.Messaging
             _activeConversation = activeConversation;
             _inboxService = inboxService;
             _handshakeService = handshakeService;
+            _userListService = userListService;
         }
 
         public async Task<Guid?> CreateConversationAsync(string username)
@@ -156,6 +159,7 @@ namespace Nyxon.Client.Services.Messaging
                 }
 
                 await _inboxService.SyncInboxAsync();
+                await _userListService.SyncOfflineAsync();
 
                 return conversationId;
             }

@@ -13,9 +13,30 @@
 
             <div class="dash-search-wrapper">
                 <span class="dash-icon">>_</span>
-                <input id="terminal-input" @ref="_terminalInput" type="text" class="dash-search"
-                    placeholder="@(_vm.IsUnlocked ? "Type pa command or user..." : "Enter passphrase to unlock")"
-                    @bind="_vm.InputString" @bind:event="oninput" @onkeydown="_vm.HandleTerminalKey">
+                <input id="terminal-input" class="dash-search" @bind-value="_vm.InputString" @bind-value:event="oninput"
+                    @onkeydown="_vm.HandleTerminalKey" @onblur="HideResults" />
+
+
+
+                @if (_vm.IsUnlocked && _vm.SearchResults.Any())
+                {
+                    <div class="search-results-popup">
+                        @foreach (var user in _vm.SearchResults)
+                        {
+                            <div class="search-item @(user.Conversation ? "existing-friend" : "")"
+                                @onmousedown="() => OpenConversation(user)">
+
+                                <div class="search-info">
+                                    <span class="search-username">@user.Username</span>
+                                    @if (user.Conversation)
+                                    {
+                                        //<span class="search-badge">Existing Conversation</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
             </div>
 
             <div class="dash-shortcuts">
@@ -24,13 +45,6 @@
                     <div class="shortcut-chip">type <b>?</b> for help</div>
                     <div class="shortcut-chip"><b>:command</b></div>
                     <div class="shortcut-chip"><b>@@username</b> message</div>
-
-                    @foreach (var user in UserListService.Users)
-                    {
-                        <button class="send-btn" @onclick='() => Nav.NavigateTo($"chat/{user.Username}")'>
-                            @user.Username
-                        </button>
-                    }
                 }
                 else
                 {
@@ -63,6 +77,18 @@
 @code {
     private ElementReference _terminalInput;
     private bool _isHotKeyActive = false;
+
+    private async Task HideResults(FocusEventArgs e)
+    {
+        await Task.Delay(150);
+        _vm.SearchResults.Clear();
+        StateHasChanged();
+    }
+    private async Task OpenConversation(UserModel user)
+    {
+        _vm.InputString = "";
+        Nav.NavigateTo($"/chat/{user.Username}");
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
