@@ -16,7 +16,7 @@ namespace Nyxon.Client.ViewModels
         public string? ErrorMessage { get; private set; } = "";
         public event Action? StateChanged;
         public bool CanLoadHistory => _isInitialized && !_isLoadingHistory && _hasMoreHistory;
-        public bool ScrollToBottom = true;
+        public bool InitialScrollToBottom = true;
 
         private readonly SemaphoreSlim _messageLock = new(1, 1);
         private readonly SemaphoreSlim _historyLock = new(1, 1);
@@ -65,6 +65,7 @@ namespace Nyxon.Client.ViewModels
                 _initializationCompletion.TrySetResult();
                 _hasMoreHistory = ActiveConversation.Messages.Count == 0 ||
                     ActiveConversation.Messages.Min(m => m.SequenceNumber) > 1;
+                InitialScrollToBottom = true;
                 Notify();
             }
         }

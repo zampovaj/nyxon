@@ -154,13 +154,13 @@
             );
         }
 
-        if (_vm.ScrollToBottom && _vm.CanLoadHistory)
+        if (_vm.InitialScrollToBottom)
         {
             await JS.InvokeVoidAsync(
             "chatScroll.scrollToBottom",
             "messagesContainer"
             );
-            _vm.ScrollToBottom = false;
+            _vm.InitialScrollToBottom = false;
         }
 
         if (_shouldAutoScroll && currentCount != _lastMessageCount)

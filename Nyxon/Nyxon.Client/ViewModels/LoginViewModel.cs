@@ -108,7 +108,7 @@ namespace Nyxon.Client.ViewModels
         private bool IsPassphraseValid(string passphrase)
         {
             if (string.IsNullOrWhiteSpace(passphrase)
-            || passphrase.Length < 16 || passphrase.Length > 256)
+            || passphrase.Length < 32 || passphrase.Length > 256)
             {
                 return false;
             }
@@ -144,7 +144,8 @@ namespace Nyxon.Client.ViewModels
                 }
                 if (!IsPassphraseValid(Passphrase))
                 {
-                    ErrorMessage = "Passphrase invalid. Passphrase must be 16-256 characters long";
+                    ErrorMessage = "Passphrase invalid. Passphrase must be 32-256 characters long";
+                    return false;
                 }
                 if (!IsConfirmPassphraseValid(ConfirmPassphrase))
                 {

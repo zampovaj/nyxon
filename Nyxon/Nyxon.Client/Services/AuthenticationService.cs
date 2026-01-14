@@ -83,6 +83,9 @@ namespace Nyxon.Client.Services
                 var passwordSalt = _cryptoService.GeneratePasswordSalt();
                 var passphraseSalt = _cryptoService.GeneratePassphraseSalt();
 
+                if (!passphrase.Any() || passphrase.Length < 32 || passphrase.Length > 256)
+                    throw new InvalidOperationException("Passphrase format is wrong");
+
                 passphraseKey = await _cryptoService.DerivePassphraseKeyAsync(passphrase, passphraseSalt);
                 vaultKey = _cryptoService.GenerateVaultKey();
                 identityKey = _cryptoService.GenerateIdentityKey();
