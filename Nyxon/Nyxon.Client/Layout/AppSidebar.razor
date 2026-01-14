@@ -9,7 +9,8 @@
     <div class="sidebar-top">
         <div class="collapsed-icon">#</div>
         <div class="expanded-search">
-            <input type="text" class="input-std" placeholder="Filter chats...">
+            <input type="text" class="input-std" placeholder="Filter chats..." @bind-value="_inputString"
+                @bind-value:event="oninput">
         </div>
     </div>
     <div class="side-nav-list">
@@ -25,7 +26,16 @@
         }
         else
         {
-            foreach (Conversation conv in InboxService.Conversations)
+            var chats = FilteredConversations;
+
+            if (!chats.Any())
+            {
+                <div class="side-nav-item" style="opacity: 0.5; cursor: default; justify-content: center;">
+                    <span class="chat-preview">No matching chats</span>
+                </div>
+            }
+
+            foreach (Conversation conv in chats)
             {
                 <div class="side-nav-item" @onclick='() => TryOpenChat(conv)'>
                     <MudAvatar class="avatar side-avatar">
@@ -58,6 +68,18 @@
 </aside>
 
 @code {
+    private IEnumerable<Conversation> FilteredConversations
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(_inputString))
+                return InboxService.Conversations;
+
+            return InboxService.Conversations
+            .Where(c => c.TargetUsername.Contains(_inputString, StringComparison.OrdinalIgnoreCase));
+        }
+    }
+    private string _inputString;
     protected override void OnInitialized()
     {
         LayoutState.OnChange += StateHasChanged;
