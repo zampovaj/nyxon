@@ -16,5 +16,6 @@ namespace Nyxon.Client.Models
         public bool HasHandshake => HandshakeId != null;
         public bool IsProcessing { get; set; } = false;
         public string Initials => TargetUsername.Length > 0 ? TargetUsername[0].ToString().ToUpper() : "?";
+        public bool IsSelected = false;
     }
 }

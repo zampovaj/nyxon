@@ -647,11 +647,11 @@ input[type="password"] {
     color: var(--mud-palette-text-primary);
 }
 
-.side-nav-item:active {
+.selected-conversation {
     background-color: var(--primary-dim);
 }
 
-.side-nav-item:active .side-avatar {
+.selected-conversation .side-avatar {
     background-color: var(--primary-dim);
     color: var(--primary);
     border-color: var(--primary);

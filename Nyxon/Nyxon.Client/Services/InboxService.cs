@@ -26,6 +26,33 @@ namespace Nyxon.Client.Services
 
         public event Action OnChange;
 
+        public async Task SetSelectedAsync(Guid conversationId)
+        {
+            Unselect();
+            Conversations?
+                .FirstOrDefault(c => c.ConversationId == conversationId)
+                .IsSelected = true;
+            NotifyStateChanged();
+        }
+
+        public async Task SetSelectedAsync(string username)
+        {
+            Unselect();
+            Conversations?
+                .FirstOrDefault(c => c.TargetUsername == username)
+                .IsSelected = true;
+            NotifyStateChanged();
+        }
+
+        public void Unselect()
+        {
+            foreach(var conversation in Conversations)
+            {
+                conversation.IsSelected = false;
+            }
+            NotifyStateChanged();
+        }
+
         public async Task SyncInboxAsync()
         {
             if (!_userContext.IsAuthenticated)

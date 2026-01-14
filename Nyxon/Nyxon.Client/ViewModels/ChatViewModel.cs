@@ -66,6 +66,7 @@ namespace Nyxon.Client.ViewModels
                 _hasMoreHistory = ActiveConversation.Messages.Count == 0 ||
                     ActiveConversation.Messages.Min(m => m.SequenceNumber) > 1;
                 InitialScrollToBottom = true;
+                await _inboxService.SetSelectedAsync((Guid)ActiveConversation.ConversationId);
                 Notify();
             }
         }
@@ -151,6 +152,7 @@ namespace Nyxon.Client.ViewModels
             _hubService.OnMessageNotification -= HandleMessageNotification;
             _activeConversationService.MessagesDecrypted -= OnMessageBundleLoadedNotification;
             _activeConversationService.Clear();
+            _inboxService.Unselect();
             Notify();
         }
 
