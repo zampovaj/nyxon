@@ -26,6 +26,7 @@ namespace Nyxon.Client.Models
             // TODO: this cant be right lol
             foreach (var message in messages)
             {
+                if (message.IsMine) message.SenderUsername = "Me";
                 try
                 {
                     await AddNewMessageAsync(message);

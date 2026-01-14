@@ -866,6 +866,7 @@ input[type="password"] {
 
 .msg-wrapper.received {
     align-self: flex-start;
+    align-items: flex-start;
 }
 
 .msg-wrapper.sent {
