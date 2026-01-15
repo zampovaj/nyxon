@@ -65,7 +65,7 @@ namespace Nyxon.Server.Services.Auth
                     publicIdentityKey: request.PublicIdentityKey,
                     publicAgreementKey: request.PublicAgreementKey,
                     admin: false,
-                    canCreateInvites: false);
+                    canCreateInvites: true);
 
                 //spk
                 var spk = new Nyxon.Server.Models.SignedPrekey

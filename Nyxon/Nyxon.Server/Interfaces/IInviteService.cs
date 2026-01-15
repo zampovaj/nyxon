@@ -9,6 +9,6 @@ namespace Nyxon.Server.Interfaces
     {
         Task<Guid> ValidateAsync(string code);
         Task MarkUsedAsync(Guid id);
-        Task<InviteCodeDto> CreateInviteAsync();
+        Task<List<string>> CreateInvitesAsync(int count = 1);
     }
 }

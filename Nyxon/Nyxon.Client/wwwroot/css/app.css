@@ -1051,3 +1051,145 @@ input[type="password"] {
     color: var(--mud-palette-primary);
     font-weight: bold;
 }
+
+
+/* TERMINAL OUTPUT CARD */
+
+.terminal-output-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--secondary);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    width: 500px;
+    box-shadow: 0 0 20px rgba(3, 218, 198, 0.1);
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-family: var(--font-code);
+    color: var(--secondary);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Copy All Button Style */
+.btn-copy-all {
+    background: rgba(3, 218, 198, 0.1);
+    border: 1px solid var(--secondary);
+    color: var(--secondary);
+    font-family: var(--font-code);
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-copy-all:hover {
+    background: var(--secondary);
+    color: #000; /* Black text on Teal background */
+    box-shadow: 0 0 10px rgba(3, 218, 198, 0.3);
+}
+
+/* Chips - remove pointer since they aren't clickable anymore */
+.invite-code-chip {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px dashed var(--border);
+    color: var(--text-main);
+    font-family: var(--font-code);
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    user-select: text; /* Allow manual selection if needed */
+    cursor: default;
+}
+
+
+.invite-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+
+.invite-code-chip:hover {
+    background: rgba(3, 218, 198, 0.1);
+    border-color: var(--secondary);
+    color: var(--secondary);
+}
+
+/* "COPY" hint that appears on hover */
+.copy-hint {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.6rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.invite-code-chip:hover .copy-hint {
+    opacity: 1;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: var(--font-code);
+    font-size: 1.1rem;
+}
+
+.btn-icon:hover {
+    color: var(--error);
+}
+
+/* */
+
+/* Default transition for smooth color switching */
+.dash-search {
+    transition: all 0.2s ease;
+}
+
+/* COMMAND MODE STYLES */
+.dash-search.command-mode {
+    /* Turn border and text Teal */
+    border-color: var(--secondary);
+    color: var(--secondary);
+    
+    /* Subtle background tint */
+    background-color: rgba(3, 218, 198, 0.05); 
+    
+    /* Optional: Add a small glow */
+    box-shadow: 0 0 15px rgba(3, 218, 198, 0.2);
+}
+
+/* Force the icon (>_) to also turn Teal when in command mode */
+.dash-search-wrapper:has(.command-mode) .dash-icon {
+    color: var(--secondary);
+    text-shadow: 0 0 5px var(--secondary);
+}

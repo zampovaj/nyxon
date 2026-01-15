@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
+using System.Linq.Expressions;
 
 namespace Nyxon.Server.Services.Invites
 {
@@ -44,20 +45,33 @@ namespace Nyxon.Server.Services.Invites
             return invite.Id;
         }
 
-        public async Task<InviteCodeDto> CreateInviteAsync()
+        public async Task<List<string>> CreateInvitesAsync(int count = 1)
         {
-            var code = GenerateInvite(12);
+            List<string> inviteCodes = new();
 
-            var invite = new InviteCode(_hasher.HashInvite(code));
+            if (count > 50) count = 50;
+            int maxRetries = count;
 
-            _context.InviteCodes.Add(invite);
-            await _context.SaveChangesAsync();
-            
-            return new InviteCodeDto()
+            for (int i = 0; i < count && i < maxRetries; i++)
             {
-                Id = invite.Id,
-                Code = code
-            };
+                try
+                {
+                    var code = GenerateInvite(12);
+
+                    var invite = new InviteCode(_hasher.HashInvite(code));
+
+                    _context.InviteCodes.Add(invite);
+                    await _context.SaveChangesAsync();
+
+                    inviteCodes.Add(code);
+                }
+                catch
+                {
+                    i--;
+                    maxRetries++;
+                }
+            }
+            return inviteCodes;
         }
 
         private string GenerateInvite(int length)

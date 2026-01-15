@@ -13,8 +13,9 @@
 
             <div class="dash-search-wrapper">
                 <span class="dash-icon">>_</span>
-                <input id="terminal-input" class="dash-search" @bind-value="_vm.InputString" @bind-value:event="oninput"
-                    @onkeydown="_vm.HandleTerminalKey" @onblur="HideResults" />
+                <input id="terminal-input" class="dash-search @(_vm.Mode == TerminalMode.Command ? "command-mode" : "")"
+                    @bind-value="_vm.InputString" @bind-value:event="oninput" @onkeydown="_vm.HandleTerminalKey"
+                    @onblur="HideResults" />
 
 
 
@@ -52,6 +53,27 @@
                 }
             </div>
 
+            @if (_vm.InviteCodes != null && _vm.InviteCodes.Any())
+            {
+                <div class="terminal-output-card">
+                    <div class="output-header">
+                        <span class="output-title">GENERATED INVITES</span>
+                        <div class="header-actions">
+                            <button class="btn-copy-all" @onclick="CopyAllAndClose">COPY ALL</button>
+                            <button class="btn-icon" @onclick="ClearInvites">x</button>
+                        </div>
+                    </div>
+
+                    <div class="invite-grid">
+                        @foreach (var inviteCode in _vm.InviteCodes)
+                        {
+                            <div class="invite-code-chip">@inviteCode
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
             @if (!string.IsNullOrWhiteSpace(_vm.ErrorMessage))
             {
                 <div style="margin-top: 10px;" class="error">
@@ -77,6 +99,30 @@
 @code {
     private ElementReference _terminalInput;
     private bool _isHotKeyActive = false;
+
+    private void ClearInvites()
+    {
+        _vm.InviteCodes = null;
+        StateHasChanged();
+    }
+
+    private async Task CopyAllAndClose()
+    {
+        if (_vm.InviteCodes == null || !_vm.InviteCodes.Any()) return;
+
+        var allCodes = string.Join("\n", _vm.InviteCodes);
+
+        try
+        {
+            await JS.InvokeVoidAsync("clipboardCopy.copyText", allCodes);
+            await Task.Delay(250);
+            ClearInvites();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Clipboard error: {ex.Message}");
+        }
+    }
 
     private async Task HideResults(FocusEventArgs e)
     {

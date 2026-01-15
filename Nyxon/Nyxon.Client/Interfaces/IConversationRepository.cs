@@ -17,5 +17,6 @@ namespace Nyxon.Client.Interfaces
         Task<bool> CreateConversationVaultAsync(Guid conversationId, ConversationVaultData vaultData);
         Task<MessageResponse?> GetMessageAsync(string kvKey);
         Task<MessageReceivedStateUpdateResponse?> ReceiveMessageServerUpdateAsync(MessageReceivedStateUpdateRequest request);
+        Task<List<string>> GenerateInviteCodesAsync(int count = 1);
     }
 }

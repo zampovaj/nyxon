@@ -137,5 +137,21 @@ namespace Nyxon.Client.Repositories
                 return null;
             }
         }
+
+        public async Task<List<string>> GenerateInviteCodesAsync(int count = 1)
+        {
+            try
+            {
+                var dto = new NewInviteCodesRequest(count);
+                var response = await _apiService.PostAsync<NewInviteCodesResponse, NewInviteCodesRequest>("api/invites", dto);
+                return response.Codes;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during creating new invite codes: {ex.Message}");
+                return null;
+            }
+        }
+
     }
 }

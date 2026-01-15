@@ -17,5 +17,6 @@ namespace Nyxon.Client.Interfaces
         void Unselect();
         Task UpdateConversationAsync(DateTime lastMessageAt, bool isRead, Guid conversationId);
         Task ReadConversationAsync(Guid conversationId);
+        List<Conversation> SearchConversations(string query, int limit = 10);
     }
 }

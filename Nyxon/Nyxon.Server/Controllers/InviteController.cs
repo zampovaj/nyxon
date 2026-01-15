@@ -25,7 +25,7 @@ namespace Nyxon.Server.Controllers
 
         [HttpPost]
         [Authorize(Policy = "CanCreateInvites")]
-        public async Task<ActionResult<InviteCodeDto>> CreateInvite()
+        public async Task<ActionResult<NewInviteCodesResponse>> CreateInvite([FromBody] NewInviteCodesRequest request)
         {
             try
             {
@@ -38,8 +38,8 @@ namespace Nyxon.Server.Controllers
                 if (!canCreate)
                     return Forbid();
 
-                var invite = await _inviteCodeService.CreateInviteAsync();
-                return Ok(invite);
+                var invites = await _inviteCodeService.CreateInvitesAsync(request.Count);
+                return Ok(new NewInviteCodesResponse(invites));
             }
             catch (Exception ex)
             {

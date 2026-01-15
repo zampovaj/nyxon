@@ -35,6 +35,21 @@ namespace Nyxon.Client.Services
             NotifyStateChanged();
         }
 
+        public List<Conversation> SearchConversations(string query, int limit = 10)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return new List<Conversation>();
+
+            query = query.Trim();
+
+            return Conversations
+                .Where(c =>
+                    c.TargetUsername.Contains(query, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(c => c.TargetUsername)
+                .Take(limit)
+                .ToList();
+        }
+
         public async Task SetSelectedAsync(string username)
         {
             Unselect();
@@ -46,7 +61,7 @@ namespace Nyxon.Client.Services
 
         public void Unselect()
         {
-            foreach(var conversation in Conversations)
+            foreach (var conversation in Conversations)
             {
                 conversation.IsSelected = false;
             }
