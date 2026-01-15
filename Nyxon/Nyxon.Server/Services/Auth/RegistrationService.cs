@@ -47,8 +47,11 @@ namespace Nyxon.Server.Services.Auth
                     throw new InvalidOperationException("Username taken");
                 }
 
+                var usersCount = await _context.Users
+                    .CountAsync();
+
                 // check invite code
-                if (_enforceInvites)
+                if (_enforceInvites && usersCount > 0)
                 {
                     var inviteId = await _inviteCodeService.ValidateAsync(request.InviteCode);
                     await _inviteCodeService.MarkUsedAsync(inviteId);

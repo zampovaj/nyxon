@@ -350,6 +350,10 @@ body {
     background: radial-gradient(circle at 50% 30%, #1a1520 0%, var(--bg-void) 60%);
 }
 
+.landing-hero:hover {
+    cursor: default;
+}
+
 .hero-title {
     font-family: var(--font-heading);
     color: var(--mud-palette-text-primary);
@@ -689,6 +693,7 @@ input[type="password"] {
 }
 
 .sidebar-bottom {
+    cursor: default;
     margin-top: auto;
     margin-bottom: 16px;
     height: 50px;
@@ -729,6 +734,7 @@ input[type="password"] {
 }
 
 .dashboard-view {
+    cursor: default;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -736,6 +742,18 @@ input[type="password"] {
     height: 100%;
     padding-bottom: 50px;
 }
+
+/*.dashboard-view {
+    cursor: default;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; 
+    padding-top: 25vh; 
+    overflow-y: auto; 
+    height: 100%;
+    padding-bottom: 50px; 
+}*/
 
 .dash-greeting {
     font-family: var(--font-heading);
@@ -1054,6 +1072,7 @@ input[type="password"] {
 
 
 /* TERMINAL OUTPUT CARD */
+/* TODO: read what gemini cooked here */
 
 .terminal-output-card {
     background-color: var(--bg-surface);
@@ -1062,7 +1081,7 @@ input[type="password"] {
     padding: 20px;
     margin-top: 20px;
     width: 500px;
-    box-shadow: 0 0 20px rgba(3, 218, 198, 0.1);
+    /*box-shadow: 0 0 20px rgba(3, 218, 198, 0.1);*/
     animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1093,7 +1112,7 @@ input[type="password"] {
     gap: 15px;
 }
 
-/* Copy All Button Style */
+
 .btn-copy-all {
     background: rgba(3, 218, 198, 0.1);
     border: 1px solid var(--secondary);
@@ -1109,11 +1128,10 @@ input[type="password"] {
 
 .btn-copy-all:hover {
     background: var(--secondary);
-    color: #000; /* Black text on Teal background */
+    color: #000;
     box-shadow: 0 0 10px rgba(3, 218, 198, 0.3);
 }
 
-/* Chips - remove pointer since they aren't clickable anymore */
 .invite-code-chip {
     background: rgba(255, 255, 255, 0.05);
     border: 1px dashed var(--border);
@@ -1122,7 +1140,7 @@ input[type="password"] {
     padding: 10px;
     border-radius: 4px;
     text-align: center;
-    user-select: text; /* Allow manual selection if needed */
+    user-select: text;
     cursor: default;
 }
 
@@ -1131,6 +1149,9 @@ input[type="password"] {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
+    max-height: 180px;
+    overflow-y: auto;
+    padding-right: 5px;
 }
 
 
@@ -1168,27 +1189,33 @@ input[type="password"] {
     color: var(--error);
 }
 
-/* */
 
-/* Default transition for smooth color switching */
 .dash-search {
     transition: all 0.2s ease;
 }
 
+.dash-search.mention-mode {
+    border-color: var(--primary);
+    color: var(--primary);
+    background-color: 0 0 15px rgba(187, 134, 252, 0.0.4);
+    box-shadow: 0 0 15px rgba(187, 134, 252, 0.4);
+}
+
+
+.dash-search-wrapper:has(.mention-mode) .dash-icon {
+    color: var(--primary);
+    text-shadow: 0 0 5px var(--primary);
+}
+
+
 /* COMMAND MODE STYLES */
 .dash-search.command-mode {
-    /* Turn border and text Teal */
     border-color: var(--secondary);
     color: var(--secondary);
-    
-    /* Subtle background tint */
     background-color: rgba(3, 218, 198, 0.05); 
-    
-    /* Optional: Add a small glow */
     box-shadow: 0 0 15px rgba(3, 218, 198, 0.2);
 }
 
-/* Force the icon (>_) to also turn Teal when in command mode */
 .dash-search-wrapper:has(.command-mode) .dash-icon {
     color: var(--secondary);
     text-shadow: 0 0 5px var(--secondary);

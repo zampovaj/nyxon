@@ -98,7 +98,7 @@ namespace Nyxon.Client.ViewModels
                 {
                     int count = 1;
                     if (args.Length == 1 && int.TryParse(args[0], out var parsed))
-                        count = Math.Clamp(parsed, 1, 50);
+                        count = Math.Clamp(parsed, 1, 20);
                     await GenerateInvites(count);
                 }
             };
@@ -207,6 +207,10 @@ namespace Nyxon.Client.ViewModels
             Notify();
         }
 
+        public void ClearError()
+        {
+            ErrorMessage = "";
+        }
         private void Notify() => StateChanged?.Invoke();
     }
 }

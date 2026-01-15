@@ -26,3 +26,4 @@ global using Nyxon.Client.Interfaces;
 global using Nyxon.Client.Interfaces.Crypto;
 global using Nyxon.Client.Components;
 global using Nyxon.Client.Services.State;
+global using Nyxon.Client.Interfaces.Messaging;

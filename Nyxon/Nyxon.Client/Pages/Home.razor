@@ -12,8 +12,8 @@
             <h1 class="dash-greeting">Good afternoon, @context.User.Identity?.Name.</h1>
 
             <div class="dash-search-wrapper">
-                <span class="dash-icon">>_</span>
-                <input id="terminal-input" class="dash-search @(_vm.Mode == TerminalMode.Command ? "command-mode" : "")"
+                <span class="dash-icon @(_vm.IsUnlocked ? "icon-unlocked" : "")">>_</span>
+                <input id="terminal-input" class="dash-search @_terminalMode"
                     @bind-value="_vm.InputString" @bind-value:event="oninput" @onkeydown="_vm.HandleTerminalKey"
                     @onblur="HideResults" />
 
@@ -97,6 +97,15 @@
 </AuthorizeView>
 
 @code {
+    private string _terminalMode
+    {
+        get
+        {
+            if (_vm.Mode == TerminalMode.Command) return "command-mode";
+            if (_vm.Mode == TerminalMode.Mention) return "mention-mode";
+            else return "";
+        }
+    }
     private ElementReference _terminalInput;
     private bool _isHotKeyActive = false;
 
@@ -109,6 +118,8 @@
     private async Task CopyAllAndClose()
     {
         if (_vm.InviteCodes == null || !_vm.InviteCodes.Any()) return;
+
+        _vm.ClearError();
 
         var allCodes = string.Join("\n", _vm.InviteCodes);
 

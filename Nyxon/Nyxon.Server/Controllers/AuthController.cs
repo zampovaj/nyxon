@@ -118,7 +118,7 @@ namespace Nyxon.Server.Controllers
                 var user = await _loginService.LoginAsync(request);
 
                 if (user == null)
-                    return Unauthorized(new { error = "Invalid credentials" });
+                    throw new UnauthorizedAccessException("Invalid credentials");
 
                 //session id check
                 var sessionId = await _sessionIdService.SaveSessionIdAsync(user.Id);
@@ -144,8 +144,6 @@ namespace Nyxon.Server.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-
-
                 // success
                 return Ok(new UserSessionDto
                 {
@@ -156,7 +154,7 @@ namespace Nyxon.Server.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Unauthorized(new { error = ex.Message });
+                return BadRequest(new { error = ex.Message });
             }
             catch (Exception ex)
             {

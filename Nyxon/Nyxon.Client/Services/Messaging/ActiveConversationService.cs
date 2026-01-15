@@ -245,7 +245,7 @@ namespace Nyxon.Client.Services.Messaging
                 if (keyDerivationInstructions == null)
                 {
                     // this message is form the past
-                    //  TODO: use history decryption logic to decrypt this message
+                    // TODO: use history decryption logic to decrypt this message
                 }
 
                 MessageReceivedStateUpdateRequest requestDto;
@@ -511,9 +511,9 @@ namespace Nyxon.Client.Services.Messaging
         /* ----------------------------------------- HISTORY ----------------------------------------- */
 
 
-        //  [ ]  decrypt range:
+        //  [X]  decrypt range:
         //      [X]  fetch messages
-        //          [ ]  get message (count, lastsequence)
+        //          [X]  get message (count, lastsequence)
         //          [X]  server finds messages
         //              [X]  ask valkey
         //              [X]  if valkey doesnt deliver all messages → ask postgres
