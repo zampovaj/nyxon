@@ -9,13 +9,23 @@
 <AuthorizeView>
     <Authorized>
         <div class="dashboard-view" @onkeydown:window="HandleGlobalKey">
-            <h1 class="dash-greeting">Good afternoon, @context.User.Identity?.Name.</h1>
+            <h1 class="dash-greeting">
+                @if (!_vm.IsUnlocked)
+                {
+                    @(textContent: "Enter your passphrase to unlock")
+                    ;
+                }
+                else
+                {
+                    @(textContent: $"Good afternoon, {@context.User.Identity?.Name}.")
+                    ;
+                }
+            </h1>
 
             <div class="dash-search-wrapper">
                 <span class="dash-icon @(_vm.IsUnlocked ? "icon-unlocked" : "")">>_</span>
-                <input id="terminal-input" class="dash-search @_terminalMode"
-                    @bind-value="_vm.InputString" @bind-value:event="oninput" @onkeydown="_vm.HandleTerminalKey"
-                    @onblur="HideResults" />
+                <input id="terminal-input" class="dash-search @_terminalMode" @bind-value="_vm.InputString"
+                    @bind-value:event="oninput" @onkeydown="_vm.HandleTerminalKey" @onblur="HideResults" />
 
 
 
