@@ -510,39 +510,6 @@ namespace Nyxon.Client.Services.Messaging
 
         /* ----------------------------------------- HISTORY ----------------------------------------- */
 
-
-        //  [X]  decrypt range:
-        //      [X]  fetch messages
-        //          [X]  get message (count, lastsequence)
-        //          [X]  server finds messages
-        //              [X]  ask valkey
-        //              [X]  if valkey doesnt deliver all messages → ask postgres
-        //              [X]  find needed snapshots
-        //          [X]  return snapshots + messages
-        //      [X]  prepare data:
-        //          [X]  insert snapshots into exisitng snapshots
-        //          [X]  sort messages (desc sequence)
-        //          [X]  divide messages by sender
-        //          [X]  go through each chain
-        //              [X]  foreach message:
-        //                  [X]  messages are already sorted desc → starting at newest message
-        //                  [X]  find the snaphsot for this message → add message to this snapshot group
-        //                  [X]  go to next message
-        //                  [X]  keep adding until msg.rotationindex < group.snpashotindex
-        //                  [X]  then find the correct snapshot for this message and repeat whole process
-        //          [X]  join batches from both chain into one collection
-        //          [X]  sort collection by max sequence number
-        //          [X]  decrypt individual batches → foreach batch (from latest to oldest - desc sequence):
-        //              [X]  reverse list of messages (asc sequence)
-        //              [X]  calculate the session key for first message → keep in memory as local var
-        //              [X]  calculate the message key for this message, decrypt it → add to list of decrypted messages
-        //              [X]  if next message.rotation == previous message.rotation
-        //                  [X]  use message key to derive next message key
-        //              [X]  else
-        //                  [X]  use session key to derive next needed session key
-        //                  [X]  repeat the whole thing (keep session key in memory, derive message key, if else…)
-        //              [X]  fire event with list<chatmessage> → activeconversation insert, ui updates immediately
-
         public async Task LoadRecentMessagesAsync()
         {
             if (!_userContext.IsAuthenticated) return;

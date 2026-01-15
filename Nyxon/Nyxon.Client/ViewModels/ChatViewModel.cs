@@ -221,7 +221,7 @@ namespace Nyxon.Client.ViewModels
             }
             if (input.Length > 8192)
             {
-                ErrorMessage = "Message is too long. Maximum allowed length is 1024 characters";
+                ErrorMessage = "Message is too long. Maximum allowed length is 8192 characters";
                 return false;
             }
 
