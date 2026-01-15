@@ -10,5 +10,6 @@ namespace Nyxon.Client.Interfaces
         Task<bool> LoginAsync(string username, byte[] password);
         Task<bool> RegisterAsync(string username, byte[] password, string inviteCode, byte[] passphrase);
         Task LogoutAsync();
+        Task LocalLogoutAsync();
     }
 }

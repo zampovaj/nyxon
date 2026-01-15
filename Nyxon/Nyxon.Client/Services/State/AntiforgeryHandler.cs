@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
 
-namespace Nyxon.Client.Services
+namespace Nyxon.Client.Services.State
 {
     public class AntiforgeryHandler : DelegatingHandler
     {

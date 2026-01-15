@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Security.Claims;
 using System.Security.Principal;
 
-namespace Nyxon.Client.Services
+namespace Nyxon.Client.Services.State
 {
     public class ClientOrchestratorService : IDisposable
     {
@@ -19,6 +19,8 @@ namespace Nyxon.Client.Services
         private readonly IActiveConversationService _activeConversationService;
         private readonly IHubService _hubService;
         private readonly LayoutService _layoutService;
+        private readonly IAuthenticationService _authenticationService;
+        private readonly NavigationManager _nav;
 
         private bool _isInitialized;
 
@@ -31,7 +33,9 @@ namespace Nyxon.Client.Services
             CsrfTokenStore csrfTokenStore,
             IActiveConversationService activeConversationService,
             IHubService hubService,
-            LayoutService layoutService)
+            LayoutService layoutService,
+            IAuthenticationService authorizationService,
+            NavigationManager nav)
         {
             _userContext = userContext;
             _authStateProvider = authStateProvider;
@@ -43,6 +47,8 @@ namespace Nyxon.Client.Services
             _activeConversationService = activeConversationService;
             _hubService = hubService;
             _layoutService = layoutService;
+            _authenticationService = authorizationService;
+            _nav = nav;
         }
 
         public async Task Initialize()
@@ -59,6 +65,7 @@ namespace Nyxon.Client.Services
         {
             await CheckAndSyncAsync();
         }
+
         private async Task CheckAndSyncAsync()
         {
             try

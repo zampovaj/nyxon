@@ -204,6 +204,7 @@ namespace Nyxon.Client.ViewModels
                 {
                     Passphrase = string.Empty;
                     _nav.NavigateTo("/");
+                    ((HostAuthenticationStateProvider)_authStateProvider).Reset();
                     ((HostAuthenticationStateProvider)_authStateProvider).NotifyStateChanged();
                 }
                 else

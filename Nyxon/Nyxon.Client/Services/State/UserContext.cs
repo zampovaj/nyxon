@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Nyxon.Client.Services
+namespace Nyxon.Client.Services.State
 {
     public class UserContext : IDisposable
     {

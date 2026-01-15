@@ -2,11 +2,12 @@ using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Json;
 using System.Security.Claims;
 
-namespace Nyxon.Client.Services
+namespace Nyxon.Client.Services.State
 {
     public class HostAuthenticationStateProvider : AuthenticationStateProvider
     {
         private readonly HttpClient _httpClient;
+        private bool _isUnauthorized = false;
 
         public HostAuthenticationStateProvider(HttpClient httpClient)
         {
@@ -36,6 +37,18 @@ namespace Nyxon.Client.Services
             catch { }
             return new AuthenticationState(new ClaimsPrincipal());
         }
+
+        public void NotifyUnauthorized()
+        {
+            _isUnauthorized = true;
+            NotifyStateChanged();
+        }
+
+        public void Reset()
+        {
+            _isUnauthorized = false;
+        }
+
         public void NotifyStateChanged()
         {
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());

@@ -30,7 +30,7 @@
                     if (lastSender == msg.SenderUsername)
                     {
                         <div class="msg-wrapper sent consecutive">
-                            <div class="bubble">@msg.Content</div>
+                            <div class="bubble">@RenderMessageSafe(msg.Content)</div>
                         </div>
                     }
                     else
@@ -41,7 +41,7 @@
                                 <span class="msg-time-header">@msg.SentAt.ToLocalTime().ToShortTimeString()
                                     @msg.SentAt.ToLocalTime().ToShortDateString()</span>
                             </div>
-                            <div class="bubble">@msg.Content</div>
+                            <div class="bubble">@RenderMessageSafe(msg.Content)</div>
                         </div>
                     }
                 }
@@ -50,7 +50,7 @@
                     if (lastSender == msg.SenderUsername)
                     {
                         <div class="msg-wrapper received consecutive">
-                            <div class="bubble">@msg.Content</div>
+                            <div class="bubble">@RenderMessageSafe(msg.Content)</div>
                         </div>
 
                     }
@@ -62,7 +62,7 @@
                                 <span class="msg-time-header">@msg.SentAt.ToLocalTime().ToShortTimeString()
                                     @msg.SentAt.ToLocalTime().ToShortDateString()</span>
                             </div>
-                            <div class="bubble">@msg.Content</div>
+                            <div class="bubble">@RenderMessageSafe(msg.Content)</div>
                         </div>
                     }
                 }
@@ -99,8 +99,6 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        // Set the UI title when this page loads
-        // This fixes the issue where refreshing the page clears the header
         if (!LayoutState.IsVaultUnlocked) Nav.NavigateTo("/", false);
     }
 
@@ -182,6 +180,21 @@
         {
             _ = _vm.LoadHistoryAsync();
         }
+    }
+
+    // for safe urls
+    private MarkupString RenderMessageSafe(string message)
+    {
+        var encoded = System.Net.WebUtility.HtmlEncode(message);
+
+        var urlPattern = @"(http[s]?://[^\s]+)";
+        var html = System.Text.RegularExpressions.Regex.Replace(encoded, urlPattern, match =>
+        {
+            var url = match.Value;
+            return $"<a href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"chat-link\">{url}</a>";
+        });
+
+        return new MarkupString(html);
     }
     private async Task PrepareAutoScrollAsync()
     {

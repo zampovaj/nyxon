@@ -19,11 +19,13 @@ namespace Nyxon.Client
             // http
             // register the handler first
             services.AddTransient<AntiforgeryHandler>();
+            services.AddTransient<Http401Handler>();
 
             services.AddHttpClient<IApiService, ApiService>(client =>
             {
                 client.BaseAddress = new Uri(environment.BaseAddress);
             })
+            .AddHttpMessageHandler<Http401Handler>()
             .AddHttpMessageHandler<AntiforgeryHandler>();
 
             // configure the client with the handler

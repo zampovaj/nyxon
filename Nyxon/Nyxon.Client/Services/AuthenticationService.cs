@@ -148,5 +148,10 @@ namespace Nyxon.Client.Services
             _csrfTokenStore.Clear();
             ((HostAuthenticationStateProvider)_authStateProvider).NotifyStateChanged();
         }
+        public async Task LocalLogoutAsync()
+        {
+            _csrfTokenStore.Clear();
+            ((HostAuthenticationStateProvider)_authStateProvider).NotifyStateChanged();
+        }
     }
 }
