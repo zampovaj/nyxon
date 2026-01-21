@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Nyxon.Server.Services.Messaging
 {
@@ -13,11 +14,18 @@ namespace Nyxon.Server.Services.Messaging
     {
         private readonly AppDbContext _context;
         private readonly IMessageCacheService _messageCacheService;
+        private readonly IHubContext<ChatHub> _hubContext;
+        private readonly ILogger<ConversationService> _logger;
 
-        public ConversationService(AppDbContext context, IMessageCacheService messageCacheService)
+        public ConversationService(AppDbContext context,
+            IMessageCacheService messageCacheService,
+            IHubContext<ChatHub> hubContext,
+            ILogger<ConversationService> logger)
         {
             _context = context;
             _messageCacheService = messageCacheService;
+            _hubContext = hubContext;
+            _logger = logger;
         }
         public async Task<CreateConversationResponse> CreateConversationAsync(Guid initiatorId, CreateConversationRequest request)
         {
@@ -125,6 +133,11 @@ namespace Nyxon.Server.Services.Messaging
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
+
+                // signalr
+                List<Guid> userIds = new() { initiatorId, targetUser.Id };
+                await NotifyClientsAsync(userIds);
+
                 return new CreateConversationResponse()
                 {
                     ConversationId = conversation.Id,
@@ -135,6 +148,25 @@ namespace Nyxon.Server.Services.Messaging
             {
                 await transaction.RollbackAsync();
                 throw;
+            }
+        }
+
+        // i hate this
+        // with passion
+
+        // fuck signalr
+
+        // wtf is this nesting, this hurts my soul
+
+
+        private async Task NotifyClientsAsync(List<Guid> userIds)
+        {
+            foreach (var userId in userIds)
+            {
+                _logger.LogInformation($"Notify: userId = {userId}");
+                await _hubContext.Clients
+                    .Group($"user:{userId}")
+                    .SendAsync("NewConversationNotification");
             }
         }
 

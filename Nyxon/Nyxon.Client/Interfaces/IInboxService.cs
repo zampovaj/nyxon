@@ -7,6 +7,7 @@ namespace Nyxon.Client.Interfaces
 {
     public interface IInboxService : IDisposable
     {
+        public Guid? ActiveConversationId { get; }
         List<Conversation> Conversations { get; }
         event Action OnChange;
         Task SyncInboxAsync();

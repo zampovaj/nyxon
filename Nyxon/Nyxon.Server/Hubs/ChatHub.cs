@@ -1,38 +1,48 @@
 using System;
 using System.Collections.Concurrent;
-using System.Security.Claims;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
+using System.Reflection.Metadata;
 
 namespace Nyxon.Server.Hubs
 {
     public class ChatHub : Hub
     {
-        private static readonly ConcurrentDictionary<string, string> UserConnections = new();
+        private readonly ILogger<ChatHub> _logger;
 
-        public async Task JoinConversation(Guid conversationId, string userIdString)
+        public ChatHub(ILogger<ChatHub> logger)
         {
-            UserConnections[userIdString] = Context.ConnectionId;
-            await Groups.AddToGroupAsync(Context.ConnectionId, conversationId.ToString());
+            _logger = logger;
         }
-        public async Task LeaveConversation(Guid conversationId, string userIdString)
+
+        public async Task JoinConversation(Guid conversationId)
         {
-            UserConnections.TryRemove(userIdString, out _);
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, conversationId.ToString());
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"conversation:{conversationId}");
+        }
+
+        public async Task LeaveConversation(Guid conversationId)
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"conversation:{conversationId}");
+        }
+
+        public override async Task OnConnectedAsync()
+        {
+            var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            _logger.LogInformation($"OnConnectedAsync: userId={userId}, ConnectionId={Context.ConnectionId}");
+            if (!string.IsNullOrEmpty(userId))
+            {
+                await Groups.AddToGroupAsync(Context.ConnectionId, $"user:{userId}");
+            }
+
+            await base.OnConnectedAsync();
         }
 
         public override Task OnDisconnectedAsync(Exception? exception)
         {
-            var kvp = UserConnections.FirstOrDefault(x => x.Value == Context.ConnectionId);
-            if (!string.IsNullOrEmpty(kvp.Key))
-                UserConnections.TryRemove(kvp.Key, out _);
-
             return base.OnDisconnectedAsync(exception);
-        }
-
-        public static bool TryGetConnection(string userId, out string connectionId)
-        {
-            return UserConnections.TryGetValue(userId, out connectionId);
         }
     }
 }

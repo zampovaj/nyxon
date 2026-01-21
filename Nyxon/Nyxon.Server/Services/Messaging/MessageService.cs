@@ -174,12 +174,9 @@ namespace Nyxon.Server.Services.Messaging
         }
         private async Task NotifyClientsAsync(string kvKey, Guid conversationId, Guid userId)
         {
-            if (ChatHub.TryGetConnection(userId.ToString(), out var senderConnectionId))
-            {
-                await _hubContext.Clients
-                    .GroupExcept(conversationId.ToString(), senderConnectionId)
-                    .SendAsync("ReceiveMessageNotification", kvKey);
-            }
+            await _hubContext.Clients
+                .GroupExcept($"conversation:{conversationId}", userId.ToString())
+                .SendAsync("ReceiveMessageNotification", kvKey);
         }
 
         public async Task<MessageReceivedStateUpdateResponse> ReadMessageUpdateAsync(Guid userId, MessageReceivedStateUpdateRequest request)

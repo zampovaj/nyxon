@@ -50,9 +50,10 @@ namespace Nyxon.Client
             services.AddScoped<IHandshakeRepository, HandshakeRepository>();
 
             // hub
-            services.AddSingleton<IHubService, HubService>();
+            services.AddScoped<IHubService, HubService>();
 
             // services
+            services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<LayoutService>();
             services.AddScoped<IUserVaultService, UserVaultService>();

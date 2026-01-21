@@ -11,9 +11,13 @@ namespace Nyxon.Client.Interfaces
         Task DisconnectAsync();
 
         Task JoinConversationAsync(Guid conversationId, Guid userId);
+        Task JoinAllConversationsAsync(List<Guid> conversationsId, Guid userId);
         Task LeaveConversationAsync(Guid conversationId, Guid userId);
+
+        public void CheckHubState();
 
         // ui hook
         event Action<string> OnMessageNotification;
+        event Action OnNewConversationNotification;
     }
 }

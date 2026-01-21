@@ -6,7 +6,7 @@ namespace Nyxon.Client.ViewModels
     {
         private readonly IConversationService _conversationService;
         private readonly IActiveConversationService _activeConversationService;
-        private readonly IHubService _hubService;
+        private readonly INotificationService _notificationService;
         private readonly UserContext _userContext;
         private readonly IInboxService _inboxService;
 
@@ -29,13 +29,13 @@ namespace Nyxon.Client.ViewModels
 
         public ChatViewModel(IConversationService conversationService,
             IActiveConversationService activeConversationService,
-            IHubService hubService,
+            INotificationService notificationService,
             UserContext userContext,
             IInboxService inboxService)
         {
             _conversationService = conversationService;
             _activeConversationService = activeConversationService;
-            _hubService = hubService;
+            _notificationService = notificationService;
             _userContext = userContext;
             _inboxService = inboxService;
         }
@@ -45,12 +45,10 @@ namespace Nyxon.Client.ViewModels
 
             try
             {
-                _hubService.OnMessageNotification += HandleMessageNotification;
+                _notificationService.OnMessageNotification += HandleMessageNotification;
                 _activeConversationService.MessagesDecrypted += OnMessageBundleLoadedNotification;
                 var username = await _conversationService.OpenConversationAsync(conversationId);
                 await ActiveConversation.InitializeAsync(conversationId, username);
-                await _hubService.ConnectAsync();
-                await _hubService.JoinConversationAsync(conversationId, (Guid)_userContext.UserId);
                 await _inboxService.ReadConversationAsync(conversationId);
                 // read history
                 await _activeConversationService.LoadRecentMessagesAsync();
@@ -146,10 +144,7 @@ namespace Nyxon.Client.ViewModels
             InputString = "";
             ErrorMessage = "";
             ActiveConversation.Clear();
-            if (_activeConversationService.ConversationId != null)
-                await _hubService.LeaveConversationAsync((Guid)_activeConversationService.ConversationId, (Guid)_userContext.UserId);
-            await _hubService.DisconnectAsync();
-            _hubService.OnMessageNotification -= HandleMessageNotification;
+            _notificationService.OnMessageNotification -= HandleMessageNotification;
             _activeConversationService.MessagesDecrypted -= OnMessageBundleLoadedNotification;
             _activeConversationService.Clear();
             _inboxService.Unselect();
@@ -168,7 +163,7 @@ namespace Nyxon.Client.ViewModels
             }
         }
 
-        private async void HandleMessageNotification(string kvKey)
+        private async void HandleMessageNotification(string kvKey, Guid conversationId)
         {
             Console.WriteLine("Reached the handler");
             await _initializationCompletion.Task;
@@ -177,29 +172,20 @@ namespace Nyxon.Client.ViewModels
             try
             {
                 Console.WriteLine("Passed the sempahore");
-                var split = kvKey.Split(':');
-                if (split.Length != 3)
-                    throw new InvalidOperationException($"Invalid kvKey format: {kvKey}");
-                var conversationIdString = split[1];
-
-                if (Guid.TryParse(conversationIdString, out var conversationId))
+                if (_activeConversationService.ConversationId == conversationId &&
+                    ActiveConversation.ConversationId == conversationId)
                 {
-                    if (_activeConversationService.ConversationId == conversationId &&
-                        ActiveConversation.ConversationId == conversationId)
-                    {
-                        var newMessage = await _activeConversationService.ReceiveMessageAsync(kvKey);
-                        if (newMessage == null)
-                            throw new Exception("Receiving message failed silently.");
+                    var newMessage = await _activeConversationService.ReceiveMessageAsync(kvKey);
+                    if (newMessage == null)
+                        throw new Exception("Receiving message failed silently.");
 
-                        await ActiveConversation.AddNewMessageAsync(newMessage);
-                        await _inboxService.UpdateConversationAsync(newMessage.SentAt, true, conversationId);
-                    }
-                    else
-                    {
-                        await _inboxService.UpdateConversationAsync(DateTime.UtcNow, false, conversationId);
-                    }
+                    await ActiveConversation.AddNewMessageAsync(newMessage);
+                    await _inboxService.UpdateConversationAsync(newMessage.SentAt, true, conversationId);
                 }
-                else throw new InvalidOperationException($"Failed to read conversation id from message key");
+                else
+                {
+                    await _inboxService.UpdateConversationAsync(DateTime.UtcNow, false, conversationId);
+                }
             }
             catch (Exception ex)
             {

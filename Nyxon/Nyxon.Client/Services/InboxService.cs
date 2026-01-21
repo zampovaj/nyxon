@@ -10,21 +10,25 @@ namespace Nyxon.Client.Services
         private readonly IConversationRepository _repository;
         private readonly IHandshakeService _handshakeService;
         private readonly UserContext _userContext;
+        private readonly IHubService _hubService;
 
         public List<Conversation> Conversations { get; private set; } = new();
 
         public InboxService(IConversationRepository repository,
-        IHandshakeService handshakeService,
-        UserContext userContext)
+            IHandshakeService handshakeService,
+            UserContext userContext,
+            IHubService hubService)
         {
             _repository = repository;
             _handshakeService = handshakeService;
             _userContext = userContext;
+            _hubService = hubService;
 
             _handshakeService.OnChange += HandshakeChanged;
         }
 
         public event Action OnChange;
+        public Guid? ActiveConversationId => Conversations.FirstOrDefault(c => c.IsSelected)?.ConversationId;
 
         public async Task SetSelectedAsync(Guid conversationId)
         {
@@ -93,6 +97,11 @@ namespace Nyxon.Client.Services
                     }).ToList();
 
                 await _handshakeService.LoadHandshakesAsync(inbox.Handshakes);
+                await _hubService.JoinAllConversationsAsync(
+                    Conversations.Select(c => c.ConversationId)
+                    .ToList(),
+                    (Guid)_userContext.UserId
+                );
 
                 NotifyStateChanged();
             }
