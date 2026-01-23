@@ -646,6 +646,16 @@ input[type="password"] {
     cursor: pointer;
 }
 
+.side-nav-item.sidebar-locked {
+    cursor: default;
+    opacity: 0.5;
+}
+
+.side-nav-item.sidebar-locked:hover {
+    background: transparent;
+    cursor: default; 
+}
+
 .side-avatar {
     background-color: var(--bg-surface-hover);
     color: var(--mud-palette-text-primary);

@@ -37,7 +37,9 @@
 
             foreach (Conversation conv in chats)
             {
-                <div class="side-nav-item @(conv.IsSelected ? "selected-conversation" : "")" @onclick='() => TryOpenChat(conv)'>
+                <div class="side-nav-item @(conv.IsSelected ? "selected-conversation" : "") @(!LayoutState.IsVaultUnlocked ? "sidebar-locked" : "")"
+                    @onclick='() => TryOpenChat(conv)'
+                    @(!LayoutState.IsVaultUnlocked ? title="You need to enter your passphrase to open a conversation")>
                     <MudAvatar class="avatar side-avatar">
                         @conv.Initials
                     </MudAvatar>
