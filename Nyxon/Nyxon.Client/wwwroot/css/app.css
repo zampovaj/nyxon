@@ -460,6 +460,7 @@ body {
 }
 
 .auth-h1 {
+    cursor: default;
     font-family: var(--font-heading);
     margin-bottom: 10px;
     font-weight: 900;
@@ -467,6 +468,7 @@ body {
 }
 
 .auth-p {
+    cursor: default;
     color: var(--text-muted);
     font-size: 0.9rem;
 }
@@ -516,6 +518,10 @@ body {
     letter-spacing: 0.1em;
 }
 
+.auth-form .input-std:hover:not(:focus) {
+    border-color: var(--text-muted);
+}
+
 .input-std:focus {
     border-color: var(--primary);
 }
@@ -544,10 +550,13 @@ input[type="password"] {
     outline: none;
 }
 
+.auth-card.vault .input-std:hover {
+    border-color: var(--text-muted);
+}
+
 .auth-card.vault .input-std:focus {
     border-color: var(--primary);
 }
-
 
 .auth-card.vault .form-label {
     font-size: 1rem;
@@ -1269,4 +1278,8 @@ input[type="password"] {
     font-size: 1rem;
     opacity: 0.9;
     text-shadow: 0 0 15px var(--primary-dim);
+}
+
+.auth-card.vault:has(.lock-icon:hover) .input-std {
+    border-color: var(--primary);
 }

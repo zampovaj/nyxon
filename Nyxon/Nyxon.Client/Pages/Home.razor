@@ -60,7 +60,8 @@
 
                 <div class="dash-search-wrapper">
                     <span class="dash-icon @(_vm.IsUnlocked ? "icon-unlocked" : "")">>_</span>
-                    <input id="terminal-input" class="dash-search @_terminalMode" @bind-value="_vm.InputString"
+                    <input id="terminal-input" class="dash-search @_terminalMode" autocomplete=" off" name="vault-phrase-entry-no-save"
+                        data-lpignore="true" data-1p-ignore="true"  @bind-value="_vm.InputString"
                         @bind-value:event="oninput" @onkeydown="_vm.HandleTerminalKey" @onblur="HideResults" />
 
                     @if (_vm.IsUnlocked && _vm.SearchResults.Any())

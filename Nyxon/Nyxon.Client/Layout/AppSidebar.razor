@@ -38,8 +38,8 @@
             foreach (Conversation conv in chats)
             {
                 <div class="side-nav-item @(conv.IsSelected ? "selected-conversation" : "") @(!LayoutState.IsVaultUnlocked ? "sidebar-locked" : "")"
-                    @onclick='() => TryOpenChat(conv)'
-                    @(!LayoutState.IsVaultUnlocked ? title="You need to enter your passphrase to open a conversation")>
+                    @onclick='() => TryOpenChat(conv)' @attributes="GetLockedTooltip()">
+
                     <MudAvatar class="avatar side-avatar">
                         @conv.Initials
                     </MudAvatar>
@@ -70,6 +70,18 @@
 </aside>
 
 @code {
+    private Dictionary<string, object>? GetLockedTooltip()
+    {
+        if (!LayoutState.IsVaultUnlocked)
+        {
+            return new()
+{
+{ "title", "You need to enter your passphrase to open a conversation" }
+};
+        }
+
+        return null;
+    }
     private IEnumerable<Conversation> FilteredConversations
     {
         get
