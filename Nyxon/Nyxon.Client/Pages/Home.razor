@@ -8,90 +8,120 @@
 
 <AuthorizeView>
     <Authorized>
-        <div class="dashboard-view" @onkeydown:window="HandleGlobalKey">
-            <h1 class="dash-greeting">
-                @if (!_vm.IsUnlocked)
-                {
-                    @(textContent: "Enter your passphrase to unlock")
-                    ;
-                }
-                else
-                {
-                    @(textContent: $"Good afternoon, {@context.User.Identity?.Name}.")
-                    ;
-                }
-            </h1>
+        @if (!_vm.IsUnlocked)
+        {
+            <div class="auth-wrapper" @onkeydown:window="HandleGlobalKey">
+                <div class="auth-card vault">
+                    <div style="text-align: center; ">
+                        <h2 class="auth-h1">
+                            <div style="display: flex; justify-content: center; align-items: center; gap: 15px;">
 
-            <div class="dash-search-wrapper">
-                <span class="dash-icon @(_vm.IsUnlocked ? "icon-unlocked" : "")">>_</span>
-                <input id="terminal-input" class="dash-search @_terminalMode" @bind-value="_vm.InputString"
-                    @bind-value:event="oninput" @onkeydown="_vm.HandleTerminalKey" @onblur="HideResults" />
+                                <div class="lock-icon" style="margin-bottom: 0;">
+                                    <i class="fa-solid fa-lock"></i>
+                                </div>
 
+                                <span>Vault Locked</span>
+                            </div>
+                        </h2>
+                        <p class="auth-p">
+                            Enter your passphrase to decrypt your vault.
+                        </p>
+                    </div>
 
-
-                @if (_vm.IsUnlocked && _vm.SearchResults.Any())
-                {
-                    <div class="search-results-popup">
-                        @foreach (var user in _vm.SearchResults)
-                        {
-                            <div class="search-item @(user.Conversation ? "existing-friend" : "")"
-                                @onmousedown="() => OpenConversation(user)">
-
-                                <div class="search-info">
-                                    <span class="search-username">@user.Username</span>
-                                    @if (user.Conversation)
-                                    {
-                                        //<span class="search-badge">Existing Conversation</span>
-                                    }
+                    <div class="auth-form">
+                        <div class="form-content-grid">
+                            <div class="form-column">
+                                <div>
+                                    <label class="form-label">PASSPHRASE</label>
+                                    <input id="terminal-input" class="input-std" placeholder="Enter your passphrase"
+                                        autocomplete="off" name="vault-phrase-entry-no-save" data-lpignore="true"
+                                        data-1p-ignore="true" @bind-value="_vm.InputString" @bind-value:event="oninput"
+                                        @onkeydown="_vm.HandleTerminalKey" @onblur="HideResults" />
                                 </div>
                             </div>
-                        }
-                    </div>
-                }
-            </div>
-
-            <div class="dash-shortcuts">
-                @if (_vm.IsUnlocked)
-                {
-                    <div class="shortcut-chip">type <b>?</b> for help</div>
-                    <div class="shortcut-chip"><b>:command</b></div>
-                    <div class="shortcut-chip"><b>@@username</b> message</div>
-                }
-                else
-                {
-                    <div class="shortcut-chip"><b>commands</b> will be available after unlock</div>
-                }
-            </div>
-
-            @if (_vm.InviteCodes != null && _vm.InviteCodes.Any())
-            {
-                <div class="terminal-output-card">
-                    <div class="output-header">
-                        <span class="output-title">GENERATED INVITES</span>
-                        <div class="header-actions">
-                            <button class="btn-copy-all" @onclick="CopyAllAndClose">COPY ALL</button>
-                            <button class="btn-icon" @onclick="ClearInvites">x</button>
                         </div>
                     </div>
 
-                    <div class="invite-grid">
-                        @foreach (var inviteCode in _vm.InviteCodes)
-                        {
-                            <div class="invite-code-chip">@inviteCode
+                    @if (!string.IsNullOrWhiteSpace(_vm.ErrorMessage))
+                    {
+                        <div class="error" style="margin-top: 15px;">
+                            @_vm.ErrorMessage
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="dashboard-view" @onkeydown:window="HandleGlobalKey">
+                <h1 class="dash-greeting">
+                    @(textContent: $"Good afternoon, {@context.User.Identity?.Name}.")
+                </h1>
+
+                <div class="dash-search-wrapper">
+                    <span class="dash-icon @(_vm.IsUnlocked ? "icon-unlocked" : "")">>_</span>
+                    <input id="terminal-input" class="dash-search @_terminalMode" @bind-value="_vm.InputString"
+                        @bind-value:event="oninput" @onkeydown="_vm.HandleTerminalKey" @onblur="HideResults" />
+
+                    @if (_vm.IsUnlocked && _vm.SearchResults.Any())
+                    {
+                        <div class="search-results-popup">
+                            @foreach (var user in _vm.SearchResults)
+                            {
+                                <div class="search-item @(user.Conversation ? "existing-friend" : "")"
+                                    @onmousedown="() => OpenConversation(user)">
+
+                                    <div class="search-info">
+                                        <span class="search-username">@user.Username</span>
+                                        @if (user.Conversation)
+                                        {
+                                            //<span class="search-badge">Existing Conversation</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="dash-shortcuts">
+                    @if (_vm.IsUnlocked)
+                    {
+                        <div class="shortcut-chip">type <b>?</b> for help</div>
+                        <div class="shortcut-chip"><b>:command</b></div>
+                        <div class="shortcut-chip"><b>@@username</b> message</div>
+                    }
+                </div>
+
+                @if (_vm.InviteCodes != null && _vm.InviteCodes.Any())
+                {
+                    <div class="terminal-output-card">
+                        <div class="output-header">
+                            <span class="output-title">GENERATED INVITES</span>
+                            <div class="header-actions">
+                                <button class="btn-copy-all" @onclick="CopyAllAndClose">COPY ALL</button>
+                                <button class="btn-icon" @onclick="ClearInvites">x</button>
                             </div>
-                        }
+                        </div>
+
+                        <div class="invite-grid">
+                            @foreach (var inviteCode in _vm.InviteCodes)
+                            {
+                                <div class="invite-code-chip">@inviteCode
+                                </div>
+                            }
+                        </div>
                     </div>
-                </div>
-            }
+                }
 
-            @if (!string.IsNullOrWhiteSpace(_vm.ErrorMessage))
-            {
-                <div style="margin-top: 10px;" class="error">
-                    @_vm.ErrorMessage
-                </div>
-            }
-
-        </div>
+                @if (!string.IsNullOrWhiteSpace(_vm.ErrorMessage))
+                {
+                    <div style="margin-top: 10px;" class="error">
+                        @_vm.ErrorMessage
+                    </div>
+                }
+            </div>
+        }
     </Authorized>
     <NotAuthorized>
         <section class="landing-hero">
@@ -128,7 +158,6 @@
     private async Task CopyAllAndClose()
     {
         if (_vm.InviteCodes == null || !_vm.InviteCodes.Any()) return;
-
         _vm.ClearError();
 
         var allCodes = string.Join("\n", _vm.InviteCodes);

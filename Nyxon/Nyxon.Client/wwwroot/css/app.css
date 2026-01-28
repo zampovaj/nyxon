@@ -525,6 +525,38 @@ input[type="password"] {
     font-family: var(--font-body);
 }
 
+/* home */
+
+.auth-card.vault {
+    width: 600px;
+    /*background: var(--primary);*/
+}
+
+.auth-card.vault .input-std {
+    width: 100%;
+    border: 1px solid var(--border);
+    padding: 16px 16px 16px 16px;
+    font-size: 1rem;
+    border-radius: 8px;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    outline: none;
+}
+
+.auth-card.vault .input-std:focus {
+    border-color: var(--primary);
+}
+
+
+.auth-card.vault .form-label {
+    font-size: 1rem;
+}
+
+.auth-card.vault.auth-h1 {
+    font-size: 1.8rem;
+}
+
 
 /*SIDEBAR*/
 
@@ -1229,4 +1261,12 @@ input[type="password"] {
 .dash-search-wrapper:has(.command-mode) .dash-icon {
     color: var(--secondary);
     text-shadow: 0 0 5px var(--secondary);
+}
+
+
+.lock-icon {
+    color: var(--text-main);
+    font-size: 1rem;
+    opacity: 0.9;
+    text-shadow: 0 0 15px var(--primary-dim);
 }
