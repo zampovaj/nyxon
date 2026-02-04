@@ -121,7 +121,7 @@ namespace Nyxon.Client.ViewModels
 
                 var message = await _activeConversationService.SendMessageAsync(InputString);
                 if (message == null)
-                    throw new Exception("Sensding message failed silently.");
+                    throw new Exception("Sending message failed silently.");
 
                 await ActiveConversation.AddMyMessageAsync(message);
                 await _inboxService.UpdateConversationAsync(message.SentAt, true, (Guid)ActiveConversation.ConversationId);

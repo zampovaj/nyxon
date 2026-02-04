@@ -23,7 +23,11 @@ namespace Nyxon.Client.Services
         public List<UserModel> SearchUsers(string query, int limit = 10)
         {
             if (string.IsNullOrWhiteSpace(query))
-                return new List<UserModel>();
+                return Users
+                    .OrderByDescending(u => u.Conversation)
+                    .ThenBy(u => u.Username)
+                    .Take(limit)
+                    .ToList();
 
             query = query.Trim();
 

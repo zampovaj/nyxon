@@ -60,11 +60,11 @@
 
                 <div class="dash-search-wrapper">
                     <span class="dash-icon @(_vm.IsUnlocked ? "icon-unlocked" : "")">>_</span>
-                    <input id="terminal-input" class="dash-search @_terminalMode" autocomplete=" off" name="vault-phrase-entry-no-save"
-                        data-lpignore="true" data-1p-ignore="true"  @bind-value="_vm.InputString"
-                        @bind-value:event="oninput" @onkeydown="_vm.HandleTerminalKey" @onblur="HideResults" />
-
-                    @if (_vm.IsUnlocked && _vm.SearchResults.Any())
+                    <input id="terminal-input" class="dash-search @_terminalMode" autocomplete=" off"
+                        name="vault-phrase-entry-no-save" data-lpignore="true" data-1p-ignore="true"
+                        @bind-value="_vm.InputString" @bind-value:event="oninput" @onfocus="OnFocusInputUpdate"
+                        @onkeydown="_vm.HandleTerminalKey" @onblur="HideResults" />
+                    @if (_vm.IsUnlocked && _vm.SearchResults.Any() && _canShowSearch)
                     {
                         <div class="search-results-popup">
                             @foreach (var user in _vm.SearchResults)
@@ -138,6 +138,7 @@
 </AuthorizeView>
 
 @code {
+    private bool _canShowSearch = false;
     private string _terminalMode
     {
         get
@@ -149,6 +150,15 @@
     }
     private ElementReference _terminalInput;
     private bool _isHotKeyActive = false;
+
+    private void OnFocusInputUpdate()
+    {
+        if (_canShowSearch)
+        {
+            _vm.InputString = _vm.InputString;
+            StateHasChanged();
+        }
+    }
 
     private void ClearInvites()
     {
@@ -197,6 +207,12 @@
                 _isHotKeyActive = true;
             }
             catch (JSException) { }
+        }
+
+        if (_vm.IsUnlocked)
+        {
+            await Task.Delay(200);
+            _canShowSearch = true;
         }
     }
 
