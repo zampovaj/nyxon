@@ -36,7 +36,7 @@
                                     <input id="terminal-input" class="input-std" placeholder="Enter your passphrase"
                                         autocomplete="off" name="vault-phrase-entry-no-save" data-lpignore="true"
                                         data-1p-ignore="true" @bind-value="_vm.InputString" @bind-value:event="oninput"
-                                        @onkeydown="_vm.HandleTerminalKey" @onblur="HideResults" />
+                                        @onkeyup="_vm.HandleTerminalKey" @onblur="HideResults" />
                                 </div>
                             </div>
                         </div>

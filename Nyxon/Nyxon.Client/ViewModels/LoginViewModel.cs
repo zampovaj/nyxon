@@ -164,6 +164,9 @@ namespace Nyxon.Client.ViewModels
             ErrorMessage = null;
             ConfirmPassword = "";
             InviteCode = "";
+            Passphrase = "";
+            ConfirmPassphrase = "";
+            if (passphraseBytes != null) CryptographicOperations.ZeroMemory(passphraseBytes);
             Notify();
         }
 

@@ -97,8 +97,11 @@ namespace Nyxon.Client.ViewModels
                 [":invite"] = async args =>
                 {
                     int count = 1;
-                    if (args.Length == 1 && int.TryParse(args[0], out var parsed))
+
+                    if (args.Length > 0 && int.TryParse(args[^1], out var parsed))
                         count = Math.Clamp(parsed, 1, 20);
+
+                    Console.WriteLine($"Count: {count}");
                     await GenerateInvites(count);
                 }
             };

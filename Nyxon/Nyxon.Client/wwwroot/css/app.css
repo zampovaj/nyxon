@@ -1056,6 +1056,21 @@ input[type="password"] {
     font-size: 1rem;
 }
 
+.inbox-empty-area {
+    flex: 1;
+    display: flex;
+    align-items: center;      /* vertical center */
+    justify-content: center;  /* horizontal center */
+    text-align: center;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    opacity: 0.7;
+}
+
+.inbox-empty-text {
+    font-size: 1.05rem;
+}
+
 
 /* PASSPHRASE */
 
