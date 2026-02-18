@@ -43,6 +43,7 @@ namespace Nyxon.Client.ViewModels
             get => _inputString;
             set
             {
+                if (_inputString == value) return;
                 _inputString = value;
 
                 switch (Mode)
@@ -131,6 +132,7 @@ namespace Nyxon.Client.ViewModels
             {
                 InputString = string.Empty;
                 CryptographicOperations.ZeroMemory(PassphraseBytes);
+                GC.Collect(2, GCCollectionMode.Forced, blocking: false);
                 Notify();
             }
         }

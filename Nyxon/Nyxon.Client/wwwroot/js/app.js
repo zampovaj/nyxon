@@ -25,3 +25,10 @@ window.terminalHotKeyManager = {
         }
     }
 };
+
+window.domUtils = {
+    blurElement: function (elementId) {
+        const el = document.getElementById(elementId);
+        if (el) el.blur();
+    }
+};

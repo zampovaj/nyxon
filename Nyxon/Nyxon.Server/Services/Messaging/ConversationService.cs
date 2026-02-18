@@ -156,9 +156,6 @@ namespace Nyxon.Server.Services.Messaging
 
         // fuck signalr
 
-        // wtf is this nesting, this hurts my soul
-
-
         private async Task NotifyClientsAsync(List<Guid> userIds)
         {
             foreach (var userId in userIds)

@@ -35,8 +35,8 @@
                                     <label class="form-label">PASSPHRASE</label>
                                     <input id="terminal-input" class="input-std" placeholder="Enter your passphrase"
                                         autocomplete="off" name="vault-phrase-entry-no-save" data-lpignore="true"
-                                        data-1p-ignore="true" @bind-value="_vm.InputString" @bind-value:event="oninput"
-                                        @onkeyup="_vm.HandleTerminalKey" @onblur="HideResults" />
+                                        data-1p-ignore="true" spellcheck="false" @bind-value="_vm.InputString" @bind-value:event="onchange"
+                                        @onkeyup="HandleKeyDown" @onblur="HideResults" />
                                 </div>
                             </div>
                         </div>
@@ -60,10 +60,10 @@
 
                 <div class="dash-search-wrapper">
                     <span class="dash-icon @(_vm.IsUnlocked ? "icon-unlocked" : "")">>_</span>
-                    <input id="terminal-input" class="dash-search @_terminalMode" autocomplete=" off"
+                    <input id="terminal-input" class="dash-search @_terminalMode" autocomplete="off"
                         name="vault-phrase-entry-no-save" data-lpignore="true" data-1p-ignore="true"
                         @bind-value="_vm.InputString" @bind-value:event="oninput" @onfocus="OnFocusInputUpdate"
-                        @onkeydown="_vm.HandleTerminalKey" @onblur="HideResults" />
+                        @onkeydown="HandleKeyDown" @onblur="HideResults" />
                     @if (_vm.IsUnlocked && _vm.SearchResults.Any() && _canShowSearch)
                     {
                         <div class="search-results-popup">
@@ -151,14 +151,36 @@
     private ElementReference _terminalInput;
     private bool _isHotKeyActive = false;
 
-    private void OnFocusInputUpdate()
+    private async Task OnFocusInputUpdate()
     {
-        if (_canShowSearch)
+        if (_vm.IsUnlocked) 
         {
-            _vm.InputString = _vm.InputString;
+            _canShowSearch = true;
+
+            // it jsut doesnt work unless i assign a different vlaue to the string
+            var currentInput = _vm.InputString;
+            _vm.InputString = currentInput + " "; 
+            _vm.InputString = currentInput;
+            
             StateHasChanged();
         }
     }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            _canShowSearch = false;
+            await _vm.HandleTerminalKey(e);
+            await JS.InvokeVoidAsync("domUtils.blurElement", "terminal-input");
+        }
+        else 
+        {
+            _canShowSearch = true;
+            await _vm.HandleTerminalKey(e);
+        }
+    }
+
 
     private void ClearInvites()
     {
