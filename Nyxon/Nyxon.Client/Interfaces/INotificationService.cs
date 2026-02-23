@@ -9,5 +9,6 @@ namespace Nyxon.Client.Interfaces
     {
         event Action<string, Guid> OnMessageNotification;
         Task InitializeAsync();
+        void Clear();
     }
 }

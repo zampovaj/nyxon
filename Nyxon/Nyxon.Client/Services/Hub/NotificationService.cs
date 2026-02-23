@@ -9,13 +9,17 @@ namespace Nyxon.Client.Services.Hub
     {
         private readonly IHubService _hubService;
         private readonly IInboxService _inboxService;
+        private readonly IUserListService _userListService;
+        
+        private string? _lastKvKey = null;
 
         public event Action<string, Guid> OnMessageNotification;
 
-        public NotificationService(IHubService hubService, IInboxService inboxService)
+        public NotificationService(IHubService hubService, IInboxService inboxService, IUserListService userListService)
         {
             _hubService = hubService;
             _inboxService = inboxService;
+            _userListService = userListService;
 
             Console.WriteLine("NotificationService created");
         }
@@ -38,6 +42,8 @@ namespace Nyxon.Client.Services.Hub
             Console.WriteLine($"New message notification");
             try
             {
+                if (kvKey == _lastKvKey) return;
+
                 var split = kvKey.Split(':');
                 if (split.Length != 3)
                     throw new InvalidOperationException($"Invalid kvKey format: {kvKey}");
@@ -55,6 +61,8 @@ namespace Nyxon.Client.Services.Hub
                     }
                 }
                 else throw new InvalidOperationException($"Failed to read conversation id from message key");
+
+                _lastKvKey = kvKey;
             }
             catch (Exception ex)
             {
@@ -68,6 +76,7 @@ namespace Nyxon.Client.Services.Hub
             try
             {
                 await _inboxService.SyncInboxAsync();
+                await _userListService.SyncListAsync();
             }
             catch (Exception ex)
             {
@@ -77,6 +86,13 @@ namespace Nyxon.Client.Services.Hub
 
         public void Dispose()
         {
+            _hubService.OnMessageNotification -= HandleMessageNotification;
+            _hubService.OnNewConversationNotification -= HandleNewConversationNotification;
+        }
+
+        public void Clear()
+        {
+            _lastKvKey = null;
             _hubService.OnMessageNotification -= HandleMessageNotification;
             _hubService.OnNewConversationNotification -= HandleNewConversationNotification;
         }

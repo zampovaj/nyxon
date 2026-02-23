@@ -129,7 +129,7 @@ namespace Nyxon.Client.Services.State
             _activeConversationService.Clear();
             await _hubService.DisconnectAsync();
             _layoutService.Clear();
-            _notificationService.Dispose();
+            _notificationService.Clear();
         }
 
         private async Task DisposeServicesAsync()

@@ -238,6 +238,9 @@ namespace Nyxon.Client.Services.Messaging
                 if (message == null)
                     throw new Exception("Message fetch failed");
 
+                if (message.SenderId == _userContext.UserId)
+                    throw new InvalidOperationException("My own message");
+
                 // session state clone
                 var session = EncryptedVault.Receiving.Session.Clone();
 
@@ -348,8 +351,9 @@ namespace Nyxon.Client.Services.Messaging
 
                 return (requestDto, Encoding.UTF8.GetString(decryptedMessage));
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"Exception occured during {nameof(DecryptMessageOnlyAsync)}: {ex.Message}");
                 throw;
             }
             finally
