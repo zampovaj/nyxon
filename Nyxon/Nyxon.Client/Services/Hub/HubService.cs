@@ -21,10 +21,10 @@ namespace Nyxon.Client.Services.Hub
 
         public HubService(NavigationManager nav, IJSRuntime jsRuntime)
         {
-            //var hubUrl = nav.ToAbsoluteUri("/hubs/chat");
-            var hubUrl = nav.BaseUri.Contains("localhost")
-                ? new Uri("http://localhost:8000/hubs/chat") // dev only
-                : nav.ToAbsoluteUri("/hubs/chat");
+            var hubUrl = nav.ToAbsoluteUri("/hubs/chat");
+            // var hubUrl = nav.BaseUri.Contains("localhost")
+            //     ? new Uri("http://localhost:8000/hubs/chat") // dev only
+            //     : nav.ToAbsoluteUri("/hubs/chat");
 
             _hubConnection = new HubConnectionBuilder()
                 .WithUrl(hubUrl, options =>

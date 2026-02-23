@@ -16,6 +16,19 @@ builder.Services.AddOpenApiDocument();
 //logger
 builder.Logging.AddConsole();
 
+// rate limitting
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("global", opt =>
+    {
+        opt.PermitLimit = 100;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueLimit = 0;
+    });
+});
+
+app.UseRateLimiter();
+
 var app = builder.Build();
 
 // migrations -> didnt work, now it should work even if postgres takes too long
