@@ -19,3 +19,5 @@ RUN apt-get update \
 COPY --from=build /Nyxon/publish .
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "Nyxon.Server.dll"]
+
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080

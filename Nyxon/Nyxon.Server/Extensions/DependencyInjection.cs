@@ -18,20 +18,25 @@ namespace Nyxon.Server.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration config)
         {
+            var isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+
             //cors
-            services.AddCors(options =>
+            if (isDevelopment)
             {
-                options.AddDefaultPolicy(corsPolicy =>
+                services.AddCors(options =>
                 {
-                    // TODO: allow any - fuck no
-                    // "SetIsOriginAllowed(origin => true)" allows ANY origin (WSL, localhost, Caddy)
-                    // This is much safer for dev than trying to guess the IP
-                    corsPolicy.SetIsOriginAllowed(origin => true)
-                            .AllowAnyHeader()
-                            .AllowAnyMethod()
-                            .AllowCredentials();
+                    options.AddDefaultPolicy(corsPolicy =>
+                    {
+                        // TODO: allow any - fuck no
+                        // "SetIsOriginAllowed(origin => true)" allows ANY origin (WSL, localhost, Caddy)
+                        // This is much safer for dev than trying to guess the IP
+                        corsPolicy.SetIsOriginAllowed(origin => true)
+                                .AllowAnyHeader()
+                                .AllowAnyMethod()
+                                .AllowCredentials();
+                    });
                 });
-            });
+            }
 
             var connString = config.GetConnectionString("DefaultConnection");
 
@@ -44,8 +49,6 @@ namespace Nyxon.Server.Extensions
                 var pgPass = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
                 connString = $"Host={pgHost};Port={pgPort};Database={pgDb};Username={pgUser};Password={pgPass}";
             }
-
-            var isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
 
             //invite hash
             var serverSecret64 = Environment.GetEnvironmentVariable("NYXON_INVITE_HMAC_KEY");
@@ -158,7 +161,7 @@ namespace Nyxon.Server.Extensions
             var dataSource = dataSourceBuilder.Build();
 
             // 4. Register DbContext using the data source instead of just the string
-            services.AddDbContext<AppDbContext>(options => 
+            services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(dataSource));
 
             // valkey

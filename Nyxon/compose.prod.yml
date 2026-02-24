@@ -10,15 +10,17 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./Caddyfile.prod:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
       - server
 
   server:
-    environment:
+  environment:
       ASPNETCORE_ENVIRONMENT: Production
+    expose:
+      - "8080"
 
 volumes:
   caddy_data:

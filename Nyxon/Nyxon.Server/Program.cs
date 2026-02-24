@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Nyxon.Core.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,8 +27,6 @@ builder.Services.AddRateLimiter(options =>
         opt.QueueLimit = 0;
     });
 });
-
-app.UseRateLimiter();
 
 var app = builder.Build();
 
@@ -81,11 +80,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// rate limitter
+app.UseRateLimiter();
+
 //routing
 app.UseRouting();
 
 //cors
-app.UseCors();
+if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+    app.UseCors();
 
 // auth
 app.UseAuthentication();

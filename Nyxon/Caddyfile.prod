@@ -1,0 +1,38 @@
+${DOMAIN} {
+
+    tls johanazampova@gmail.com
+
+    # Reverse proxy API and SignalR hub to backend container
+    reverse_proxy /api/* server:8080
+    reverse_proxy /hubs/* server:8080
+
+    # Serve static frontend (Blazor WASM) from Caddy root
+    reverse_proxy /* server:8080 {
+        # Optional headers for SPA, only needed if you do special routing
+        header_up Host {host}
+    }
+
+    # Security headers (CSP, etc.)
+    header {
+        # Prevent clickjacking
+        X-Frame-Options "DENY"
+        # Prevent XSS
+        X-XSS-Protection "1; mode=block"
+        # HSTS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        # Content Security Policy - example
+        Content-Security-Policy
+            "default-src 'self';
+            style-src 'self' https://fonts.googleapis.com; 
+            font-src 'self' https://fonts.gstatic.com; 
+            script-src 'self';
+            style-src 'self';
+            img-src 'self';
+            connect-src 'self'
+            ws: wss:;
+            font-src 'self';
+            object-src 'none';
+            frame-ancestors 'none';
+            base-uri 'self';"
+    }
+}

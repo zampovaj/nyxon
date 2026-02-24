@@ -19,7 +19,7 @@ services:
       # Map External 8000 -> Internal 80
       - "8000:80" 
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./Caddyfile.dev:/etc/caddy/Caddyfile
     extra_hosts:
       # This allows Caddy (in Docker) to talk to your WSL2 (Client)
       - "host.docker.internal:host-gateway"
