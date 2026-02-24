@@ -52,7 +52,6 @@ namespace Nyxon.Client.Services.Hub
                     Console.WriteLine("Warning: No subscribers!");
                 OnNewConversationNotification?.Invoke();
             });
-
         }
 
         public async Task ConnectAsync()
@@ -76,8 +75,8 @@ namespace Nyxon.Client.Services.Hub
         {
             if (_hubConnection.State == HubConnectionState.Connected)
             {
-                if (_joinedConversations.Add(conversationId))
-                    await _hubConnection.InvokeAsync("JoinConversation", conversationId);
+                //if (_joinedConversations.Add(conversationId))
+                await _hubConnection.InvokeAsync("JoinConversation", conversationId);
             }
         }
         public async Task LeaveConversationAsync(Guid conversationId, Guid userId)
