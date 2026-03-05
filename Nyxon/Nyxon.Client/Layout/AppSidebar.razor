@@ -10,64 +10,66 @@
         <div class="collapsed-icon">#</div>
         <div class="expanded-search">
             <input type="text" class="input-std" placeholder="Filter chats..." @bind-value="_inputString"
-                @bind-value:event="oninput">
-        </div>
-    </div>
-    <div class="side-nav-list">
-        @if (InboxService.Conversations == null || !InboxService.Conversations.Any())
-        {
-            <div class="side-nav-item" style="opacity: 0.5; cursor: default;">
-                <MudAvatar class="avatar side-avatar">?</MudAvatar>
-                <div class="side-nav-info">
-                    <span class="chat-name">No Chats</span>
-                    <span class="chat-preview">Inbox is empty</span>
-                </div>
+                   @bind-value:event="oninput">
             </div>
-        }
-        else
-        {
-            var chats = FilteredConversations;
-
-            if (!chats.Any())
+        </div>
+        <div class="side-nav-list">
+            @if (InboxService.Conversations == null || !InboxService.Conversations.Any())
             {
-                <div class="side-nav-item" style="opacity: 0.5; cursor: default; justify-content: center;">
-                    <span class="chat-preview">No matching chats</span>
-                </div>
-            }
-
-            foreach (Conversation conv in chats)
-            {
-                <div class="side-nav-item @(conv.IsSelected ? "selected-conversation" : "") @(!LayoutState.IsVaultUnlocked ? "sidebar-locked" : "")"
-                    @onclick='() => TryOpenChat(conv)' @attributes="GetLockedTooltip()">
-
-                    <MudAvatar class="avatar side-avatar">
-                        @conv.Initials
-                    </MudAvatar>
-                    <div class="side-nav-info @(conv.HasUnreadMessages ? "unread" : "")">
-                        <span class="chat-name">
-                            @conv.TargetUsername
-                            @if (conv.HasHandshake)
-                            {
-                                <span style="margin-left: 4px;"><b>NEW!</b></span>
-                            }
-                        </span>
-                        <span class="chat-preview">
-                            @conv.LastMessageAt.ToLocalTime().ToShortTimeString()
-                        </span>
+                <div class="side-nav-item" style="opacity: 0.5; cursor: default;">
+                    <MudAvatar class="avatar side-avatar">?</MudAvatar>
+                    <div class="side-nav-info">
+                        <span class="chat-name">No Chats</span>
+                        <span class="chat-preview">Inbox is empty</span>
                     </div>
                 </div>
             }
-        }
-    </div>
-    <div class="sidebar-bottom">
-        <div class="status-dot-wrapper">
-            <div class="status-dot"></div>
+            else
+            {
+                var chats = FilteredConversations;
+
+                if (!chats.Any())
+                {
+                    <div class="side-nav-item" style="opacity: 0.5; cursor: default; justify-content: center;">
+                        <span class="chat-preview">No matching chats</span>
+                    </div>
+                }
+
+                foreach (Conversation conv in chats)
+                {
+                    <div class="side-nav-item @(conv.IsSelected ? "selected-conversation" : "") @(!LayoutState.IsVaultUnlocked ? "sidebar-locked" : "")"
+                         @onclick='() => TryOpenChat(conv)' @attributes="GetLockedTooltip()">
+
+                        <MudAvatar class="avatar side-avatar">
+                            @conv.Initials
+                        </MudAvatar>
+                        <div class="side-nav-info @(conv.HasUnreadMessages ? "unread" : "")">
+                            <span class="chat-name">
+                                @conv.TargetUsername
+                                @if (conv.HasHandshake)
+                                {
+                                    <span style="margin-left: 4px;"><b>NEW!</b></span>
+                                }
+                            </span>
+                            <span class="chat-preview">
+                                @(conv.LastMessageAt.Date == DateTime.Today ? "today" : 
+                                conv.LastMessageAt.Date == DateTime.Today.AddDays(-1) ? "yesterday" : 
+                                conv.LastMessageAt.ToLocalTime().ToShortDateString())
+                            </span>
+                        </div>
+                    </div>
+                }
+            }
         </div>
-        <div class="status-text">
-            Online (24ms) // v1.0.4
+        <div class="sidebar-bottom">
+            <div class="status-dot-wrapper">
+                <div class="status-dot"></div>
+            </div>
+            <div class="status-text">
+                Online (24ms) // v1.0.4
+            </div>
         </div>
-    </div>
-</aside>
+    </aside>
 
 @code {
     private Dictionary<string, object>? GetLockedTooltip()
