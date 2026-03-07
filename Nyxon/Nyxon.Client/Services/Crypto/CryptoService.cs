@@ -15,16 +15,53 @@ namespace Nyxon.Client.Services.Crypto
     {
         private readonly IKeyGenerationService _keyGenerationService;
         private readonly IArgon2Crypto _argon2Crypto;
+        private readonly IHashService _hashService;
 
-        public CryptoService(IKeyGenerationService keyGenerationService, IArgon2Crypto argon2Crypto)
+        public CryptoService(IKeyGenerationService keyGenerationService, IArgon2Crypto argon2Crypto, IHashService hashService)
         {
             _keyGenerationService = keyGenerationService;
             _argon2Crypto = argon2Crypto;
+            _hashService = hashService;
         }
 
         public async Task<byte[]> DerivePassphraseKeyAsync(byte[] passphrase, byte[] salt)
         {
             return await _argon2Crypto.DerivePassphraseKeyAsync(passphrase, salt);
+        }
+
+        public async Task<byte[]> HashPasswordAsync(byte[] password, byte[] salt)
+        {
+            return await _argon2Crypto.HashPasswordAsync(password, salt);
+        }
+
+        public async Task<byte[]> PreHashPasswordAsync(byte[] password, string username)
+        {
+            byte[]? salt = null;
+            try
+            {
+                salt = DeriveSalt(username, 16);
+                return await _argon2Crypto.HashPasswordAsync(password, salt);
+            }
+            finally
+            {
+                if (salt != null) CryptographicOperations.ZeroMemory(salt);
+            }
+        }
+
+        public byte[] DeriveSalt(string text, int length)
+        {
+            byte[]? hash = null;
+            try
+            {
+                byte[] textBytes = Encoding.UTF8.GetBytes(text);
+                hash = _hashService.HashPassword(textBytes);
+
+                return hash.AsSpan(0, length).ToArray(); // span for better performance
+            }
+            finally
+            {
+                if (hash != null) CryptographicOperations.ZeroMemory(hash);
+            }
         }
 
         public byte[] EncryptWithKey(byte[] data, byte[] key, byte[]? aad = null)
@@ -100,7 +137,7 @@ namespace Nyxon.Client.Services.Crypto
             }
             finally
             {
-                
+
             }
         }
 

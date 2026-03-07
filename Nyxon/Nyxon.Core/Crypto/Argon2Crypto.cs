@@ -28,10 +28,9 @@ namespace Nyxon.Core.Crypto
             using var argon2 = new Konscious.Security.Cryptography.Argon2id(password);
 
             argon2.Salt = salt;
-            // only 1 thread to mitigate gpu powered attacks
-            argon2.DegreeOfParallelism = 1;
-            argon2.Iterations = 2;
-            argon2.MemorySize = 64 * 1024;
+            argon2.DegreeOfParallelism = 4;
+            argon2.Iterations = 3;
+            argon2.MemorySize = 128 * 1024;
 
             return argon2.GetBytes(length);
         }

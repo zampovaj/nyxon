@@ -10,7 +10,10 @@ namespace Nyxon.Client.Interfaces.Crypto
     {
         byte[] GeneratePassphraseSalt();
         byte[] GeneratePasswordSalt();
+        byte[] DeriveSalt(string text, int length);
         Task<byte[]> DerivePassphraseKeyAsync(byte[] passphrase, byte[] salt);
+        Task<byte[]> HashPasswordAsync(byte[] password, byte[] salt);
+        Task<byte[]> PreHashPasswordAsync(byte[] password, string username);
         byte[] GenerateVaultKey();
         PrekeyBundle GeneratePrekeyBundle(byte[] privateIdentityKey, byte[] vaultKey, int opkCount, Guid userId);
         AsymmetricKey GenerateIdentityKey();

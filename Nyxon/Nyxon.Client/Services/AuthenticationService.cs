@@ -14,19 +14,16 @@ namespace Nyxon.Client.Services
     {
         private readonly AuthenticationStateProvider _authStateProvider;
         private readonly IApiService _apiService;
-        private readonly IHashService _hashService;
         private readonly ICryptoService _cryptoService;
         private readonly CsrfTokenStore _csrfTokenStore;
 
         public AuthenticationService(AuthenticationStateProvider authStateProvider,
             IApiService apiService,
-            IHashService hashService,
             ICryptoService cryptoService,
             CsrfTokenStore csrfTokenStore)
         {
             _authStateProvider = authStateProvider;
             _apiService = apiService;
-            _hashService = hashService;
             _cryptoService = cryptoService;
             _csrfTokenStore = csrfTokenStore;
         }
@@ -45,7 +42,7 @@ namespace Nyxon.Client.Services
             var request = new LoginRequest
             {
                 Username = username,
-                PasswordHash = _hashService.HashPassword(password)
+                PasswordHash = await _cryptoService.PreHashPasswordAsync(password, username)
             };
 
             try
@@ -108,12 +105,11 @@ namespace Nyxon.Client.Services
                     AadFactory.ForAgreementKey(userId)
                 );
 
-
                 var request = new RegisterRequest()
                 {
                     Id = userId,
                     Username = username,
-                    PasswordHash = _hashService.HashPassword(password),
+                    PasswordHash = await _cryptoService.PreHashPasswordAsync(password, username),
                     InviteCode = inviteCode,
                     PasswordSalt = passwordSalt,
                     PublicIdentityKey = identityKey.PublicKey,

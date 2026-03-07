@@ -57,5 +57,17 @@ namespace Nyxon.Client.Crypto
                 parallelism: 1
             );
         }
+        public async Task<byte[]> HashPasswordAsync(byte[] password, byte[] salt)
+        {
+            return await DeriveKeyAsync(
+                password,
+                salt,
+                length: 32,
+                iterations: 1,
+                memoryKb: 64 * 1024,
+                parallelism: 1
+            );
+        }
+
     }
 }
