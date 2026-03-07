@@ -17,7 +17,7 @@ services:
       - server
 
   server:
-  environment:
+    environment:
       ASPNETCORE_ENVIRONMENT: Production
     expose:
       - "8080"
