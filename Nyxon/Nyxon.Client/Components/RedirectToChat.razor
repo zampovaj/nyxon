@@ -12,7 +12,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        int stage = 0;
         Console.WriteLine("Redirect opened");
         try
         {
@@ -24,27 +23,22 @@
                 Nav.NavigateTo("/", false);
                 return;
             }
-            stage++;
 
             var conversationId = await InboxService.GetConversationAsync(Username);
-            stage++;
 
             if (conversationId != null)
             {
                 Nav.NavigateTo($"/chat/{conversationId}", false);
                 return;
             }
-            stage++;
 
             conversationId = await ConversationService.CreateConversationAsync(Username);
-            stage++;
 
             if (conversationId == null)
             {
                 Nav.NavigateTo("/", false);
                 return;
             }
-            stage++;
 
             Nav.NavigateTo($"/chat/{conversationId}", false);
             return;
@@ -52,9 +46,6 @@
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-        }
-        finally {
-            Console.WriteLine($"Stage: {stage}");
         }
     }
 }

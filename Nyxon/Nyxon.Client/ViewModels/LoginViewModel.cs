@@ -182,7 +182,6 @@ namespace Nyxon.Client.ViewModels
             if (!Validate())
             {
                 IsBusy = false;
-                Console.WriteLine(ErrorMessage);
                 Notify();
                 return;
             }

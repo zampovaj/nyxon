@@ -138,7 +138,7 @@ namespace Nyxon.Client.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error in CalculateIdentityDhAsync: " + ex.Message);
+                Console.WriteLine("Error in " + nameof(CalculateIdentityDhAsync) + ": " + ex.Message);
                 throw;
             }
             finally
@@ -166,7 +166,7 @@ namespace Nyxon.Client.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error in SignAsync: " + ex.Message);
+                Console.WriteLine("Error in "+ nameof(SignAsync) + ": " + ex.Message);
                 throw;
             }
             finally
@@ -191,12 +191,6 @@ namespace Nyxon.Client.Services
         {
             _vaultSessionService.CheckVault();
         }
-
-        /*public void CheckDecryptedKeys()
-        {
-            Console.WriteLine("DecryptedVaultKey: " + (DecryptedVaultKey == null ? "null" : Convert.ToBase64String(DecryptedVaultKey)));
-            Console.WriteLine("DecryptedPrivateIdentityKey: " + (DecryptedPrivateIdentityKey == null ? "null" : Convert.ToBase64String(DecryptedPrivateIdentityKey)));
-        }*/
 
         private void Notify() => StateChanged?.Invoke();
 

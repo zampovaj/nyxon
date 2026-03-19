@@ -165,13 +165,11 @@ namespace Nyxon.Client.ViewModels
 
         private async void HandleMessageNotification(string kvKey, Guid conversationId)
         {
-            Console.WriteLine("Reached the handler");
             await _initializationCompletion.Task;
             await _messageLock.WaitAsync();
 
             try
             {
-                Console.WriteLine("Passed the sempahore");
                 if (_activeConversationService.ConversationId == conversationId &&
                     ActiveConversation.ConversationId == conversationId)
                 {

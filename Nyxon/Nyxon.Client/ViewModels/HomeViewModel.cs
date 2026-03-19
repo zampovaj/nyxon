@@ -102,7 +102,6 @@ namespace Nyxon.Client.ViewModels
                     if (args.Length > 0 && int.TryParse(args[^1], out var parsed))
                         count = Math.Clamp(parsed, 1, 20);
 
-                    Console.WriteLine($"Count: {count}");
                     await GenerateInvites(count);
                 }
             };
@@ -120,7 +119,6 @@ namespace Nyxon.Client.ViewModels
                 if (!success) ErrorMessage = "Invalid passphrase";
                 else
                 {
-                    Console.WriteLine("Unlocked succesfully");
                     ErrorMessage = "";
                 }
             }
@@ -172,7 +170,7 @@ namespace Nyxon.Client.ViewModels
             if (Mode == TerminalMode.Locked)
             {
                 await UnlockVaultAsync();
-                _userVaultService.CheckEncryptedVault();
+                //_userVaultService.CheckEncryptedVault();
                 return;
             }
             if (Mode == TerminalMode.Unlocked)

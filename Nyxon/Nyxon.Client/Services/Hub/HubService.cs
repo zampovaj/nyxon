@@ -37,7 +37,7 @@ namespace Nyxon.Client.Services.Hub
                 .WithAutomaticReconnect()
                 .Build();
 
-            Console.WriteLine("Registering NewConversationNotification handler");
+            //Console.WriteLine("Registering NewConversationNotification handler");
 
             // notification
             _hubConnection.On<string>("ReceiveMessageNotification", kvKey =>
@@ -47,9 +47,9 @@ namespace Nyxon.Client.Services.Hub
 
             _hubConnection.On("NewConversationNotification", () =>
             {
-                Console.WriteLine($"HubService received NewConversationNotification, invoking event...");
-                if (OnNewConversationNotification == null)
-                    Console.WriteLine("Warning: No subscribers!");
+                //Console.WriteLine($"HubService received NewConversationNotification, invoking event...");
+                //if (OnNewConversationNotification == null)
+                //    Console.WriteLine("Warning: No subscribers!");
                 OnNewConversationNotification?.Invoke();
             });
         }

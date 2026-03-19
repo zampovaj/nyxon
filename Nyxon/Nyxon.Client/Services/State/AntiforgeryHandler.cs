@@ -14,7 +14,7 @@ namespace Nyxon.Client.Services.State
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             await _csrfTokenStore.Lock.WaitAsync(cancellationToken);
-            Console.WriteLine("Antiforgery check running");
+            //Console.WriteLine("Antiforgery check running");
             try
             {
                 if (_csrfTokenStore.Token == null)
@@ -56,8 +56,8 @@ namespace Nyxon.Client.Services.State
                     request.Headers.Add("X-CSRF-TOKEN", _csrfTokenStore.Token);
                 }
             }
-            Console.WriteLine("Antiforgery check finished");
-            _csrfTokenStore.Check();
+            //Console.WriteLine("Antiforgery check finished");
+            //_csrfTokenStore.Check();
 
             // otherwise return normally
             return await base.SendAsync(request, cancellationToken);

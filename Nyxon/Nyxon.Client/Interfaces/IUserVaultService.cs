@@ -18,6 +18,5 @@ namespace Nyxon.Client.Interfaces
         Task<byte[]> SignAsync(byte[] data);
         void Clear();
         void CheckEncryptedVault();
-        //void CheckDecryptedKeys();
     }
 }

@@ -102,9 +102,6 @@ namespace Nyxon.Client.Services.State
                 {
                     await ClearServicesAsync();
                     await _hubService.DisconnectAsync();
-
-                    Console.WriteLine("Everything clear");
-                    Console.WriteLine("Token: " + (_csrfTokenStore.Token ?? "null"));
                 }
             }
             catch (Exception ex)

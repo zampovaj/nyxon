@@ -113,7 +113,7 @@ namespace Nyxon.Client.Services
 
         public async Task<Guid?> GetConversationAsync(string username)
         {
-            Console.WriteLine($"Count: {Conversations.Count}");
+            //Console.WriteLine($"Count: {Conversations.Count}");
             return Conversations
                 .Where(c => c.TargetUsername == username)
                 .Select(c => (Guid?)c.ConversationId)

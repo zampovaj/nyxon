@@ -21,7 +21,7 @@ namespace Nyxon.Client.Services.Hub
             _inboxService = inboxService;
             _userListService = userListService;
 
-            Console.WriteLine("NotificationService created");
+            //Console.WriteLine("NotificationService created");
         }
 
         public async Task InitializeAsync()
@@ -31,7 +31,7 @@ namespace Nyxon.Client.Services.Hub
 
             _hubService.OnMessageNotification += HandleMessageNotification;
             _hubService.OnNewConversationNotification += HandleNewConversationNotification;
-            Console.WriteLine("NotificationService initialized");
+            //Console.WriteLine("NotificationService initialized");
         }
 
 
@@ -39,7 +39,7 @@ namespace Nyxon.Client.Services.Hub
 
         private async void HandleMessageNotification(string kvKey)
         {
-            Console.WriteLine($"New message notification");
+            //Console.WriteLine($"New message notification");
             try
             {
                 if (kvKey == _lastKvKey) return;
@@ -72,7 +72,7 @@ namespace Nyxon.Client.Services.Hub
 
         private async void HandleNewConversationNotification()
         {
-            Console.WriteLine($"New conversation");
+            //Console.WriteLine($"New conversation");
             try
             {
                 await _inboxService.SyncInboxAsync();

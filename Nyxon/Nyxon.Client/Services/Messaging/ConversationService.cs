@@ -66,7 +66,6 @@ namespace Nyxon.Client.Services.Messaging
 
         public async Task<Guid?> CreateConversationAsync(string username)
         {
-            Console.WriteLine("Conversation service reached");
             if (!_userContext.IsAuthenticated)
                 throw new UnauthorizedAccessException("Can't create conversation unless unauthenticated");
 
@@ -163,16 +162,8 @@ namespace Nyxon.Client.Services.Messaging
 
                 return conversationId;
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
             finally
             {
-                Console.WriteLine($"SharedSecret: {Convert.ToBase64String(x3dhResult.SharedSecret)}");
-                Console.WriteLine($"Chainkey1: {Convert.ToBase64String(chainKey1)}");
-                Console.WriteLine($"Chainkey2: {Convert.ToBase64String(chainKey2)}");
                 if (x3dhResult?.SharedSecret != null) CryptographicOperations.ZeroMemory(x3dhResult.SharedSecret);
                 if (chainKey1 != null) CryptographicOperations.ZeroMemory(chainKey1);
                 if (chainKey2 != null) CryptographicOperations.ZeroMemory(chainKey2);
@@ -181,55 +172,47 @@ namespace Nyxon.Client.Services.Messaging
 
         public async Task<string> OpenConversationAsync(Guid conversationId)
         {
-            try
+            if (!_userContext.IsAuthenticated)
+                throw new UnauthorizedAccessException("Anuthenticated access prohibited");
+
+            var userId = (Guid)_userContext.UserId;
+
+            if (!_userVaultService.IsUnlocked)
+                throw new UnauthorizedAccessException("Vault must be unlocked to initiate a conversation");
+
+            var conversation = _inboxService.Conversations
+                .Where(c => c.ConversationId == conversationId)
+                .FirstOrDefault();
+
+            if (conversation == null) throw new InvalidOperationException("Conversation doesn't exist");
+            if (conversation.IsProcessing) return null;
+
+            if (conversation.HasHandshake)
             {
-                if (!_userContext.IsAuthenticated)
-                    throw new UnauthorizedAccessException("Anuthenticated access prohibited");
-
-                var userId = (Guid)_userContext.UserId;
-
-                if (!_userVaultService.IsUnlocked)
-                    throw new UnauthorizedAccessException("Vault must be unlocked to initiate a conversation");
-
-                var conversation = _inboxService.Conversations
-                    .Where(c => c.ConversationId == conversationId)
+                var handshake = _handshakeService.Handshakes
+                    .Where(h => h.ConversationId == conversation.ConversationId)
                     .FirstOrDefault();
 
-                if (conversation == null) throw new InvalidOperationException("Conversation doesn't exist");
-                if (conversation.IsProcessing) return null;
+                if (handshake == null) throw new InvalidOperationException("Handshake can't be null");
 
-                if (conversation.HasHandshake)
-                {
-                    var handshake = _handshakeService.Handshakes
-                        .Where(h => h.ConversationId == conversation.ConversationId)
-                        .FirstOrDefault();
+                handshake.IsProcessing = true;
 
-                    if (handshake == null) throw new InvalidOperationException("Handshake can't be null");
+                var vaultData = await CalculateX3dhAsync(conversation.ConversationId, userId, handshake);
 
-                    handshake.IsProcessing = true;
+                var success = await _conversationRepository.CreateConversationVaultAsync(conversationId, vaultData);
+                if (!success)
+                    throw new Exception("Failed to create conversation vault");
 
-                    var vaultData = await CalculateX3dhAsync(conversation.ConversationId, userId, handshake);
+                await _handshakeService.UseAsync(handshake.Id);
 
-                    var success = await _conversationRepository.CreateConversationVaultAsync(conversationId, vaultData);
-                    if (!success)
-                        throw new Exception("Failed to create conversation vault");
-
-                    await _handshakeService.UseAsync(handshake.Id);
-
-                    await _activeConversation.InitializeNewAsync(conversation.ConversationId, vaultData);
-                }
-                else
-                {
-                    await _activeConversation.InitializeAsync(conversation.ConversationId);
-                }
-
-                return conversation.TargetUsername;
+                await _activeConversation.InitializeNewAsync(conversation.ConversationId, vaultData);
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine(ex.Message);
-                throw;
+                await _activeConversation.InitializeAsync(conversation.ConversationId);
             }
+
+            return conversation.TargetUsername;
         }
 
         private async Task<ConversationVaultData> CalculateX3dhAsync(Guid conversationId, Guid userId, Handshake handshake)
@@ -275,9 +258,6 @@ namespace Nyxon.Client.Services.Messaging
             }
             finally
             {
-                Console.WriteLine($"SharedSecret: {Convert.ToBase64String(sharedSecret)}");
-                Console.WriteLine($"Chainkey1: {Convert.ToBase64String(chainKey1)}");
-                Console.WriteLine($"Chainkey2: {Convert.ToBase64String(chainKey2)}");
                 if (sharedSecret != null) CryptographicOperations.ZeroMemory(sharedSecret);
                 if (chainKey1 != null) CryptographicOperations.ZeroMemory(chainKey1);
                 if (chainKey2 != null) CryptographicOperations.ZeroMemory(chainKey2);
