@@ -109,4 +109,7 @@ app.MapControllers();
 // signalr
 app.MapHub<ChatHub>("/hubs/chat");
 
+// blazor fallback
+app.MapFallbackToFile("index.html");
+
 app.Run();

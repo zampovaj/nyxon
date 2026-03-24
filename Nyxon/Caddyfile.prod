@@ -2,6 +2,11 @@ nyxon.app {
 
     tls johanazampova@gmail.com
 
+    # Enable access logs to see exactly what Caddy is routing
+    log {
+        output stdout
+    }
+
     # Reverse proxy API and SignalR hub to backend container
     reverse_proxy /api/* server:8080
     reverse_proxy /hubs/* server:8080
