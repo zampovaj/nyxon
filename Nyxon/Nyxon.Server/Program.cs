@@ -86,6 +86,7 @@ app.UseRateLimiter();
 
 // blazor
 app.UseBlazorFrameworkFiles();
+app.UseDefaultFiles();
 app.UseStaticFiles();
 
 //routing
