@@ -3,6 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY ["Nyxon.Core/Nyxon.Core.csproj", "Nyxon.Core/"]
 COPY ["Nyxon.Server/Nyxon.Server.csproj", "Nyxon.Server/"]
+COPY ["Nyxon.Client/Nyxon.Client.csproj", "Nyxon.Client/"]
 RUN dotnet restore "Nyxon.Server/Nyxon.Server.csproj"
 
 COPY . .

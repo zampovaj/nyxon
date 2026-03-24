@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -20,5 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Nyxon.Core\Nyxon.Core.csproj" />
+    <ProjectReference Include="..\Nyxon.Client\Nyxon.Client.csproj" />
   </ItemGroup>
 </Project>

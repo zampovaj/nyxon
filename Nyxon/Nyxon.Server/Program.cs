@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.RateLimiting;
 using Nyxon.Core.Extensions;
+using Microsoft.AspNetCore.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,6 +83,10 @@ if (app.Environment.IsDevelopment())
 
 // rate limitter
 app.UseRateLimiter();
+
+// blazor
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
 
 //routing
 app.UseRouting();
