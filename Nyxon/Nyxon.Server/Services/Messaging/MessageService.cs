@@ -133,7 +133,8 @@ namespace Nyxon.Server.Services.Messaging
 
                 // update last read
                 var convsersationUser = await _context.ConversationUsers
-                    .Where(c => c.UserId == senderId)
+                    .Where(c => c.UserId == senderId &&
+                        c.ConversationId == request.ConversationId)
                     .FirstOrDefaultAsync();
 
                 if (convsersationUser == null)

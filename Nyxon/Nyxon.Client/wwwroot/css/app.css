@@ -1298,3 +1298,138 @@ input[type="password"] {
 .auth-card.vault:has(.lock-icon:hover) .input-std {
     border-color: var(--primary);
 }
+
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (MOBILE / TABLET)
+   ========================================================================== */
+
+@media screen and (max-width: 768px) {
+    /* 1. Variables & Layout Foundation */
+    :root {
+        /* Slightly thinner rail on mobile to save screen real estate */
+        --sidebar-collapsed: 60px;
+        --sidebar-expanded: 260px; 
+    }
+
+    /* 2. Header Adjustments */
+    .header-content {
+        padding: 0 16px;
+    }
+    .logo-link {
+        font-size: 1.3rem;
+    }
+    .breadcrumb {
+        display: none !important; /* Hide to prevent header text overlap */
+    }
+    .user-link {
+        padding-right: 15px;
+        margin-right: 5px;
+        border-right: none; 
+    }
+    .user-link .username {
+        display: none; /* Switch to icon-only profile */
+    }
+    .logout-link {
+        margin-left: 0;
+        font-size: 0.8rem;
+    }
+
+    /* 3. Landing & Auth Screens */
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    .hero-subtitle {
+        font-size: 1rem;
+        padding: 0 20px;
+    }
+    .hero-buttons {
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+        gap: 12px;
+    }
+    
+    /* Override hardcoded desktop widths */
+    .auth-card,
+    .auth-card.vault,
+    .auth-card.wide {
+        width: 90% !important;
+        max-width: 400px;
+        padding: 24px 20px;
+    }
+    
+    /* Collapse the 2-column grid into a single stack for the register page */
+    .auth-card.wide .form-content-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .passphrase-col {
+        border-left: none;
+        padding-left: 0;
+        border-top: 1px solid var(--border);
+        padding-top: 20px;
+        animation: fadeIn 0.5s ease forwards; /* Maintain your animation */
+    }
+
+    /* 4. Dashboard (Home View) */
+    .dash-greeting {
+        font-size: 1.6rem;
+        text-align: center;
+        padding: 0 10px;
+    }
+    .dash-search-wrapper,
+    .terminal-output-card {
+        width: 90%;
+        max-width: 100%;
+    }
+    .dash-search {
+        padding: 16px 16px 16px 48px;
+        font-size: 1rem;
+    }
+    .dash-icon {
+        left: 16px;
+    }
+    .invite-grid {
+        grid-template-columns: 1fr; /* Single column for invite codes */
+    }
+
+    /* 5. Sidebar Navigation (The Mobile Overlay Pattern) */
+    .app-layout {
+        position: relative; 
+    }
+    .sidebar {
+        /* Take it out of the flex flow so it doesn't crush the chat when expanded */
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        height: 100%;
+        z-index: 100;
+    }
+    .sidebar:hover {
+        /* Add a drop shadow so it pops off the chat background when expanded */
+        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.6);
+    }
+    .main-stage {
+        /* Offset the chat area so the collapsed 60px rail doesn't hide text */
+        margin-left: var(--sidebar-collapsed);
+        width: calc(100% - var(--sidebar-collapsed));
+    }
+
+    /* 6. Chat Interface */
+    .messages-area {
+        padding: 16px;
+    }
+    .msg-wrapper {
+        max-width: 90%; /* Let the text bubbles utilize more width */
+    }
+    .input-area {
+        padding: 12px 16px;
+        gap: 8px;
+    }
+    .send-btn {
+        width: 45px;
+        font-size: 1.3rem;
+    }
+}

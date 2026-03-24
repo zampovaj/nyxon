@@ -51,10 +51,16 @@
                                     <span style="margin-left: 4px;"><b>NEW!</b></span>
                                 }
                             </span>
+                            @{
+                                var localTime = conv.LastMessageAt.ToLocalTime();
+                            }
+
                             <span class="chat-preview">
-                                @(conv.LastMessageAt.Date == DateTime.Today ? "today" : 
-                                conv.LastMessageAt.Date == DateTime.Today.AddDays(-1) ? "yesterday" : 
-                                conv.LastMessageAt.ToLocalTime().ToShortDateString())
+                                @(localTime.Date == DateTime.Today
+                                    ? localTime.ToShortTimeString()
+                                    : localTime.Date == DateTime.Today.AddDays(-1)
+                                        ? "Yesterday"
+                                        : localTime.ToShortDateString())
                             </span>
                         </div>
                     </div>
