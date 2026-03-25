@@ -23,6 +23,6 @@ nyxon.app {
         X-XSS-Protection "1; mode=block"
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
         # Properly formatted, single-line CSP tailored for Blazor WASM and SignalR
-        Content-Security-Policy `default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' ws: wss:; object-src 'none';`
+        Content-Security-Policy `default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' ws: wss:; object-src 'none';`
     }
 }
