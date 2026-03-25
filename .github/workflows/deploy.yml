@@ -1,0 +1,32 @@
+name: Deploy to Hetzner VPS
+
+# This tells GitHub to run this script every time you push to the 'main' branch
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    name: Deploy App
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: SSH into VPS and Rebuild
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VPS_IP }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        # This is the exact script the runner will type into your server
+        script: |
+          # 1. Navigate to your app directory
+          cd ~/nyxon-app/Nyxon/Nyxon
+
+          # 2. Pull the latest code from GitHub
+          git pull origin main
+
+          # 3. Rebuild and restart the Docker containers
+          docker compose -f compose.yml -f compose.prod.yml up -d --build
+
+          # 4. Clean up old, unused Docker images so your VPS disk doesn't fill up
+          docker image prune -f
