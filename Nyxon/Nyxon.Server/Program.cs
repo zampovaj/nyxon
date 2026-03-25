@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.RateLimiting;
 using Nyxon.Core.Extensions;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,20 @@ builder.Services.AddControllersWithViews();
 // di
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddCoreServices();
+
+// 1. Trust Caddy's HTTPS forwarding
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    // Clear known proxies so it trusts the internal Docker network
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+// 2. Explicitly map Data Protection to a folder the 'app' user can access
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/app/keys"))
+    .SetApplicationName("Nyxon");
 
 // swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -30,6 +46,9 @@ builder.Services.AddRateLimiter(options =>
 });
 
 var app = builder.Build();
+
+// Tell .NET that the request was originally HTTPS
+app.UseForwardedHeaders();
 
 // migrations -> didnt work, now it should work even if postgres takes too long
 using (var scope = app.Services.CreateScope())

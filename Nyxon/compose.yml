@@ -37,7 +37,7 @@ services:
       VALKEY_PORT: 6379
       NYXON_INVITE_HMAC_KEY: "${NYXON_INVITE_HMAC_KEY}"
     volumes:
-      - dataprotection_keys:/root/.aspnet/DataProtection-Keys
+      - dataprotection_keys:/app/keys
 
 volumes:
   postgres_data:
