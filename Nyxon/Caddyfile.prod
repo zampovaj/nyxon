@@ -1,8 +1,6 @@
 nyxon.app {
-
     tls johanazampova@gmail.com
 
-    # Enable access logs to see exactly what Caddy is routing
     log {
         output stdout
     }
@@ -13,16 +11,17 @@ nyxon.app {
 
     # Serve static frontend (Blazor WASM) from Caddy root
     reverse_proxy /* server:8080 {
-        # Optional headers for SPA, only needed if you do special routing
         header_up Host {host}
     }
 
-    # Security headers
+    # Security headers - using "defer" to overwrite Kestrel's headers
     header {
+        # The > sign or "defer" ensures Caddy overwrites the backend
         X-Frame-Options "DENY"
         X-XSS-Protection "1; mode=block"
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-        header_down -Content-Security-Policy
-        header_down Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' ws: wss:; object-src 'none';"
+        
+        # This is the "Force" version of the CSP
+        Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' ws: wss:; object-src 'none';" defer
     }
 }
