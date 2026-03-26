@@ -1,6 +1,7 @@
 using Microsoft.JSInterop;
 using System.Security.Cryptography;
 using Nyxon.Client.Interfaces.Crypto;
+using System.Text;
 
 namespace Nyxon.Client.Crypto
 {
@@ -68,6 +69,5 @@ namespace Nyxon.Client.Crypto
                 parallelism: 1
             );
         }
-
     }
 }
