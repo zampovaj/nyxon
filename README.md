@@ -22,7 +22,7 @@ This platform is engineered with the goal of shifting security away from server 
 
 To achieve End-to-End Encryption (E2EE) without requiring users to install native desktop applications, this platform implements complex cryptographic operations directly within the web browser. The system leverages established algorithms and protocols to secure the communication layer:
 
-* **Key Agreement & Ratcheting:** The application utilizes mechanisms based on asynchronous cryptographic protocols, specifically X3DH and a ratcheting mechanism. These are implemented to provide strong security properties, including Forward Secrecy (protecting past messages if current keys are compromised) and Post-Compromise Security (allowing sessions to heal after a breach).
+* **Key Agreement & Ratcheting:** The application utilizes mechanisms based on asynchronous cryptographic protocols, specifically X3DH and a ratcheting mechanism. These are implemented to provide strong security properties, including Forward Secrecy and, to some extent, Post-Compromise Security.
 * **Asymmetric Cryptography:** Core identity and key exchange operations are built upon elliptic curve cryptography, primarily utilizing Curve25519.
 * **Key Derivation:** Client-side key generation and the protection of local cryptographic material are secured using memory-hard derivation functions, specifically Argon2id.
 * **Authenticated Encryption:** Data confidentiality and integrity for message payloads and local storage are handled via standard symmetric encryption primitives, such as AES-GCM.
