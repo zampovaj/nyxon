@@ -33,6 +33,9 @@ namespace Nyxon.Server.Services.Auth
 
         public async Task<bool> RegisterUserAsync(RegisterRequest request)
         {
+            byte[]? inviteHash = null;
+            Guid? inviterId = null;
+
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
@@ -53,8 +56,11 @@ namespace Nyxon.Server.Services.Auth
                 // check invite code
                 if (_enforceInvites && usersCount > 0)
                 {
-                    var inviteId = await _inviteCodeService.ValidateAsync(request.InviteCode);
-                    await _inviteCodeService.MarkUsedAsync(inviteId);
+                    inviteHash = _hasher.HashInvite(request.InviteCode);
+                    inviterId = await _inviteCodeService.ValidateAsync(inviteHash);
+
+                    if (inviterId == null)
+                        throw new BadHttpRequestException("Invalid invite code");
                 }
 
                 var passwordHash = _passwordService.HashPassword(request.PasswordHash, request.PasswordSalt);
@@ -114,6 +120,10 @@ namespace Nyxon.Server.Services.Auth
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                // delete invite
+                if (inviterId != null && inviteHash != null)
+                    await _inviteCodeService.MarkUsedAsync((Guid)inviterId, inviteHash);
 
                 return true;
             }

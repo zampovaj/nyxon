@@ -68,7 +68,7 @@ namespace Nyxon.Server.Extensions
                     options.Cookie.Name = "__Host-X-CSRF-TOKEN";
                 }
                 options.Cookie.SameSite = SameSiteMode.Strict;
-                //TODO: enforce https in production
+
                 if (isDevelopment)
                 {
                     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
@@ -191,6 +191,7 @@ namespace Nyxon.Server.Extensions
 
             // services
             services.AddScoped<IMessageCacheService, MessageCacheService>();
+            services.AddScoped<IInviteCodeCacheService, InviteCodeCacheService>();
             services.AddScoped<IHashService, Sha256HashService>();
             services.AddScoped<IRegistrationService, RegistrationService>();
             services.AddScoped<ILoginService, LoginService>();

@@ -34,9 +34,9 @@
                                 <div>
                                     <label class="form-label">PASSPHRASE</label>
                                     <input id="terminal-input" class="input-std" placeholder="Enter your passphrase"
-                                        autocomplete="off" name="vault-phrase-entry-no-save" data-lpignore="true"
-                                        data-1p-ignore="true" spellcheck="false" @bind-value="_vm.InputString" @bind-value:event="onchange"
-                                        @onkeyup="HandleKeyDown" @onblur="HideResults" />
+                                           autocomplete="off" name="vault-phrase-entry-no-save" data-lpignore="true"
+                                           data-1p-ignore="true" spellcheck="false" @bind-value="_vm.InputString"
+                                           @bind-value:event="onchange" @onkeyup="HandleKeyDown" @onblur="HideResults" />
                                 </div>
                             </div>
                         </div>
@@ -61,16 +61,16 @@
                 <div class="dash-search-wrapper">
                     <span class="dash-icon @(_vm.IsUnlocked ? "icon-unlocked" : "")">>_</span>
                     <input id="terminal-input" class="dash-search @_terminalMode" autocomplete="off"
-                        name="vault-phrase-entry-no-save" data-lpignore="true" data-1p-ignore="true"
-                        @bind-value="_vm.InputString" @bind-value:event="oninput" @onfocus="OnFocusInputUpdate"
-                        @onkeydown="HandleKeyDown" @onblur="HideResults" />
+                           name="vault-phrase-entry-no-save" data-lpignore="true" data-1p-ignore="true"
+                           @bind-value="_vm.InputString" @bind-value:event="oninput" @onfocus="OnFocusInputUpdate"
+                           @onkeydown="HandleKeyDown" @onblur="HideResults" />
                     @if (_vm.IsUnlocked && _vm.SearchResults.Any() && _canShowSearch)
                     {
                         <div class="search-results-popup">
                             @foreach (var user in _vm.SearchResults)
                             {
                                 <div class="search-item @(user.Conversation ? "existing-friend" : "")"
-                                    @onmousedown="() => OpenConversation(user)">
+                                     @onmousedown="() => OpenConversation(user)">
 
                                     <div class="search-info">
                                         <span class="search-username">@user.Username</span>
@@ -89,8 +89,8 @@
                     @if (_vm.IsUnlocked)
                     {
                         //<div class="shortcut-chip">type <b>?</b> for help</div>
-                        <div class="shortcut-chip"><b>search users</b></div>
-                        <div class="shortcut-chip"><b>:invite code</b></div>
+                        <div class="shortcut-chip" @onclick="SearchFocus"><b>search users</b></div>
+                        <div class="shortcut-chip" @onclick="InviteCodeCommand"><b>:invite code</b></div>
                         //<div class="shortcut-chip"><b>@@username</b> message</div>
                     }
                 </div>
@@ -130,13 +130,14 @@
             <h1 class="hero-title">Sovereignty over<br>your data.</h1>
             <p class="hero-subtitle">End-to-End Encrypted.
                 Zero Knowledge.<br>The last messenger you will ever need.</p>
-            <div class="hero-buttons">
-                <button class="btn-primary" @onclick='() => Nav.NavigateTo("/login")'>Get Started</button>
-                <button class="btn-outline" @onclick='() => Nav.NavigateTo("https://github.com/zampovaj/nyxon")'>Read The Code</button>
-            </div>
-        </section>
-    </NotAuthorized>
-</AuthorizeView>
+                <div class="hero-buttons">
+                    <button class="btn-primary" @onclick='() => Nav.NavigateTo("/login")'>Get Started</button>
+                    <button class="btn-outline" @onclick='() => Nav.NavigateTo("https://github.com/zampovaj/nyxon")'>Read
+                        The Code</button>
+                    </div>
+                </section>
+            </NotAuthorized>
+        </AuthorizeView>
 
 @code {
     private bool _canShowSearch = false;
@@ -152,15 +153,27 @@
     private ElementReference _terminalInput;
     private bool _isHotKeyActive = false;
 
+    private async Task SearchFocus()
+    {
+        _vm.InputString = "";
+        await JS.InvokeVoidAsync("domUtils.focusElement", "terminal-input");
+    }
+
+    private async Task InviteCodeCommand()
+    {
+        _vm.InputString = ":invite code";
+        await JS.InvokeVoidAsync("domUtils.focusElement", "terminal-input");
+    }
+
     private async Task OnFocusInputUpdate()
     {
-        if (_vm.IsUnlocked) 
+        if (_vm.IsUnlocked)
         {
             _canShowSearch = true;
 
             // it jsut doesnt work unless i assign a different vlaue to the string
             var currentInput = _vm.InputString;
-            _vm.InputString = currentInput + " "; 
+            _vm.InputString = currentInput + " ";
             _vm.InputString = currentInput;
             
             StateHasChanged();
@@ -175,7 +188,7 @@
             await _vm.HandleTerminalKey(e);
             await JS.InvokeVoidAsync("domUtils.blurElement", "terminal-input");
         }
-        else 
+        else
         {
             _canShowSearch = true;
             await _vm.HandleTerminalKey(e);
