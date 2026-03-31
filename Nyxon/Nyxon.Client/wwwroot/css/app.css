@@ -221,6 +221,7 @@ body {
     transition: color 0.2s;
     /*need this in case i add more links*/
     margin-left: 20px;
+    margin-right: 20px;
 }
 
 .nav-item:hover {
