@@ -13,6 +13,7 @@ services:
       - ./Caddyfile.prod:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
+      - /home/nyxon/nyxon-app/certs:/app/certs
     depends_on:
       - server
 

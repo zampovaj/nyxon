@@ -1,5 +1,5 @@
 nyxon.app {
-    tls johanazampova@gmail.com
+    tls /app/certs/nyxon.pem /app/certs/nyxon.key
 
     log {
         output stdout
