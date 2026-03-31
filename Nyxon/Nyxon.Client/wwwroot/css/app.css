@@ -491,6 +491,10 @@ body {
     transition: color 0.2s;
 }
 
+.auth-link:hover {
+    color: var(--text-main);
+}
+
 .new-identity:hover {
     color: var(--text-main);
 }
