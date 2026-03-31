@@ -30,6 +30,11 @@ window.domUtils = {
     blurElement: function (elementId) {
         const el = document.getElementById(elementId);
         if (el) el.blur();
+    },
+    
+    focusElement: function (elementId) {
+        const el = document.getElementById(elementId);
+        if (el) el.focus();
     }
 };
 window.clipboardCopy = {

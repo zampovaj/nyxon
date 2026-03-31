@@ -7,8 +7,8 @@ namespace Nyxon.Server.Interfaces
 {
     public interface IInviteCodeService
     {
-        Task<Guid> ValidateAsync(string code);
-        Task MarkUsedAsync(Guid id);
-        Task<List<string>> CreateInvitesAsync(int count = 1);
+        Task<Guid?> ValidateAsync(byte[] hash);
+        Task MarkUsedAsync(Guid userId, byte[] hash);
+        Task<List<string>> CreateInvitesAsync(Guid userId, int count = 1);
     }
 }

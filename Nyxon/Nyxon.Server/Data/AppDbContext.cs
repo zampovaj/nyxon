@@ -17,7 +17,6 @@ namespace Nyxon.Server.Data
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<Nyxon.Server.Models.SignedPrekey> SignedPrekeys { get; set; }
         public DbSet<Nyxon.Server.Models.OneTimePrekey> OneTimePrekeys { get; set; }
-        public DbSet<InviteCode> InviteCodes { get; set; }
         public DbSet<Handshake> Handshakes { get; set; }
         public DbSet<RatchetSnapshot> RatchetSnapshots { get; set; }
 

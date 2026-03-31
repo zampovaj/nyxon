@@ -29,16 +29,16 @@ namespace Nyxon.Server.Controllers
         {
             try
             {
-                var user = HttpContext.User;
 
-                if (user.Identity?.IsAuthenticated != true)
+                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
                     return Unauthorized();
 
-                var canCreate = bool.TryParse(user.FindFirst("CanCreateInvites")?.Value, out var val) && val;
-                if (!canCreate)
+                var canCreateString = User.FindFirst("CanCreateInvites")?.Value;
+                if (canCreateString == null || !bool.TryParse(canCreateString, out var canCreate))
                     return Forbid();
 
-                var invites = await _inviteCodeService.CreateInvitesAsync(request.Count);
+                var invites = await _inviteCodeService.CreateInvitesAsync(userId, request.Count);
                 return Ok(new NewInviteCodesResponse(invites));
             }
             catch (Exception ex)

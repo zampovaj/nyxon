@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Linq.Expressions;
+using Org.BouncyCastle.Bcpg;
 
 namespace Nyxon.Server.Services.Invites
 {
@@ -11,87 +12,67 @@ namespace Nyxon.Server.Services.Invites
     {
         private readonly AppDbContext _context;
         private readonly IHasher _hasher;
+        private readonly IInviteCodeCacheService _inviteCodeCache;
+        private const int InvitesLimit = 20;
 
-        public InviteCodeService(AppDbContext context, IHasher hasher)
+
+        public InviteCodeService(AppDbContext context, IHasher hasher, IInviteCodeCacheService inviteCodeCache)
         {
             _context = context;
             _hasher = hasher;
+            _inviteCodeCache = inviteCodeCache;
         }
 
-        public async Task MarkUsedAsync(Guid id)
+        public async Task MarkUsedAsync(Guid userId, byte[] hash)
         {
-            var invite = await _context.InviteCodes
-                .Where(c => c.Id == id)
-                .FirstOrDefaultAsync();
-
-            if (invite == null)
-                throw new("Invalid invite: id does not exist.");
-
-            invite.Use();
-            await _context.SaveChangesAsync();
+            await _inviteCodeCache.DeleteInviteCodeAsync(userId, hash);
         }
 
-        public async Task<Guid> ValidateAsync(string code)
+        public async Task<Guid?> ValidateAsync(byte[] hash)
         {
-            var hash = _hasher.HashInvite(code);
-
-            var invite = await _context.InviteCodes
-                .Where(c => c.CodeHash == hash && !c.Used)
-                .FirstOrDefaultAsync();
-
-            if (invite == null)
-                throw new("Invalid or already used invide code");
-
-            return invite.Id;
+            return await _inviteCodeCache.ValidateInviteCodeAsync(hash);
         }
 
-        public async Task<List<string>> CreateInvitesAsync(int count = 1)
+        public async Task<List<string>> CreateInvitesAsync(Guid userId, int count = 1)
         {
             List<string> inviteCodes = new();
+            List<byte[]> hashes = new();
 
-            if (count > 50) count = 50;
-            int maxRetries = count;
+            int todayCount = await _inviteCodeCache.GetInviteCodesCountAsync(userId);
+            int invitesLeftToday = InvitesLimit - todayCount;
 
-            for (int i = 0; i < count && i < maxRetries; i++)
+            if (count > invitesLeftToday) count = invitesLeftToday;
+
+            int attempts = 0;
+            bool success = false;
+
+            while (!success && attempts < 5)
             {
-                try
+                inviteCodes.Clear();
+                hashes.Clear();
+
+                for (int j = 0; j < count; j++)
                 {
                     var code = GenerateInvite(12);
 
-                    var invite = new InviteCode(_hasher.HashInvite(code));
-
-                    _context.InviteCodes.Add(invite);
-                    await _context.SaveChangesAsync();
-
-                    inviteCodes.Add(code);
+                    if (!inviteCodes.Contains(code))
+                    {
+                        inviteCodes.Add(code);
+                        hashes.Add(_hasher.HashInvite(code));
+                    }
                 }
-                catch
-                {
-                    i--;
-                    maxRetries++;
-                }
+
+                success = await _inviteCodeCache.SaveInvitesAsync(userId, hashes);
+                attempts++;
             }
+
             return inviteCodes;
         }
 
         private string GenerateInvite(int length)
         {
             string charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            var bytes = new byte[length];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(bytes);
-            }
-
-            var result = new char[length];
-
-            for (int i = 0; i < length; i++)
-            {
-                //maps bytes to charset
-                result[i] = charset[bytes[i] % charset.Length];
-            }
-
-            return new string(result);
+            return RandomNumberGenerator.GetString(charset, length);
         }
     }
 }
