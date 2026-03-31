@@ -1,8 +1,8 @@
-[![MIT License][license-shield]][license-url]
+[![AGPL License][license-shield]][license-url]
 
 <br />
 <div align="center">
-  <h1 align="center">nyxon</h1>
+  <h3 align="center">nyxon</h3>
 
   <p align="center">
     A web-based, real-time communication platform built around zero-trust architecture and end-to-end encryption.
@@ -22,7 +22,7 @@ This platform is engineered with the goal of shifting security away from server 
 
 To achieve End-to-End Encryption (E2EE) without requiring users to install native desktop applications, this platform implements complex cryptographic operations directly within the web browser. The system leverages established algorithms and protocols to secure the communication layer:
 
-* **Key Agreement & Ratcheting:** The application utilizes mechanisms based on asynchronous cryptographic protocols—specifically leveraging X3DH and a ratcheting mechanism. These are implemented to provide strong security properties, including Forward Secrecy and, partially, Post-Compromise Security.
+* **Key Agreement & Ratcheting:** The application utilizes mechanisms based on asynchronous cryptographic protocols—specifically leveraging X3DH and a ratcheting mechanism. These are implemented to provide strong security properties, including Forward Secrecy (protecting past messages if current keys are compromised) and Post-Compromise Security (allowing sessions to heal after a breach).
 * **Asymmetric Cryptography:** Core identity and key exchange operations are built upon elliptic curve cryptography, primarily utilizing Curve25519.
 * **Key Derivation:** Client-side key generation and the protection of local cryptographic material are secured using memory-hard derivation functions, specifically Argon2id.
 * **Authenticated Encryption:** Data confidentiality and integrity for message payloads and local storage are handled via standard symmetric encryption primitives, such as AES-GCM.
@@ -39,10 +39,10 @@ By orchestrating these operations entirely within the client's local memory foot
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the GNU AGPLv3 License. See `LICENSE` for more information.
 
-[license-shield]: https://img.shields.io/badge/License-MIT-black.svg?style=for-the-badge
-[license-url]: https://opensource.org/licenses/MIT
+[license-shield]: https://img.shields.io/badge/License-AGPL_v3-black.svg?style=for-the-badge
+[license-url]: https://www.gnu.org/licenses/agpl-3.0
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/your_username
 [DotNet-shield]: https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white
