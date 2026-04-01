@@ -1315,7 +1315,7 @@ input[type="password"] {
         --sidebar-collapsed: 60px;
         --sidebar-expanded: 260px; 
     }
-
+   
     /* 2. Header Adjustments */
     .header-content {
         padding: 0 16px;
@@ -1435,5 +1435,12 @@ input[type="password"] {
     .send-btn {
         width: 45px;
         font-size: 1.3rem;
+    }
+    /* 7. Utilities / Errors */
+    .error {
+        margin-left: 20px;
+        margin-right: 20px;
+        text-align: center;
+        word-wrap: break-word; 
     }
 }

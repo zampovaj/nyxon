@@ -156,12 +156,14 @@
     private async Task SearchFocus()
     {
         _vm.InputString = "";
+        await _vm.ResetError();
         await JS.InvokeVoidAsync("domUtils.focusElement", "terminal-input");
     }
 
     private async Task InviteCodeCommand()
     {
         _vm.InputString = ":invite code";
+        await _vm.ResetError();
         await JS.InvokeVoidAsync("domUtils.focusElement", "terminal-input");
     }
 

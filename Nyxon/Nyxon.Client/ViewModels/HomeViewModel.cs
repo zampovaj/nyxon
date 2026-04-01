@@ -198,15 +198,21 @@ namespace Nyxon.Client.ViewModels
             }
         }
 
+        public async Task ResetError()
+        {
+            ErrorMessage = "";
+        }
+
         private async Task GenerateInvites(int count = 1)
         {
             if (count < 1)
             {
-                ErrorMessage = "Cannot generate negative ammount on invite codes";
+                ErrorMessage = "The number of invite codes must be greater than zero.";
                 Notify();
                 return;
             }
             InviteCodes = await _conversationRepository.GenerateInviteCodesAsync(count);
+            if (InviteCodes.Count() == 0) ErrorMessage = "Maximum 20 invites allowed per 24 hours. Please try again later.";
             Notify();
         }
 
