@@ -480,6 +480,7 @@ namespace Nyxon.Client.Services.Messaging
                 if (response == null || !response.Messages.Any()) return;
 
                 await HandleMessageBundleAsync(response);
+                await _conversationRepository.UpdateReadAsync((Guid)ConversationId);
             }
             catch (Exception ex)
             {
@@ -499,6 +500,7 @@ namespace Nyxon.Client.Services.Messaging
                 if (response == null || !response.Messages.Any()) return;
 
                 await HandleMessageBundleAsync(response);
+                await _conversationRepository.UpdateReadAsync((Guid)ConversationId);
             }
             catch (Exception ex)
             {

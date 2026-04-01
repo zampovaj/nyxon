@@ -186,6 +186,8 @@ namespace Nyxon.Server.Services.Messaging
                 .Where(u => u.Id == userId)
                 .FirstOrDefaultAsync();
 
+            var now = DateTime.UtcNow;
+
             var transaction = await _context.Database.BeginTransactionAsync();
 
             try
@@ -246,6 +248,7 @@ namespace Nyxon.Server.Services.Messaging
                 // vault
                 convVault.RecvCounter = request.RecvCounter;
                 convVault.VaultData.Receiving.Session.MessageIndex = request.MessageIndex;
+                convVault.UpdatedAt = now;
 
                 // conversation users
                 var conversationUser = await _context.ConversationUsers
@@ -255,8 +258,6 @@ namespace Nyxon.Server.Services.Messaging
 
                 if (conversationUser == null)
                     throw new UnauthorizedAccessException("User is not part of this conversation");
-
-                var now = DateTime.UtcNow;
                 conversationUser.LastRead = now;
 
                 // jsonb thing, need to mark it as modified

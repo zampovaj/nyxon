@@ -84,6 +84,25 @@ namespace Nyxon.Client.Services
                 throw; // throw again for viewmodel
             }
         }
+
+        public async Task PostAsync(string uri)
+        {
+            try
+            {
+                var response = await _http.PostAsJsonAsync(uri, new StringContent("", System.Text.Encoding.UTF8, "application/json"));
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    throw new HttpRequestException("{response.StatusCode}: {error}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"API Error [POST {uri}]: {ex.Message}");
+                throw; // throw again for viewmodel
+            }
+        }
         
         public async Task<TResponse?> PatchAsync<TResponse, TRequest>(string uri, TRequest request)
         {

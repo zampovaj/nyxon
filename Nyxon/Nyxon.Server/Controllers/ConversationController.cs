@@ -64,5 +64,24 @@ namespace Nyxon.Server.Controllers
                 return BadRequest(new { error = innerMessage, details = ex.ToString() });
             }
         }
+
+        [HttpPost("{conversationId}/read")]
+        public async Task<IActionResult> ReadConversation([FromRoute] Guid conversationId)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
+                return Unauthorized();
+
+            try
+            {
+                await _conversationService.ReadConversationAsync(userId, conversationId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

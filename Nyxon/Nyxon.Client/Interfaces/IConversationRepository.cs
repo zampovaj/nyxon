@@ -8,8 +8,8 @@ namespace Nyxon.Client.Interfaces
     public interface IConversationRepository
     {
         Task<InboxDto?> FetchInboxAsync();
-        Task<MessagesBundleDto?> FetchHistoryAsync(Guid conversationId, int count, int lastSequenceNumber); 
-        Task<MessagesBundleDto?> FetchRecentAsync(Guid conversationId); 
+        Task<MessagesBundleDto?> FetchHistoryAsync(Guid conversationId, int count, int lastSequenceNumber);
+        Task<MessagesBundleDto?> FetchRecentAsync(Guid conversationId);
         Task<PrekeyBundleResponse?> GetPrekeyBundleAsync(string username);
         Task<ConversationVaultDto?> FetchVaultAsync(Guid conversationId);
         Task<SendMessageResponse?> SendMessageAsync(SendMessageRequest messageRequest);
@@ -18,5 +18,6 @@ namespace Nyxon.Client.Interfaces
         Task<MessageResponse?> GetMessageAsync(string kvKey);
         Task<MessageReceivedStateUpdateResponse?> ReceiveMessageServerUpdateAsync(MessageReceivedStateUpdateRequest request);
         Task<List<string>> GenerateInviteCodesAsync(int count = 1);
+        Task UpdateReadAsync(Guid conversationId);
     }
 }

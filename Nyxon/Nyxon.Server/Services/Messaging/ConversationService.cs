@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Nyxon.Server.Services.Messaging
 {
@@ -208,6 +209,21 @@ namespace Nyxon.Server.Services.Messaging
             await _context.SaveChangesAsync();
 
             await _messageCacheService.DeleteBatchAsync(messageKeys);
+        }
+
+        public async Task ReadConversationAsync(Guid userId, Guid conversationId)
+        {
+            var convUser = await _context.ConversationUsers
+                .Where(cu => cu.UserId == userId &&
+                    cu.ConversationId == conversationId)
+                .FirstOrDefaultAsync();
+
+            if (convUser == null)
+                throw new InvalidOperationException("No link between this user and a conversaiton found.");
+
+            convUser.LastRead = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
         }
     }
 }

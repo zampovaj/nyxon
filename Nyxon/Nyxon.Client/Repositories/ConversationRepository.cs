@@ -152,6 +152,17 @@ namespace Nyxon.Client.Repositories
                 return null;
             }
         }
+        public async Task UpdateReadAsync(Guid conversationId)
+        {
+            try
+            {
+                await _apiService.PostAsync($"api/conversation/{conversationId}/read");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during updating read status: {ex.Message}");
+            }
+        }
 
     }
 }
