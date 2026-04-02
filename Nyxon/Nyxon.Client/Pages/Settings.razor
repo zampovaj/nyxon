@@ -1,0 +1,166 @@
+@page "/settings"
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager Nav
+
+@attribute [Authorize]
+
+<div class="settings-view">
+    <div class="settings-container">
+        <h1 class="settings-h1">Settings</h1>
+
+        <div class="settings-grid">
+            
+            <div class="settings-column">
+                
+                <section class="settings-section">
+                    <h2 class="section-title">Profile Information</h2>
+                    
+                    <div class="settings-row action-row">
+                        <div class="settings-info">
+                            <span class="settings-label">USERNAME</span>
+                            <span class="settings-value">@Username</span>
+                        </div>
+                    </div>
+
+                    <div class="settings-row action-row">
+                        <div class="settings-info">
+                            <span class="settings-label">MEMBER SINCE</span>
+                            <span class="settings-value">@JoinedDate.ToString("MMMM dd, yyyy")</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="settings-section usage-zone">
+                    <h2 class="section-title teal-text">Usage & Others</h2>
+                    
+                    <div class="settings-row">
+                        <div class="settings-info">
+                            <span class="settings-label">INVITES GENERATED</span>
+                            <span class="settings-desc" style="margin-bottom: 8px;">@InvitesGenerated out of @MaxInvites invites used.</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-fill" style="width: @(InvitePercentage)%"></div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <div class="settings-column">
+                
+                <section class="settings-section security-zone">
+                    <h2 class="section-title purple-text">Security</h2>
+                    
+                    <div class="settings-row action-row">
+                        <div class="settings-info">
+                            <span class="settings-label">PASSWORD</span>
+                            <span class="settings-desc">Update your login credentials.</span>
+                        </div>
+                        <button class="btn-purple" @onclick="() => _showPasswordModal = true">Change Password</button>
+                    </div>
+                </section>
+
+                <section class="settings-section danger-zone">
+                    <h2 class="section-title error-text">Danger Zone</h2>
+                    
+                    <div class="settings-row action-row">
+                        <div class="settings-info">
+                            <span class="settings-label">DELETE ACCOUNT</span>
+                            <span class="settings-desc">Permanently lose access to your message history.</span>
+                        </div>
+                        <button class="btn-danger" @onclick="() => _showDeleteModal = true">Delete Account</button>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (_showPasswordModal)
+{
+    <div class="modal-overlay" @onclick="() => _showPasswordModal = false">
+        <div class="modal-card" @onclick:stopPropagation="true">
+            <h2 class="auth-h1" style="margin-bottom: 20px;">Change Password</h2>
+            
+            <div class="auth-form">
+                <div>
+                    <label class="form-label">CURRENT PASSWORD</label>
+                    <input type="password" class="input-std" @bind="_currentPassword" placeholder="Enter current password" />
+                </div>
+                <div>
+                    <label class="form-label">NEW PASSWORD</label>
+                    <input type="password" class="input-std" @bind="_newPassword" placeholder="Enter new password" />
+                </div>
+                <div>
+                    <label class="form-label">CONFIRM NEW PASSWORD</label>
+                    <input type="password" class="input-std" @bind="_confirmPassword" placeholder="Confirm new password" />
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="btn-outline" style="flex: 1;" @onclick="() => _showPasswordModal = false">Cancel</button>
+                    <button class="btn-primary" style="flex: 1;" @onclick="SubmitPasswordChange">Save Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (_showDeleteModal)
+{
+    <div class="modal-overlay" @onclick="() => _showDeleteModal = false">
+        <div class="modal-card" @onclick:stopPropagation="true">
+            <h2 class="auth-h1 error-text" style="margin-bottom: 10px;">Delete Account?</h2>
+            <p class="auth-p" style="margin-bottom: 20px;">
+                This action is irreversible. All your cryptographic keys, conversations, and data will be permanently destroyed.
+            </p>
+            
+            <div class="auth-form">
+                <div>
+                    <label class="form-label">VERIFY PASSWORD</label>
+                    <input type="password" class="input-std error-input" @bind="_deleteConfirmationPassword" placeholder="Enter password to confirm" />
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="btn-outline" style="flex: 1;" @onclick="() => _showDeleteModal = false">Cancel</button>
+                    <button class="btn-danger-solid" style="flex: 1;" @onclick="SubmitAccountDelete">Delete Everything</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    // Dummy Data
+    private string Username { get; set; } = "nyxon_user";
+    private DateTime JoinedDate { get; set; } = DateTime.UtcNow.AddMonths(-2);
+    private int InvitesGenerated { get; set; } = 17;
+    private int MaxInvites { get; set; } = 20;
+    private double InvitePercentage => MaxInvites == 0 ? 0 : Math.Min(100, (double)InvitesGenerated / MaxInvites * 100);
+
+    // Modal State
+    private bool _showPasswordModal = false;
+    private bool _showDeleteModal = false;
+
+    // Form Inputs
+    private string _currentPassword = "";
+    private string _newPassword = "";
+    private string _confirmPassword = "";
+    private string _deleteConfirmationPassword = "";
+
+    private async Task SubmitPasswordChange()
+    {
+        // Call your API here
+        Console.WriteLine("Password changed!");
+        _showPasswordModal = false;
+        _currentPassword = _newPassword = _confirmPassword = "";
+    }
+
+    private async Task SubmitAccountDelete()
+    {
+        // Call your API here
+        Console.WriteLine("Account deleted!");
+        _showDeleteModal = false;
+        _deleteConfirmationPassword = "";
+    }
+}
