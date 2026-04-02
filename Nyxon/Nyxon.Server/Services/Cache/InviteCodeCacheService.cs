@@ -69,13 +69,15 @@ namespace Nyxon.Server.Services.Cache
 
         public async Task DeleteInviteCodeAsync(Guid userId, byte[] hash)
         {
+            // i cant actually delete it from per user set, doing so would defeat the point of the counter
+
             string globalKey = KeyFactory.InviteCode(hash);
-            string limitKey = KeyFactory.InviteCodeLimit(userId);
+            //string limitKey = KeyFactory.InviteCodeLimit(userId);
 
             var tran = _db.CreateTransaction();
 
             _ = tran.KeyDeleteAsync(globalKey);
-            _ = tran.SortedSetRemoveAsync(limitKey, hash);
+            //_ = tran.SortedSetRemoveAsync(limitKey, hash);
 
             await tran.ExecuteAsync();
         }
