@@ -61,7 +61,7 @@
                                         <span class="settings-label">PASSWORD</span>
                                         <span class="settings-desc">Update your login credentials.</span>
                                     </div>
-                                    <button class="btn-purple" @onclick="() => _showPasswordModal = true">Change
+                                    <button class="btn-purple" @onclick="() => ShowPasswordModal = true">Change
                                         Password</button>
                                     </div>
                                 </section>
@@ -74,7 +74,7 @@
                                             <span class="settings-label">DELETE ACCOUNT</span>
                                             <span class="settings-desc">Permanently lose access to your message history.</span>
                                         </div>
-                                        <button class="btn-danger" @onclick="() => _showDeleteModal = true">Delete
+                                        <button class="btn-danger" @onclick="() => ShowDeleteModal = true">Delete
                                             Account</button>
                                         </div>
                                     </section>
@@ -86,68 +86,134 @@
                 </Authorized>
             </AuthorizeView>
 
-            @if (_showPasswordModal)
+            @if (ShowPasswordModal)
             {
-                <div class="modal-overlay" @onclick="() => _showPasswordModal = false">
+                <div class="modal-overlay" @onclick="() => ShowPasswordModal = false">
                     <div class="modal-card" @onclick:stopPropagation="true">
-                        <h2 class="auth-h1" style="margin-bottom: 20px;">Change Password</h2>
+                        
+                        @if (!string.IsNullOrEmpty(_vm.ErrorMessage))
+                        {
+                            <div style="text-align: center; padding: 20px 0;">
+                                <h2 class="auth-h1 error" style="margin-bottom: 15px;">Error!</h2>
+                                <p class="auth-p" style="margin-bottom: 30px;">
+                                    @_vm.ErrorMessage
+                                </p>
+                                <button class="btn-outline" style="width: 100%;" @onclick="() => ShowPasswordModal = false">Close</button>
+                            </div>
+                        }
+                        else
+                        {
+                            @if (_vm.Success)
+                            {
+                                <div style="text-align: center; padding: 20px 0;">
+                                    <h2 class="auth-h1 teal-text" style="margin-bottom: 15px;">Success!</h2>
+                                    <p class="auth-p" style="margin-bottom: 30px;">
+                                        Your password was securely updated.
+                                    </p>
+                                    <button class="btn-outline" style="width: 100%;" @onclick="() => ShowPasswordModal = false">Close</button>
+                                </div>
+                            }
+                            else
+                            {
+                                <h2 class="auth-h1" style="margin-bottom: 20px;">Change Password</h2>
             
-                        <div class="auth-form">
-                            <div>
-                                <label class="form-label">CURRENT PASSWORD</label>
-                                <input type="password" class="input-std" @bind="_vm.Password" placeholder="Enter current password" />
-                            </div>
-                            <div>
-                                <label class="form-label">NEW PASSWORD</label>
-                                <input type="password" class="input-std" @bind="_vm.NewPassword" placeholder="Enter new password" />
-                            </div>
-                            <div>
-                                <label class="form-label">CONFIRM NEW PASSWORD</label>
-                                <input type="password" class="input-std" @bind="_vm.ConfirmNewPassword"
-                                       placeholder="Confirm new password" />
-                            </div>
+                                <div class="auth-form">
+                                    <div>
+                                        <label class="form-label">CURRENT PASSWORD</label>
+                                        <input type="password" class="input-std" @bind="_vm.Password" placeholder="Enter current password" />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">NEW PASSWORD</label>
+                                        <input type="password" class="input-std" @bind="_vm.NewPassword" placeholder="Enter new password" />
+                                    </div>
+                                    <div>
+                                        <label class="form-label">CONFIRM NEW PASSWORD</label>
+                                        <input type="password" class="input-std" @bind="_vm.ConfirmNewPassword"
+                                               placeholder="Confirm new password" />
+                                    </div>
 
-                            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                                <button class="btn-outline" style="flex: 1;" @onclick="() => _showPasswordModal = false">Cancel</button>
-                                <button class="btn-primary" style="flex: 1;" @onclick="_vm.ChangePasswordAsync">Save Update</button>
-                            </div>
-                        </div>
+                                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                        <button class="btn-outline" style="flex: 1;" @onclick="() => ShowPasswordModal = false">Cancel</button>
+                                        <button class="btn-primary" style="flex: 1;" @onclick="_vm.ChangePasswordAsync">Save Update</button>
+                                    </div>
+                                </div>
+                            }
+                        }
                     </div>
                 </div>
             }
 
-            @if (_showDeleteModal)
+            @if (ShowDeleteModal)
             {
-                <div class="modal-overlay" @onclick="() => _showDeleteModal = false">
+                <div class="modal-overlay" @onclick="() => ShowDeleteModal = false">
                     <div class="modal-card" @onclick:stopPropagation="true">
-                        <h2 class="auth-h1 error-text" style="margin-bottom: 10px;">Delete Account?</h2>
-                        <p class="auth-p" style="margin-bottom: 20px;">
-                            This action is irreversible. All your cryptographic keys, conversations, and data will be permanently
-                            destroyed.
-                        </p>
-            
-                        <div class="auth-form">
-                            <div>
-                                <label class="form-label">VERIFY PASSWORD</label>
-                                <input type="password" class="input-std error-input" @bind="_vm.Password"
-                                       placeholder="Enter password to confirm" />
+                        @if (!string.IsNullOrEmpty(_vm.ErrorMessage))
+                        {
+                            <div style="text-align: center; padding: 20px 0;">
+                                <h2 class="auth-h1 error" style="margin-bottom: 15px;">Error!</h2>
+                                <p class="auth-p" style="margin-bottom: 30px;">
+                                    @_vm.ErrorMessage
+                                </p>
+                                <button class="btn-outline" style="width: 100%;" @onclick="() => ShowDeleteModal = false">Close</button>
                             </div>
+                        }
+                        else
+                        {
+                            <h2 class="auth-h1 error-text" style="margin-bottom: 10px;">Delete Account?</h2>
+                            <p class="auth-p" style="margin-bottom: 20px;">
+                                This action is irreversible. All your cryptographic keys, conversations, and data will be permanently
+                                destroyed.
+                            </p>
+            
+                            <div class="auth-form">
+                                <div>
+                                    <label class="form-label">VERIFY PASSWORD</label>
+                                    <input type="password" class="input-std error-input" @bind="_vm.Password"
+                                           placeholder="Enter password to confirm" />
+                                </div>
 
-                            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                                <button class="btn-outline" style="flex: 1;" @onclick="() => _showDeleteModal = false">Cancel</button>
-                                <button class="btn-danger-solid" style="flex: 1;" @onclick="_vm.DeleteAccountAsync">Delete
-                                    Everything</button>
+                                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                    <button class="btn-outline" style="flex: 1;" @onclick="() => ShowDeleteModal = false">Cancel</button>
+                                    <button class="btn-danger-solid" style="flex: 1;" @onclick="_vm.DeleteAccountAsync">Delete
+                                        Everything
+                                    </button>
                                 </div>
                             </div>
-                        </div>
+                        }
                     </div>
-                }
+                </div>
+            }
 
 @code {
     private bool _showPasswordModal = false;
+    private bool ShowPasswordModal
+    {
+        get => _showPasswordModal;
+        set
+        {
+            _showPasswordModal = value;
+            if (!value)
+            {
+                _vm.Clear();
+                _vm.ClearMessages();
+            }
+        }
+    }
     private bool _showDeleteModal = false;
+    private bool ShowDeleteModal
+    {
+        get => _showDeleteModal;
+        set
+        {
+            _showDeleteModal = value;
+            if (!value)
+            {
+                _vm.Clear();
+                _vm.ClearMessages();
+            }
+        }
+    }
 
-    
     protected override async Task OnInitializedAsync()
     {
         _vm.StateChanged += StateHasChanged;

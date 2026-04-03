@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
+
 
 namespace Nyxon.Client.ViewModels
 {
     public class SettingsViewModel : IDisposable
     {
-        private readonly UserContext _userContext;
-        private readonly NavigationManager _nav;
         private readonly IAccountManagementService _accountManagementService;
 
         [Required]
@@ -64,15 +64,12 @@ namespace Nyxon.Client.ViewModels
             }
         }
         public string? ErrorMessage { get; set; } = "";
+        public bool Success { get; set; } = false;
 
         public event Action? StateChanged;
 
-        public SettingsViewModel(UserContext userContext,
-            NavigationManager nav,
-            IAccountManagementService accountManagementService)
+        public SettingsViewModel(IAccountManagementService accountManagementService)
         {
-            _userContext = userContext;
-            _nav = nav;
             _accountManagementService = accountManagementService;
         }
 
@@ -84,6 +81,11 @@ namespace Nyxon.Client.ViewModels
                 return false;
             }
             return true;
+        }
+        private bool IsNewPasswordValid(string password)
+        {
+            var pattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_-])[A-Za-z\d@$!%*?&_-]{12,30}$";
+            return !string.IsNullOrWhiteSpace(password) && Regex.IsMatch(password, pattern);
         }
         private bool IsConfirmPasswordValid(string confirmPassword) => NewPassword == confirmPassword;
 
@@ -107,29 +109,42 @@ namespace Nyxon.Client.ViewModels
 
         public async Task DeleteAccountAsync()
         {
+            ErrorMessage = "";
             if (!IsPasswordValid(Password))
             {
-                ErrorMessage = "Invalid input for password detected.";
+                ErrorMessage = "Invalid password input detected. Password must be between 12 and 30 characters long.";
+                return;
             }
-
-            // TODO:
-            // call to account managent service
-            // if successful, return 401 -> gets handled automatically
+            try
+            {
+                // TODO:
+                // call to account managent service
+                // if successful, return 401 -> gets handled automatically
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
+            finally
+            {
+                if (passwordBytes != null) CryptographicOperations.ZeroMemory(passwordBytes);
+                Clear();
+                Notify();
+            }
         }
 
         public async Task ChangePasswordAsync()
         {
-            if (!IsPasswordValid(Password))
+            ErrorMessage = "";
+            if (!IsPasswordValid(Password) || !IsNewPasswordValid(NewPassword))
             {
-                ErrorMessage = "Invalid input for password detected.";
-                Notify();
+                ErrorMessage = "Password invalid. Password must be between 12 and 30 characters long. Password must contain at least one number, uppercase letter, lowercase letter and special character (@$!%*?&_-)";
                 return;
             }
 
             if (!IsConfirmPasswordValid(ConfirmNewPassword))
             {
                 ErrorMessage = "Passwords don't match.";
-                Notify();
                 return;
             }
 
@@ -140,30 +155,44 @@ namespace Nyxon.Client.ViewModels
 
                 await _accountManagementService.ChangePasswordAsync(passwordBytes, newPasswordBytes);
 
-                // TODO:
-                // display the result to user
+                Success = true;
+                ErrorMessage = string.Empty;
             }
             catch (Exception ex)
             {
+                Success = false;
                 ErrorMessage = $"Failed to update password: {ex.Message}";
             }
             finally
             {
                 if (passwordBytes != null) CryptographicOperations.ZeroMemory(passwordBytes);
                 if (newPasswordBytes != null) CryptographicOperations.ZeroMemory(newPasswordBytes);
+                Clear();
                 Notify();
             }
         }
 
         public void Notify() => StateChanged?.Invoke();
 
-        public void Dispose()
+        public void Clear()
         {
             if (passwordBytes != null) CryptographicOperations.ZeroMemory(passwordBytes);
             if (newPasswordBytes != null) CryptographicOperations.ZeroMemory(newPasswordBytes);
             Password = string.Empty;
             NewPassword = string.Empty;
             ConfirmNewPassword = string.Empty;
+        }
+
+        public void ClearMessages()
+        {
+            ErrorMessage = string.Empty;
+            Success = false;
+        }
+
+        public void Dispose()
+        {
+            ErrorMessage = string.Empty;
+            Clear();
         }
     }
 }
