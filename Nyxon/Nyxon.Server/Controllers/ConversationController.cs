@@ -74,7 +74,7 @@ namespace Nyxon.Server.Controllers
 
             try
             {
-                await _conversationService.ReadConversationAsync(userId, conversationId);
+                await _conversationService.UpdateReadConversationAsync(userId, conversationId);
                 return Ok();
             }
             catch (Exception ex)

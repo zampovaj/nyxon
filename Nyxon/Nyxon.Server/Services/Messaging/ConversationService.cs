@@ -39,6 +39,9 @@ namespace Nyxon.Server.Services.Messaging
             if (targetUser == null)
                 throw new Exception("User not found");
 
+            if (targetUser.Username == AccountConstants.DeletedAccount)
+                throw new InvalidOperationException("Cannot communicate with a deleted user");
+
             // sort ids
             var user1Id = initiatorId.CompareTo(request.TargetUserId) < 0 ? initiatorId : request.TargetUserId;
             var user2Id = initiatorId.CompareTo(request.TargetUserId) < 0 ? request.TargetUserId : initiatorId;
@@ -211,7 +214,7 @@ namespace Nyxon.Server.Services.Messaging
             await _messageCacheService.DeleteBatchAsync(messageKeys);
         }
 
-        public async Task ReadConversationAsync(Guid userId, Guid conversationId)
+        public async Task UpdateReadConversationAsync(Guid userId, Guid conversationId)
         {
             var convUser = await _context.ConversationUsers
                 .Where(cu => cu.UserId == userId &&
@@ -219,7 +222,7 @@ namespace Nyxon.Server.Services.Messaging
                 .FirstOrDefaultAsync();
 
             if (convUser == null)
-                throw new InvalidOperationException("No link between this user and a conversaiton found.");
+                throw new InvalidOperationException("No link between this user and a conversation found.");
 
             convUser.LastRead = DateTime.UtcNow;
 

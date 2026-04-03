@@ -10,11 +10,15 @@ namespace Nyxon.Server.Services.Users
 
         private readonly AppDbContext _context;
         private readonly IPasswordService _passwordService;
+        private readonly IInviteCodeCacheService _inviteCodeCacheService;
 
-        public AccountService(AppDbContext context, IPasswordService passwordService)
+        public AccountService(AppDbContext context,
+            IPasswordService passwordService,
+            IInviteCodeCacheService inviteCodeCacheService)
         {
             _context = context;
             _passwordService = passwordService;
+            _inviteCodeCacheService = inviteCodeCacheService;
         }
 
         public async Task ChangePasswordAsync(Guid userId, ChangePasswordRequest request)
@@ -32,7 +36,7 @@ namespace Nyxon.Server.Services.Users
                 expectedHash: user.PasswordHash
             ))
             {
-                throw new Exception("Current password does not match");
+                throw new Exception("Current password is incorrect.");
             }
 
             var newPasswordHash = _passwordService.HashPassword(request.NewPasswordHash, request.NewPasswordSalt);
@@ -43,7 +47,7 @@ namespace Nyxon.Server.Services.Users
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAccountAsync(Guid userId)
+        public async Task DeleteAccountAsync(Guid userId, byte[] passwordHash)
         {
             var user = await _context.Users
                 .Where(u => u.Id == userId)
@@ -51,6 +55,17 @@ namespace Nyxon.Server.Services.Users
 
             if (user == null)
                 throw new Exception("User not found");
+
+            
+
+            if(!_passwordService.VerifyPassword(
+                password: passwordHash,
+                salt: user.PasswordSalt,
+                expectedHash: user.PasswordHash
+            ))
+            {
+                throw new Exception("Incorrect password.");
+            }
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -98,11 +113,19 @@ namespace Nyxon.Server.Services.Users
                 await _context.SaveChangesAsync();
 
                 // null out user
-                user.Username = "Deleted user";
+                user.Username = AccountConstants.DeletedAccount;
                 user.PasswordHash = new byte[32];
                 user.PasswordSalt = new byte[16];
+                user.PublicAgreementKey = new byte[32];
+                user.PublicIdentityKey = new byte[32];
+
+                await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
+
+                // valkey
+
+                await _inviteCodeCacheService.DeleteInvitesForUser(userId);
             }
             catch
             {

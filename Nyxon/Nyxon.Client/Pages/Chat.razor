@@ -41,50 +41,59 @@
                                 <span class="msg-sender">@msg.SenderUsername</span>
                                 <span class="msg-time-header">@msg.SentAt.ToLocalTime().ToShortTimeString()
                                     @msg.SentAt.ToLocalTime().ToShortDateString()</span>
+                                </div>
+                                <div class="bubble">@RenderMessageSafe(msg.Content)</div>
                             </div>
-                            <div class="bubble">@RenderMessageSafe(msg.Content)</div>
-                        </div>
+                        }
                     }
-                }
                 else
-                {
-                    if (lastSender == msg.SenderUsername)
                     {
-                        <div class="msg-wrapper received consecutive">
-                            <div class="bubble">@RenderMessageSafe(msg.Content)</div>
-                        </div>
-
-                    }
-                    else
-                    {
-                        <div class="msg-wrapper received">
-                            <div class="msg-header-row">
-                                <span class="msg-sender">@msg.SenderUsername</span>
-                                <span class="msg-time-header">@msg.SentAt.ToLocalTime().ToShortTimeString()
-                                    @msg.SentAt.ToLocalTime().ToShortDateString()</span>
+                        if (lastSender == msg.SenderUsername)
+                        {
+                            <div class="msg-wrapper received consecutive">
+                                <div class="bubble">@RenderMessageSafe(msg.Content)</div>
                             </div>
-                            <div class="bubble">@RenderMessageSafe(msg.Content)</div>
-                        </div>
+
+                        }
+                        else
+                        {
+                            <div class="msg-wrapper received">
+                                <div class="msg-header-row">
+                                    <span class="msg-sender">@msg.SenderUsername</span>
+                                    <span class="msg-time-header">@msg.SentAt.ToLocalTime().ToShortTimeString()
+                                        @msg.SentAt.ToLocalTime().ToShortDateString()</span>
+                                    </div>
+                                    <div class="bubble">@RenderMessageSafe(msg.Content)</div>
+                                </div>
+                            }
+                        }
+                        lastSender = msg.SenderUsername;
                     }
                 }
-                lastSender = msg.SenderUsername;
-            }
-        }
 
-    </div>
-    @if (!string.IsNullOrWhiteSpace(_vm.ErrorMessage))
-    {
-        <div style="margin-top: 10px; padding: 8px; align-items: center; justify-content: center; text-align: center;"
-            class="error">
-            <span>@_vm.ErrorMessage</span>
-        </div>
-    }
-    <div class="input-area">
-        <input type="text" class="input-std msg-input" placeholder="Type your message..." @bind="_vm.InputString"
-            @bind:event="oninput" @onkeydown="_vm.HandleEnterKey">
-        <button class="send-btn" @onclick="_vm.SendMessageAsync">></button>
-    </div>
-</div>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(_vm.ErrorMessage))
+            {
+                <div style="margin-top: 10px; padding: 8px; align-items: center; justify-content: center; text-align: center;"
+                     class="error">
+                    <span>@_vm.ErrorMessage</span>
+                </div>
+            }
+            @if (_vm.IsTargetDeleted)
+            {
+                <div class="input-area">
+                    <p class="auth-p">The conversation can't continue — that account has been deleted...</p>
+                </div>
+            }
+            else
+            {
+                <div class="input-area">
+                    <input type="text" class="input-std msg-input" placeholder="Type your message..." @bind="_vm.InputString"
+                           @bind:event="oninput" @onkeydown="_vm.HandleEnterKey">
+                        <button class="send-btn" @onclick="_vm.SendMessageAsync">></button>
+                </div>
+            }
+            </div>
 
 @code {
     [Parameter]
@@ -132,9 +141,9 @@
             {
                 _ = InvokeAsync(async () =>
     {
-                await PrepareAutoScrollAsync();
-                StateHasChanged();
-            });
+        await PrepareAutoScrollAsync();
+        StateHasChanged();
+    });
             };
 
             _vm.StateChanged += _stateChangedHandler;

@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Nyxon.Server.Controllers
 {
@@ -69,8 +72,10 @@ namespace Nyxon.Server.Controllers
                 return Unauthorized();
             try
             {
+                await _accountService.DeleteAccountAsync(userId, request.PasswordHash);
                 // delete account
-                return Ok();
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                return Unauthorized();
             }
             catch (Exception ex)
             {

@@ -61,7 +61,7 @@ namespace Nyxon.Client.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"USer list sync failed: {ex.Message}");
+                Console.WriteLine($"User list sync failed: {ex.Message}");
             }
         }
 
@@ -81,11 +81,13 @@ namespace Nyxon.Client.Services
 
                 if (userDtos != null)
                 {
-                    Users = userDtos.Select(d => new UserModel()
-                    {
-                        Username = d.Username,
-                        Conversation = conversationUsernames.Contains(d.Username)
-                    }).ToList();
+                    Users = userDtos
+                        .Where(d => d.Username != AccountConstants.DeletedAccount)
+                        .Select(d => new UserModel()
+                        {
+                            Username = d.Username,
+                            Conversation = conversationUsernames.Contains(d.Username)
+                        }).ToList();
 
                     NotifyStateChanged();
                 }

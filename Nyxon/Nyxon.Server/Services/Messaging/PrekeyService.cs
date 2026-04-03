@@ -25,6 +25,10 @@ namespace Nyxon.Server.Services.Messaging
             if (user == null)
                 throw new ArgumentException("Target username not found");
 
+                
+            if (user.Username == AccountConstants.DeletedAccount)
+                throw new InvalidOperationException("Cannot communicate with a deleted user");
+
             var spk = await _context.SignedPrekeys
                 .Where(s => s.UserId == user.Id)
                 .FirstOrDefaultAsync();

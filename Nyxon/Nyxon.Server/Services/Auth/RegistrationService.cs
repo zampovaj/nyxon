@@ -45,7 +45,7 @@ namespace Nyxon.Server.Services.Auth
                     .AnyAsync(u => EF.Functions.ILike(u.Username, request.Username));
 
 
-                if (usernameExists || request.Username == "Deleted user")
+                if (usernameExists || request.Username == AccountConstants.DeletedAccount)
                 {
                     throw new InvalidOperationException("Username taken");
                 }

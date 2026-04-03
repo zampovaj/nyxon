@@ -25,7 +25,7 @@ namespace Nyxon.Server.Services.Auth
         public async Task<User?> LoginAsync(LoginRequest request)
         {
             // verify username and password
-            if (request.Username == "Deleted user")
+            if (request.Username == AccountConstants.DeletedAccount)
                 return null;
 
             var user = await _context.Users

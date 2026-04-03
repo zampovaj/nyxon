@@ -48,6 +48,7 @@ namespace Nyxon.Client.Repositories
             catch (Exception ex)
             {
                 Console.WriteLine($"Error during deleting account: {ex.Message}");
+                throw; // for viewmodel
             }
         }
         public async Task<List<string>> GenerateInviteCodesAsync(int count = 1)

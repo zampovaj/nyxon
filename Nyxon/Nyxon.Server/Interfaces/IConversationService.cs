@@ -10,6 +10,6 @@ namespace Nyxon.Server.Interfaces
         Task<CreateConversationResponse> CreateConversationAsync(Guid initiatorId, CreateConversationRequest request);
         Task<List<ConversationSummaryDto>> GetInboxAsync(Guid userId);
         Task DeleteConversationAsync(Guid conversationId);
-        Task ReadConversationAsync(Guid userId, Guid conversationId);
+        Task UpdateReadConversationAsync(Guid userId, Guid conversationId);
     }
 }

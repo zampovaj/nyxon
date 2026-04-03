@@ -83,6 +83,14 @@ namespace Nyxon.Server.Services.Cache
             await tran.ExecuteAsync();
         }
 
+        public async Task DeleteInvitesForUser(Guid userId)
+        {
+            var limitKey = KeyFactory.InviteCodeLimit(userId);
+
+            await _db.KeyDeleteAsync(limitKey);
+        }
+
+
         private async Task CleanupExpiredInvites(string userLimitKey)
         {
             var twentyFourHoursAgo = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 86400;

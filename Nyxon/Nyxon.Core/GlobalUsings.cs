@@ -17,3 +17,4 @@ global using Nyxon.Core.Services;
 global using Nyxon.Core.Extensions;
 global using Nyxon.Core.Services.Keys;
 global using Nyxon.Core.Services.Hash;
+global using Nyxon.Core.Constants;

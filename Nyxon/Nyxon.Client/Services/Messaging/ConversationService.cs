@@ -69,6 +69,9 @@ namespace Nyxon.Client.Services.Messaging
             if (!_userContext.IsAuthenticated)
                 throw new UnauthorizedAccessException("Can't create conversation unless unauthenticated");
 
+            if (username == AccountConstants.DeletedAccount)
+                throw new InvalidOperationException("Cannot communicate with a deleted user");
+
             var userId = (Guid)_userContext.UserId;
 
             X3DHResult? x3dhResult = null;

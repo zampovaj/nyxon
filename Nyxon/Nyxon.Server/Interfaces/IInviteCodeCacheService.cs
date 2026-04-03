@@ -12,5 +12,6 @@ namespace Nyxon.Server.Interfaces
         Task<bool> SaveInvitesAsync(Guid userId, List<byte[]> hashes);
         Task<Guid?> ValidateInviteCodeAsync(byte[] hash);
         Task DeleteInviteCodeAsync(Guid userId, byte[] hash);
+        Task DeleteInvitesForUser(Guid userId);
     }
 }

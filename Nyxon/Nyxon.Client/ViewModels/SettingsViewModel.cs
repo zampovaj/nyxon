@@ -117,9 +117,9 @@ namespace Nyxon.Client.ViewModels
             }
             try
             {
-                // TODO:
-                // call to account managent service
-                // if successful, return 401 -> gets handled automatically
+                passwordBytes = Encoding.UTF8.GetBytes(Password);
+
+                await _accountManagementService.DeleteAccountAsync(passwordBytes);
             }
             catch (Exception ex)
             {

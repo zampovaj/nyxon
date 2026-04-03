@@ -23,6 +23,7 @@ namespace Nyxon.Client.ViewModels
         private bool _isInitialized = false;
         private bool _isLoadingHistory = false;
         private bool _hasMoreHistory = true;
+        public bool IsTargetDeleted => ActiveConversation.TargetUsername == AccountConstants.DeletedAccount;
 
         private readonly TaskCompletionSource _initializationCompletion = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -107,6 +108,8 @@ namespace Nyxon.Client.ViewModels
 
         public async Task SendMessageAsync()
         {
+            if (IsTargetDeleted) return;
+
             await _initializationCompletion.Task;
             await _messageLock.WaitAsync();
 
