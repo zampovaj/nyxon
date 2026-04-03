@@ -120,16 +120,18 @@
                                 <div class="auth-form">
                                     <div>
                                         <label class="form-label">CURRENT PASSWORD</label>
-                                        <input type="password" class="input-std" @bind="_vm.Password" placeholder="Enter current password" />
+                                        <input type="password" class="input-std" @bind="_vm.Password" placeholder="Enter current password" 
+                                            autocomplete="new-password" data-lpignore="true" data-1p-ignore="true" spellcheck="false"/>
                                     </div>
                                     <div>
                                         <label class="form-label">NEW PASSWORD</label>
-                                        <input type="password" class="input-std" @bind="_vm.NewPassword" placeholder="Enter new password" />
+                                        <input type="password" class="input-std" @bind="_vm.NewPassword" placeholder="Enter new password" 
+                                            autocomplete="new-password" data-lpignore="true" data-1p-ignore="true" spellcheck="false"/>
                                     </div>
                                     <div>
                                         <label class="form-label">CONFIRM NEW PASSWORD</label>
-                                        <input type="password" class="input-std" @bind="_vm.ConfirmNewPassword"
-                                               placeholder="Confirm new password" />
+                                        <input type="password" class="input-std" @bind="_vm.ConfirmNewPassword" placeholder="Confirm new password" 
+                                            autocomplete="new-password" data-lpignore="true" data-1p-ignore="true" spellcheck="false"/>
                                     </div>
 
                                     <div style="display: flex; gap: 10px; margin-top: 15px;">
@@ -168,8 +170,8 @@
                             <div class="auth-form">
                                 <div>
                                     <label class="form-label">VERIFY PASSWORD</label>
-                                    <input type="password" class="input-std error-input" @bind="_vm.Password"
-                                           placeholder="Enter password to confirm" />
+                                    <input type="password" class="input-std error-input" @bind="_vm.Password" placeholder="Enter password to confirm" 
+                                        autocomplete="new-password" data-lpignore="true" data-1p-ignore="true" spellcheck="false"/>
                                 </div>
 
                                 <div style="display: flex; gap: 10px; margin-top: 10px;">
