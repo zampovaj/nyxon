@@ -19,6 +19,7 @@ namespace Nyxon.Server.Services.Cache
 
         public async Task<int> GetInviteCodesCountAsync(Guid userId)
         {
+            // returns 0 if key doesnt exist, no need for null checks
             var key = KeyFactory.InviteCodeLimit(userId);
             await CleanupExpiredInvites(key);
             var value = await _db.SortedSetLengthAsync(key);

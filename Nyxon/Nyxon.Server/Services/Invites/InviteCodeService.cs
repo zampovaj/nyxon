@@ -69,6 +69,19 @@ namespace Nyxon.Server.Services.Invites
             return inviteCodes;
         }
 
+        public async Task<int> GetInviteCodesCountAsync(Guid userId)
+        {
+            var user = await _context.Users
+                .Where(u => u.Id == userId)
+                .FirstOrDefaultAsync();
+            
+            if(user == null)
+                throw new InvalidOperationException("This user id doesnt exist - cannot retrieve invites count");
+            
+            return await _inviteCodeCache.GetInviteCodesCountAsync(userId);
+        }
+
+
         private string GenerateInvite(int length)
         {
             string charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

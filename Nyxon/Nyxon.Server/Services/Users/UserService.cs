@@ -92,5 +92,18 @@ namespace Nyxon.Server.Services.Users
                 throw;
             }
         }
+
+        public async Task<DateTime> GetJoinDate(Guid userId)
+        {
+            var user = await _context.Users
+                .Where(u => u.Id == userId)
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+                throw new InvalidOperationException("User not found");
+
+            return user.CreatedAt;
+        }
+
     }
 }

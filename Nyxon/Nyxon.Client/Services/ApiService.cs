@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Nyxon.Client.Interfaces;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace Nyxon.Client.Services
 {

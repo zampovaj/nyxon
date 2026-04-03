@@ -18,7 +18,7 @@ namespace Nyxon.Client.ViewModels
         private readonly IUserListService _userListService;
         private readonly IInboxService _inboxService;
         private readonly NavigationManager _nav;
-        private readonly IConversationRepository _conversationRepository;
+        private readonly IAccountRepository _accountRepository;
         public event Action? StateChanged;
 
         public bool IsUnlocked => _layoutService.IsVaultUnlocked;
@@ -82,14 +82,14 @@ namespace Nyxon.Client.ViewModels
             IUserListService userListService,
             NavigationManager nav,
             IInboxService inboxService,
-            IConversationRepository conversationRepository)
+            IAccountRepository accountRepository)
         {
             _layoutService = layoutService;
             _userVaultService = userVaultService;
             _userListService = userListService;
             _nav = nav;
             _inboxService = inboxService;
-            _conversationRepository = conversationRepository;
+            _accountRepository = accountRepository;
 
             _layoutService.OnChange += Notify;
 
@@ -211,7 +211,7 @@ namespace Nyxon.Client.ViewModels
                 Notify();
                 return;
             }
-            InviteCodes = await _conversationRepository.GenerateInviteCodesAsync(count);
+            InviteCodes = await _accountRepository.GenerateInviteCodesAsync(count);
             if (InviteCodes.Count() == 0) ErrorMessage = "Maximum 20 invites allowed per 24 hours. Please try again later.";
             Notify();
         }

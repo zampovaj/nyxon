@@ -48,6 +48,7 @@ namespace Nyxon.Client
             services.AddScoped<IConversationRepository, ConversationRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IHandshakeRepository, HandshakeRepository>();
+            services.AddScoped<IAccountRepository, AccountRepository>();
 
             // hub
             services.AddScoped<IHubService, HubService>();
@@ -66,6 +67,7 @@ namespace Nyxon.Client
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IActiveConversationService, ActiveConversationService>();
             services.AddScoped<IHandshakeService, HandshakeService>();
+            services.AddScoped<IAccountManagementService, AccountManagementService>();
 
             //auth
             services.AddAuthorizationCore();
@@ -79,6 +81,7 @@ namespace Nyxon.Client
             services.AddTransient<LoginViewModel>();
             services.AddTransient<HomeViewModel>();
             services.AddTransient<ChatViewModel>();
+            services.AddTransient<SettingsViewModel>();
 
             return services;
         }
