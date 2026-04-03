@@ -78,7 +78,6 @@ namespace Nyxon.Server.Controllers
                 var authProperties = new AuthenticationProperties
                 {
                     IsPersistent = true,
-                    ExpiresUtc = DateTime.UtcNow.AddDays(7)
                 };
 
                 await HttpContext.SignInAsync(
@@ -136,7 +135,6 @@ namespace Nyxon.Server.Controllers
                 var authProperties = new AuthenticationProperties
                 {
                     IsPersistent = true,
-                    ExpiresUtc = DateTime.UtcNow.AddDays(7)
                 };
 
                 // encrypt cookie and add it to the response header

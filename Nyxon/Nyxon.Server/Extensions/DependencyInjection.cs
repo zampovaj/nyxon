@@ -83,6 +83,10 @@ namespace Nyxon.Server.Extensions
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
+                    // cookies sliding window
+                    options.ExpireTimeSpan = TimeSpan.FromHours(4);
+                    options.SlidingExpiration = true;
+
                     if (isDevelopment)
                     {
                         options.Cookie.Name = "NyxonAuth"; // Simple name for Dev
