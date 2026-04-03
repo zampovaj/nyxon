@@ -30,7 +30,7 @@ namespace Nyxon.Client.Services
             return data;
         }
 
-        public async Task<bool> ChangePasswordAsync(byte[] currentPasswordBytes, byte[] newPasswordBytes)
+        public async Task ChangePasswordAsync(byte[] currentPasswordBytes, byte[] newPasswordBytes)
         {
             if (!_userContext.IsAuthenticated)
                 throw new UnauthorizedAccessException("Can't change password unless authenticated");
@@ -46,8 +46,9 @@ namespace Nyxon.Client.Services
                 NewPasswordSalt = newPasswordSalt
             };
 
-            return await _accountRepository.ChangePasswordAsync(request);
+            await _accountRepository.ChangePasswordAsync(request);
         }
+        
         public async Task DeleteAccountAsync(byte[] passwordBytes)
         {
             if (!_userContext.IsAuthenticated)

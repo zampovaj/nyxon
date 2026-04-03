@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace Nyxon.Client.ViewModels
 {
@@ -91,7 +92,7 @@ namespace Nyxon.Client.ViewModels
             try
             {
                 var data = await _accountManagementService.FetchAccountDataAsync();
-                
+
                 JoinedAt = data.JoinedAt;
                 InvitesCount = data.InvitesCount;
 
@@ -99,7 +100,6 @@ namespace Nyxon.Client.ViewModels
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
                 ErrorMessage = ex.Message;
                 Notify();
             }
@@ -133,9 +133,26 @@ namespace Nyxon.Client.ViewModels
                 return;
             }
 
-            // TODO:
-            // call to account managent service
-            // display the result to user
+            try
+            {
+                passwordBytes = Encoding.UTF8.GetBytes(Password);
+                newPasswordBytes = Encoding.UTF8.GetBytes(NewPassword);
+
+                await _accountManagementService.ChangePasswordAsync(passwordBytes, newPasswordBytes);
+
+                // TODO:
+                // display the result to user
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Failed to update password: {ex.Message}";
+            }
+            finally
+            {
+                if (passwordBytes != null) CryptographicOperations.ZeroMemory(passwordBytes);
+                if (newPasswordBytes != null) CryptographicOperations.ZeroMemory(newPasswordBytes);
+                Notify();
+            }
         }
 
         public void Notify() => StateChanged?.Invoke();

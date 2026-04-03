@@ -76,7 +76,7 @@ namespace Nyxon.Client.Services
                 if (!response.IsSuccessStatusCode)
                 {
                     var error = await response.Content.ReadAsStringAsync();
-                    throw new HttpRequestException("{response.StatusCode}: {error}");
+                    throw new HttpRequestException($"{response.StatusCode}: {error}");
                 }
             }
             catch (Exception ex)

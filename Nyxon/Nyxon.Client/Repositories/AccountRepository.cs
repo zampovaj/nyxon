@@ -23,21 +23,20 @@ namespace Nyxon.Client.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error during creating new invite codes: {ex.Message}");
+                Console.WriteLine($"Error during fetching user data: {ex.Message}");
                 return null;
             }
         }
-        public async Task<bool> ChangePasswordAsync(ChangePasswordRequest request)
+        public async Task ChangePasswordAsync(ChangePasswordRequest request)
         {
             try
             {
                 await _apiService.PostAsync<ChangePasswordRequest>("api/account/change-password", request);
-                return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error during creating new invite codes: {ex.Message}");
-                return false;
+                Console.WriteLine($"Error during changing password: {ex.Message}");
+                throw; // for vm message show
             }
         }
         public async Task DeleteAccountAsync(DeleteAccountRequest request)
@@ -48,7 +47,7 @@ namespace Nyxon.Client.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error during creating new invite codes: {ex.Message}");
+                Console.WriteLine($"Error during deleting account: {ex.Message}");
             }
         }
         public async Task<List<string>> GenerateInviteCodesAsync(int count = 1)
@@ -61,7 +60,7 @@ namespace Nyxon.Client.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error during creating new invite codes: {ex.Message}");
+                Console.WriteLine($"Error during generating new invite codes: {ex.Message}");
                 return null;
             }
         }

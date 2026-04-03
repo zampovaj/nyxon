@@ -11,12 +11,12 @@ namespace Nyxon.Server.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IInviteCodeService _inviteCodeService;
-        private readonly IUserService _userService;
+        private readonly IAccountService _accountService;
 
-        public AccountController(IInviteCodeService inviteCodeService, IUserService userService)
+        public AccountController(IInviteCodeService inviteCodeService, IAccountService accountService)
         {
             _inviteCodeService = inviteCodeService;
-            _userService = userService;
+            _accountService = accountService;
         }
 
 
@@ -30,7 +30,7 @@ namespace Nyxon.Server.Controllers
             try
             {
                 int invitesCount = await _inviteCodeService.GetInviteCodesCountAsync(userId);
-                DateTime joinedAt = await _userService.GetJoinDate(userId);
+                DateTime joinedAt = await _accountService.GetJoinDateAsync(userId);
 
                 return new AccountMetadataDto
                 {
@@ -52,8 +52,8 @@ namespace Nyxon.Server.Controllers
                 return Unauthorized();
             try
             {
-                // chnage password
-                return Ok();
+                await _accountService.ChangePasswordAsync(userId, request);
+                return NoContent();
             }
             catch (Exception ex)
             {

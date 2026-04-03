@@ -8,7 +8,5 @@ namespace Nyxon.Server.Interfaces
     public interface IUserService
     {
         Task<List<UserListDto>> GetAllUsersButMeAsync(Guid userId);
-        Task DeleteAccountAsync(Guid userId);
-        Task<DateTime> GetJoinDate(Guid userId);
     }
 }

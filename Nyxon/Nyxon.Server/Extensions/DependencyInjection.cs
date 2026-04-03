@@ -206,6 +206,7 @@ namespace Nyxon.Server.Extensions
             services.AddScoped<IHandshakeService, HandshakeService>();
             services.AddScoped<IPrekeyService, PrekeyService>();
             services.AddScoped<ISnapshotService, SnapshotService>();
+            services.AddScoped<IAccountService, AccountService>();
 
             return services;
         }
